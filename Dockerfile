@@ -21,4 +21,4 @@ RUN rm -rf build && \
     cmake --build build --target test
 
 # Set the entry point to the main executable
-CMD ["sh", "./test.sh"]
+# CMD ["sh", "./test.sh"]
