@@ -1,0 +1,38 @@
+---
+convention:
+  commitTypes:
+  - feat
+  - fix
+  - perf
+  - refactor
+  - style
+  - test
+  - build
+  - ops
+  - docs
+  - merge
+  - chore
+  - ci
+  commitScopes: []
+  releaseTagGlobPattern: v[0-9]*.[0-9]*.[0-9]*
+changelog:
+  commitTypes:
+  - feat
+  - fix
+  - perf
+  - merge
+  - test
+  includeInvalidCommits: true
+  commitScopes: []
+  commitIgnoreRegexPattern: "^WIP "
+  headlines:
+    feat: Features
+    fix: Bug Fixes
+    perf: Performance Improvements
+    merge: Merges
+    test: Tests
+    breakingChange: BREAKING CHANGES
+  commitUrl: https://github.com/groumage/PolynomArithmetic/commit/%commit%
+  commitRangeUrl: https://github.com/groumage/PolynomArithmetic/compare/%from%...%to%?diff=split
+  issueRegexPattern: "#[0-9]+"
+  issueUrl: https://github.com/groumage/PolynomArithmetic/issues/%issue%
