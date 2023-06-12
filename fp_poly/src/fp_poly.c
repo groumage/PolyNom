@@ -319,6 +319,34 @@ fp_poly_error_t fp_poly_sub(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_fiel
 }
 
 /*
+fp_poly_error_t fp_poly_mul_single_term(fp_poly_t *p, uint8_t coeff, size_t degree, fp_field_t *field)
+{
+    size_t pos;
+    list_node_t *node;
+    fp_poly_error_t err;
+
+    fp_poly_print(p);
+    fprintf(stderr, "\n");
+    pos = 0;
+    node = p->coeff->head;
+    while (node != NULL)
+    {
+        //err = fp_poly_add_single_term_aux(p, node->coeff * coeff, fp_poly_coeff_list_to_degree(p, pos) + degree, field, 1);
+        //err = fp_poly_add_single_term_aux(p, node->coeff * coeff, degree, field, 1);
+        fprintf(stderr, "%ld\n", fp_poly_coeff_list_to_degree(p, pos));
+        err = 0;
+        if (err)
+        {
+            fp_poly_error(err, __FILE__, __func__, __LINE__, "");
+            return err;
+        }
+        node = node->next;
+        pos += 1;
+    }
+    return FP_POLY_E_SUCCESS;
+}
+*/
+/*
 * Parse a string to create a polynom.
 *
 * Parameters:
