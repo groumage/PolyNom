@@ -62,6 +62,7 @@ fp_poly_error_t fp_poly_add(fp_poly_t **, fp_poly_t *, fp_poly_t *, fp_field_t *
 fp_poly_error_t fp_poly_sub_single_term(fp_poly_t *, uint8_t, size_t, fp_field_t *);
 fp_poly_error_t fp_poly_sub(fp_poly_t **, fp_poly_t *, fp_poly_t *, fp_field_t *);
 //fp_poly_error_t fp_poly_mul_single_term(fp_poly_t *, uint8_t, size_t, fp_field_t *);
+fp_poly_error_t fp_poly_mul(fp_poly_t **, fp_poly_t *, fp_poly_t *, fp_field_t *);
 
 fp_field_t *fp_poly_init_prime_field(uint8_t);
 fp_field_t *fp_poly_init_galois_field(uint8_t, fp_poly_t *);

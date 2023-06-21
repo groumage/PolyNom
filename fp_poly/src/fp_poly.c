@@ -323,22 +323,24 @@ fp_poly_error_t fp_poly_mul_single_term(fp_poly_t *p, uint8_t coeff, size_t degr
 {
     size_t pos;
     list_node_t *node;
-    fp_poly_error_t err;
+    fp_poly_error_t err = 0;
 
-    fp_poly_print(p);
-    fprintf(stderr, "\n");
     pos = 0;
     node = p->coeff->head;
+    mpz_mul_2exp(p->index_coeff, p->index_coeff, degree);
     while (node != NULL)
     {
-        //err = fp_poly_add_single_term_aux(p, node->coeff * coeff, fp_poly_coeff_list_to_degree(p, pos) + degree, field, 1);
-        //err = fp_poly_add_single_term_aux(p, node->coeff * coeff, degree, field, 1);
-        fprintf(stderr, "%ld\n", fp_poly_coeff_list_to_degree(p, pos));
-        err = 0;
+        node->coeff = node->coeff * coeff;
         if (err)
         {
             fp_poly_error(err, __FILE__, __func__, __LINE__, "");
             return err;
+        }
+        if (node->coeff == 0)
+        {
+            mpz_clrbit(p->index_coeff, fp_poly_coeff_list_to_degree(p, pos));
+            list_node_t *tmp = node;
+            list_remove_node(p->coeff, tmp);
         }
         node = node->next;
         pos += 1;
@@ -346,6 +348,42 @@ fp_poly_error_t fp_poly_mul_single_term(fp_poly_t *p, uint8_t coeff, size_t degr
     return FP_POLY_E_SUCCESS;
 }
 */
+
+fp_poly_error_t fp_poly_mul(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_field_t *f)
+{
+    size_t pos_q, pos_p;
+    list_node_t *node_q, *node_p;
+    fp_poly_error_t err = 0;
+
+    *res = fp_poly_init();
+    if (!*res)
+    {
+        fp_poly_error(FP_POLY_E_MALLOC_ERROR, __FILE__, __func__, __LINE__, "");
+        return FP_POLY_E_MALLOC_ERROR;
+    }
+    pos_p = 0;
+    node_p = p->coeff->head;
+    while (node_p != NULL)
+    {
+        pos_q = 0;
+        node_q = q->coeff->head;
+        while (node_q != NULL)
+        {
+            err = fp_poly_add_single_term_aux(*res, node_p->coeff * node_q->coeff, fp_poly_coeff_list_to_degree(p, pos_p) + fp_poly_coeff_list_to_degree(q, pos_q), f, 1);
+            if (err)
+            {
+                fp_poly_error(err, __FILE__, __func__, __LINE__, "");
+                return err;
+            }
+            node_q = node_q->next;
+            pos_q += 1;
+        }
+        node_p = node_p->next;
+        pos_p += 1;
+    }
+    return FP_POLY_E_SUCCESS;
+}
+
 /*
 * Parse a string to create a polynom.
 *
