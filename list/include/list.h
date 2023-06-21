@@ -30,6 +30,7 @@ typedef struct list_t {
 
 list_t *list_init();
 list_t *list_create_from_array(uint8_t *coeffs, size_t size);
+list_t *list_copy(list_t *l);
 list_error_t list_destroy(list_t *l);
 list_error_t list_add_beginning(list_t *l, uint8_t coeff);
 list_error_t list_add_end(list_t *l, uint8_t coeff);

@@ -23,6 +23,25 @@ list_t *list_init(void)
     return list;
 }
 
+list_t *list_copy(list_t *l)
+{
+    list_t *list;
+    list_node_t *node;
+
+    if (l == NULL)
+        return NULL;
+    list = list_init();
+    if (list == NULL)
+        return NULL;
+    node = l->head;
+    while (node != NULL)
+    {
+        list_add_end(list, node->coeff);
+        node = node->next;
+    }
+    return list;
+}
+
 list_error_t list_destroy(list_t *l)
 {
     list_node_t *node, *tmp;
