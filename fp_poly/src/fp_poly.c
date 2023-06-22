@@ -384,6 +384,56 @@ fp_poly_error_t fp_poly_mul(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_fiel
     return FP_POLY_E_SUCCESS;
 }
 
+uint8_t fp_poly_inv(uint8_t element, fp_field_t *field) {
+    for (uint8_t i = 1; i < field->order; i++) {
+        if ((element * i) % field->order == 1) {
+            return i;
+        }
+    }
+    return 0; // If no inverse is found
+}
+
+fp_poly_error_t fp_poly_div(fp_poly_t **q, fp_poly_t **r, fp_poly_t *p, fp_poly_t *d, fp_field_t *f)
+{
+    fp_poly_t *tmp, *intermediate, *mem;
+    fp_poly_error_t err;
+    mpz_t bitwise;
+    *r = fp_poly_init_mpz(p->index_coeff, list_copy(p->coeff));
+    *q = fp_poly_init();
+    mpz_set_ui((*q)->index_coeff, 0x1);
+    list_add_beginning((*q)->coeff, 0);
+    tmp = fp_poly_init();
+    list_add_beginning(tmp->coeff, 0);
+    mpz_init(bitwise);
+    while (fp_poly_degree(*r) >= fp_poly_degree(d))
+    {
+        if (mpz_cmp_ui((*r)->index_coeff, 1) == 0 && (*r)->coeff->head->coeff == 0)
+        {
+            fp_poly_free(*r);
+            break;
+        }
+        mpz_set_ui(bitwise, 0);
+        mpz_setbit(bitwise, fp_poly_degree(*r) - fp_poly_degree(d));
+        mpz_set(tmp->index_coeff, bitwise);
+        tmp->coeff->head->coeff = fp_poly_inv(d->coeff->head->coeff, f);
+        mem = *q;
+        fp_poly_add(q, *q, tmp, f);
+        fp_poly_free(mem);
+        fp_poly_mul(&intermediate, tmp, d, f);
+        mem = *r;
+        if ((err = fp_poly_sub(r, *r, intermediate, f)) != FP_POLY_E_SUCCESS)
+        {
+            fp_poly_error(err, __FILE__, __func__, __LINE__, "");
+            return err;
+        }
+        fp_poly_free(mem);
+        fp_poly_free(intermediate);
+    }
+    fp_poly_free(tmp);
+    mpz_clear(bitwise);
+    return FP_POLY_E_SUCCESS;
+}
+
 /*
 * Parse a string to create a polynom.
 *
