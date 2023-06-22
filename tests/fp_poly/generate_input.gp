@@ -63,4 +63,20 @@ filewrite(fd, lift(q_255));
 filewrite(fd, lift(r3_255));
 fileclose(fd);
 
+c = 2
+
+fd = fileopen("input_test/test_div.txt", "w");
+filewrite(fd, c);
+v_p = vector(512, i, if (i == 1, (random % (c - 1)) + 1, random % c));
+p = Mod(Pol(v_p), c);
+filewrite(fd, lift(p));
+threshold = random(50) + 50;
+v_q = vector(256, i, if (i > threshold, random % c, 0));
+q = Mod(Pol(v_q), c);
+filewrite(fd, lift(q));
+t = divrem(p,q);
+filewrite(fd, lift(t[1]));
+filewrite(fd, lift(t[2]));
+fileclose(fd);
+
 quit;

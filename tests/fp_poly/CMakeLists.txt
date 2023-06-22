@@ -34,4 +34,12 @@ target_include_directories(multiplication PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/fp
 target_link_libraries(multiplication PRIVATE fp_poly)
 add_test(NAME multiplication COMMAND multiplication)
 add_test(NAME multiplication_memory COMMAND valgrind --leak-check=full ./multiplication)
-#set_tests_properties(multiplication_memory PROPERTIES TIMEOUT 10 PASS_REGULAR_EXPRESSION "ERROR SUMMARY: 0 errors.*")
+set_tests_properties(multiplication_memory PROPERTIES PASS_REGULAR_EXPRESSION "ERROR SUMMARY: 0 errors.*")
+
+add_executable(division test_div.c)
+target_include_directories(division PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/fp_poly/include)
+target_link_libraries(division PRIVATE fp_poly)
+add_test(NAME division COMMAND division)
+set_tests_properties(division PROPERTIES TIMEOUT 2)
+add_test(NAME division_memory COMMAND valgrind --leak-check=full ./division)
+set_tests_properties(division_memory PROPERTIES TIMEOUT 10 PASS_REGULAR_EXPRESSION "ERROR SUMMARY: 0 errors.*")
