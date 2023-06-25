@@ -57,3 +57,4 @@ build/
 CMakeFiles/
 archive/
 Testing/
+tests/fp_poly/input_test
