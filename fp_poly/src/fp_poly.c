@@ -393,17 +393,17 @@ uint8_t fp_poly_inv(uint8_t element, fp_field_t *field) {
     return 0; // If no inverse is found
 }
 
-fp_poly_error_t fp_poly_div(fp_poly_t **q, fp_poly_t **r, fp_poly_t *p, fp_poly_t *d, fp_field_t *f)
+fp_poly_error_t fp_poly_div(fp_poly_t **q, fp_poly_t **r, fp_poly_t *n, fp_poly_t *d, fp_field_t *f)
 {
-    fp_poly_t *tmp, *intermediate, *mem;
+    fp_poly_t *t, *intermediate, *mem;
     fp_poly_error_t err;
     mpz_t bitwise;
-    *r = fp_poly_init_mpz(p->index_coeff, list_copy(p->coeff));
+    *r = fp_poly_init_mpz(n->index_coeff, list_copy(n->coeff));
     *q = fp_poly_init();
     mpz_set_ui((*q)->index_coeff, 0x1);
     list_add_beginning((*q)->coeff, 0);
-    tmp = fp_poly_init();
-    list_add_beginning(tmp->coeff, 0);
+    t = fp_poly_init();
+    list_add_beginning(t->coeff, 0);
     mpz_init(bitwise);
     while (fp_poly_degree(*r) >= fp_poly_degree(d))
     {
@@ -414,12 +414,22 @@ fp_poly_error_t fp_poly_div(fp_poly_t **q, fp_poly_t **r, fp_poly_t *p, fp_poly_
         }
         mpz_set_ui(bitwise, 0);
         mpz_setbit(bitwise, fp_poly_degree(*r) - fp_poly_degree(d));
-        mpz_set(tmp->index_coeff, bitwise);
-        tmp->coeff->head->coeff = fp_poly_inv(d->coeff->head->coeff, f);
+        mpz_set(t->index_coeff, bitwise);
+        uint16_t tmp = (uint16_t) fp_poly_inv(d->coeff->tail->coeff, f) * (uint16_t) (*r)->coeff->tail->coeff;
+        tmp = tmp % f->order;
+        t->coeff->tail->coeff = (uint8_t) tmp;
         mem = *q;
-        fp_poly_add(q, *q, tmp, f);
+        if ((err = fp_poly_add(q, *q, t, f) != FP_POLY_E_SUCCESS))
+        {
+            fp_poly_error(err, __FILE__, __func__, __LINE__, "");
+            return err;
+        }
         fp_poly_free(mem);
-        fp_poly_mul(&intermediate, tmp, d, f);
+        if ((err = fp_poly_mul(&intermediate, t, d, f)) != FP_POLY_E_SUCCESS)
+        {
+            fp_poly_error(err, __FILE__, __func__, __LINE__, "");
+            return err;
+        }
         mem = *r;
         if ((err = fp_poly_sub(r, *r, intermediate, f)) != FP_POLY_E_SUCCESS)
         {
@@ -429,7 +439,7 @@ fp_poly_error_t fp_poly_div(fp_poly_t **q, fp_poly_t **r, fp_poly_t *p, fp_poly_
         fp_poly_free(mem);
         fp_poly_free(intermediate);
     }
-    fp_poly_free(tmp);
+    fp_poly_free(t);
     mpz_clear(bitwise);
     return FP_POLY_E_SUCCESS;
 }
