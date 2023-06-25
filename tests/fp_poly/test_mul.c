@@ -10,7 +10,6 @@ static void remove_last_newline(char* str)
         str[length - 1] = '\0';
 }
 
-/*
 static fp_poly_t *init_and_assert(uint8_t* coeff, size_t len_coeff, uint8_t* list_coeff, size_t len_list_coeff, size_t expected_index_coeff)
 {
     fp_poly_t *p = fp_poly_init_array(coeff, len_coeff);
@@ -21,7 +20,6 @@ static fp_poly_t *init_and_assert(uint8_t* coeff, size_t len_coeff, uint8_t* lis
     assert (list_destroy(coeff_p) == LIST_E_SUCCESS);
     return p;
 }
-*/
 
 /*
 static void mul_single_term_test(fp_poly_t *p, uint8_t coeff, size_t degree, fp_field_t *f, size_t expected_index_coeff, uint8_t *expected_coeff, uint8_t len_expected_coeff)
@@ -33,16 +31,22 @@ static void mul_single_term_test(fp_poly_t *p, uint8_t coeff, size_t degree, fp_
 }
 */
 
-/*
 static void hello_world_tests()
 {
-    fp_poly_t *p1 = init_and_assert((uint8_t[]) {1, 1, 0, 1}, 4, (uint8_t[]) {1, 1, 1}, 3, 11); // p1 = 1 + x + x^3
-    //fp_poly_t *p2 = fp_poly_init_array((uint8_t[]) {1, 1, 0, 1}, 4);
-    mul_single_term_test(p1, 2, 1, NULL, 22, (uint8_t[]) {2, 2, 2}, 3);
-    //assert (fp_poly_free(p2) == FP_POLY_E_SUCCESS);
+    fp_poly_t *p1 = init_and_assert((uint8_t[]) {0, 0, 0, 0, 0, 0, 0, 12}, 8, (uint8_t[]) {12}, 1, 128);
+    fp_poly_t *p2 = init_and_assert((uint8_t[]) {11, 9, 12}, 3, (uint8_t[]) {11, 9, 12}, 3, 7);
+    fp_field_t *f = fp_poly_init_prime_field(13);
+    fp_poly_t *res;
+    fp_poly_mul(&res, p1, p2, f);
+    list_t *coeff_res = list_create_from_array((uint8_t[]) {2, 4, 1}, 3);
+    assert (coeff_res != NULL);
+    assert (fp_poly_assert_sizet(res, 896, coeff_res) == FP_POLY_E_SUCCESS);
+    assert (list_destroy(coeff_res) == LIST_E_SUCCESS);
+    assert (fp_poly_free(p2) == FP_POLY_E_SUCCESS);
     assert (fp_poly_free(p1) == FP_POLY_E_SUCCESS);
+    assert (fp_poly_free(res) == FP_POLY_E_SUCCESS);
+    assert (fp_poly_free_field(f) == FP_POLY_E_SUCCESS);
 }
-*/
 
 static void pari_gp_test(char *filename)
 {
@@ -86,7 +90,7 @@ static void pari_gp_test(char *filename)
 
 int main()
 {
-    //hello_world_tests();
+    hello_world_tests();
     pari_gp_test("../../../tests/fp_poly/input_test/test_mul.txt");
     return 0;
 }

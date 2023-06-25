@@ -33,6 +33,24 @@ static void pari_gp_test(char *filename)
     for (size_t i = 0; i < 4; i++)
         assert (fp_poly_free(poly[i]) == FP_POLY_E_SUCCESS);
     assert (fp_poly_free_field(field) == FP_POLY_E_SUCCESS);
+
+    fgets(line, sizeof(line), file);
+    field = fp_poly_init_prime_field(atoi(line));
+    for (size_t i = 0; i < 4; i++)
+    {
+        fgets(line, sizeof(line), file);
+        remove_last_newline(line);
+        poly[i] = fp_poly_parse(line);
+    }
+    assert (fp_poly_div(&q, &r, poly[0], poly[1], field) == FP_POLY_E_SUCCESS);
+    assert (fp_poly_assert_equality(poly[2], q) == FP_POLY_E_SUCCESS);
+    assert (fp_poly_assert_equality(poly[3], r) == FP_POLY_E_SUCCESS);
+    assert (fp_poly_free(q) == FP_POLY_E_SUCCESS);
+    assert (fp_poly_free(r) == FP_POLY_E_SUCCESS);
+    for (size_t i = 0; i < 4; i++)
+        assert (fp_poly_free(poly[i]) == FP_POLY_E_SUCCESS);
+    assert (fp_poly_free_field(field) == FP_POLY_E_SUCCESS);
+    
     fclose(file);
 }
 

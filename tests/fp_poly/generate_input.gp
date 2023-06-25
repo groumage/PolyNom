@@ -46,9 +46,9 @@ q_2 = Mod(Pol(vq_2), c);
 r3_2 = Mod(p_2 * q_2, c);
 
 c = 15
-vp_255 = vector(10, i, if (i == 1, (random % (c - 1)) + 1, random % c));
+vp_255 = vector(512, i, if (i == 1, (random % (c - 1)) + 1, random % c));
 p_255 = Mod(Pol(vp_255), c);
-vq_255 = vector(10, i, if (i == 1, (random % (c - 1)) + 1, random % c));
+vq_255 = vector(512, i, if (i == 1, (random % (c - 1)) + 1, random % c));
 q_255 = Mod(Pol(vq_255), c);
 r3_255 = Mod(p_255 * q_255, c);
 
@@ -64,19 +64,32 @@ filewrite(fd, lift(r3_255));
 fileclose(fd);
 
 c = 2
+vp_2 = vector(2048, i, if (i == 1, (random % (c - 1)) + 1, random % c));
+p_2 = Mod(Pol(vp_2), c);
+threshold = random(50) + 50;
+vq_2 = vector(1024, i, if (i > threshold, random % c, 0));
+q_2 = Mod(Pol(vq_2), c);
+
+c = 11
+vp_11 = vector(1024, i, if (i == 1, (random % (c - 1)) + 1, random % c));
+p_11 = Mod(Pol(vp_11), c);
+threshold = random(50) + 50;
+vq_11 = vector(512, i, if (i > threshold, random % c, 0));
+q_11 = Mod(Pol(vq_11), c);
 
 fd = fileopen("input_test/test_div.txt", "w");
-filewrite(fd, c);
-v_p = vector(512, i, if (i == 1, (random % (c - 1)) + 1, random % c));
-p = Mod(Pol(v_p), c);
-filewrite(fd, lift(p));
-threshold = random(50) + 50;
-v_q = vector(256, i, if (i > threshold, random % c, 0));
-q = Mod(Pol(v_q), c);
-filewrite(fd, lift(q));
-t = divrem(p,q);
-filewrite(fd, lift(t[1]));
-filewrite(fd, lift(t[2]));
+filewrite(fd, 2);
+filewrite(fd, lift(p_2));
+filewrite(fd, lift(q_2));
+t_2 = divrem(p_2,q_2);
+filewrite(fd, lift(t_2[1]));
+filewrite(fd, lift(t_2[2]));
+filewrite(fd, 11);
+filewrite(fd, lift(p_11));
+filewrite(fd, lift(q_11));
+t_11 = divrem(p_11,q_11);
+filewrite(fd, lift(t_11[1]));
+filewrite(fd, lift(t_11[2]));
 fileclose(fd);
 
 quit;
