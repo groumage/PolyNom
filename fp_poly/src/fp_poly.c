@@ -387,6 +387,26 @@ fp_poly_error_t fp_poly_mul(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_fiel
     return FP_POLY_E_SUCCESS;
 }
 
+fp_poly_error_t fp_poly_mul_fq(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_field_t *f)
+{
+    fp_poly_t *tmp_res, *tmp_q, *tmp_r;
+    fp_poly_error_t err;
+    if ((err = fp_poly_mul(&tmp_res, p, q, f)) != FP_POLY_E_SUCCESS)
+    {
+        fp_poly_error(err, __FILE__, __func__, __LINE__, "");
+        return err;
+    }
+    if ((err = fp_poly_div(&tmp_q, &tmp_r, tmp_res, f->irreducible_polynom, f)) != FP_POLY_E_SUCCESS)
+    {
+        fp_poly_error(err, __FILE__, __func__, __LINE__, "");
+        return FP_POLY_E_SUCCESS;
+    }
+    fp_poly_free(tmp_res);
+    fp_poly_free(tmp_q);
+    *res = tmp_r;
+    return FP_POLY_E_SUCCESS;
+}
+
 uint8_t fp_poly_inv(uint8_t element, fp_field_t *field) {
     for (uint8_t i = 1; i < field->order; i++) {
         if ((element * i) % field->order == 1) {
