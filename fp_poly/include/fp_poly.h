@@ -66,6 +66,7 @@ fp_poly_error_t fp_poly_mul(fp_poly_t **, fp_poly_t *, fp_poly_t *, fp_field_t *
 fp_poly_error_t fp_poly_mul_fq(fp_poly_t **, fp_poly_t *, fp_poly_t *, fp_field_t *);
 fp_poly_error_t fp_poly_div(fp_poly_t **, fp_poly_t **, fp_poly_t *, fp_poly_t *, fp_field_t *);
 fp_poly_error_t fp_poly_gcd(fp_poly_t **, fp_poly_t *, fp_poly_t *, fp_field_t *);
+fp_poly_error_t fp_poly_gcd_extended(fp_poly_t **, fp_poly_t **, fp_poly_t **, fp_poly_t *, fp_poly_t *, fp_field_t *);
 
 fp_field_t *fp_poly_init_prime_field(uint8_t);
 fp_field_t *fp_poly_init_galois_field(uint8_t, fp_poly_t *);

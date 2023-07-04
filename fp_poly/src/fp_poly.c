@@ -492,6 +492,63 @@ fp_poly_error_t fp_poly_gcd(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_fiel
     return FP_POLY_E_SUCCESS;
 }
 
+fp_poly_error_t fp_poly_gcd_extended(fp_poly_t **res, fp_poly_t **u, fp_poly_t **v, fp_poly_t *p, fp_poly_t *q, fp_field_t *f)
+{
+    fp_poly_t *q_tmp, *r_tmp, *old_r, *r, *old_s, *s, *old_t, *t, *tmp, *tmp_mul;
+    fp_poly_error_t err;
+    old_r = fp_poly_init_mpz(p->index_coeff, list_copy(p->coeff));
+    r = fp_poly_init_mpz(q->index_coeff, list_copy(q->coeff));
+    old_s = fp_poly_init();
+    s = fp_poly_init();
+    old_t = fp_poly_init();
+    t = fp_poly_init();
+    mpz_set_ui(old_s->index_coeff, 0x1);
+    list_add_beginning(old_s->coeff, 0x1);
+    mpz_set_ui(s->index_coeff, 0x0);
+    mpz_set_ui(old_t->index_coeff, 0x0);
+    mpz_set_ui(t->index_coeff, 0x1);
+    list_add_beginning(t->coeff, 0x1);
+    while (fp_poly_degree(r) > 0)
+    {
+        fp_poly_div(&q_tmp, &r_tmp, old_r, r, f);
+        
+        tmp = r;
+        fp_poly_mul(&tmp_mul, q_tmp, r, f);
+        fp_poly_sub(&r, old_r, tmp_mul, f);
+        fp_poly_free(old_r);
+        old_r = tmp;
+        fp_poly_free(tmp_mul);
+        
+        tmp = s;
+        fp_poly_mul(&tmp_mul, q_tmp, s, f);
+        fp_poly_sub(&s, old_s, tmp_mul, f);
+        fp_poly_free(old_s);
+        old_s = tmp;
+        fp_poly_free(tmp_mul);
+        
+        tmp = t;
+        fp_poly_mul(&tmp_mul, q_tmp, t, f);
+        if ((err = fp_poly_sub(&t, old_t, tmp_mul, f)) != FP_POLY_E_SUCCESS)
+        {
+            fp_poly_error(err, __FILE__, __func__, __LINE__, "");
+            return err;
+        }
+        fp_poly_free(old_t);
+        old_t = tmp;
+        fp_poly_free(tmp_mul);
+        
+        fp_poly_free(q_tmp);
+        fp_poly_free(r_tmp);
+    }
+    *res = old_r;
+    *u = old_s;
+    *v = old_t;
+    fp_poly_free(r);
+    fp_poly_free(s);
+    fp_poly_free(t);
+    return FP_POLY_E_SUCCESS;
+}
+
 /*
 * Parse a string to create a polynom.
 *
