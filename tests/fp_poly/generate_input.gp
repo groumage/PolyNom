@@ -122,7 +122,35 @@ filewrite(fd, lift(p_2));
 filewrite(fd, lift(q_2));
 filewrite(fd, lift(p_irred));
 filewrite(fd, lift(r);)
+fileclose(fd);
 
+c = 2;
+vp_2 = vector(10, i, if (i == 1, (random % (c - 1)) + 1, random % c));
+p_2 = Mod(Pol(vp_2), c);
+threshold = 2;
+vq_2 = vector(8, i, if (i > threshold, random % c, 0));
+q_2 = Mod(Pol(vq_2), c);
+u = gcdext(p_2,q_2)[1]
+v = gcdext(p_2,q_2)[2]
+d = gcdext(p_2,q_2)[3]
+
+fd = fileopen("input_test/test_gcd_ext.txt", "w");
+filewrite(fd, c);
+filewrite(fd, lift(p_2));
+filewrite(fd, lift(q_2));
+filewrite(fd, lift(u));
+filewrite(fd, lift(v));
+filewrite(fd, lift(d));
 fileclose(fd);
 
 quit;
+
+\\fd = fileopen("input_test/test_ext_gcd.txt", "w");
+\\filewrite(fd, c);
+\\    filewrite(fd, c);
+\\    
+\\    filewrite(fd, lift(P));
+\\    filewrite(fd, lift(lift(Mod(lift(gcdext(p,q)[1]), P))));
+\\    filewrite(fd, lift(lift(Mod(lift(gcdext(p,q)[2]), P))));
+\\    filewrite(fd, lift(lift(Mod(lift(gcdext(p,q)[3]), P))));
+\\};
