@@ -14,8 +14,8 @@ add_subdirectory(list)
 add_subdirectory(tests)
 
 # Add the fp_poly library and list library to the main executable
-add_executable(main main.c)
-target_link_libraries(main PRIVATE fp_poly list_lib)
+# add_executable(main main.c)# 
+# target_link_libraries(main PRIVATE fp_poly list_lib)
 
 add_compile_options(--coverage)
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
