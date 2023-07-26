@@ -7,10 +7,10 @@
 # suite 4: long with valgrind
 # ctest -L suite4
 
-add_test(NAME generate_input_test_short COMMAND sh -c "echo -n short_test=1 > arg_pari_gp.gp; gp -q arg_pari_gp.gp generate_input.gp;" WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+add_test(NAME generate_input_test_short COMMAND sh -c "touch arg_pari_gp.gp; echo -n short_test=1 > arg_pari_gp.gp; gp arg_pari_gp.gp generate_input.gp; rm arg_pari_gp.gp;" WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 set_tests_properties(generate_input_test_short PROPERTIES LABELS "suite1;suite2")
 
-add_test(NAME generate_input_test COMMAND sh -c "echo -n short_test=0 > arg_pari_gp.gp; gp -q arg_pari_gp.gp generate_input.gp;" WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+add_test(NAME generate_input_test COMMAND sh -c "touch arg_pari_gp.gp; echo -n short_test=0 > arg_pari_gp.gp; gp arg_pari_gp.gp generate_input.gp; rm arg_pari_gp.gp;" WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 set_tests_properties(generate_input_test PROPERTIES LABELS "suite3;suite4")
 
 add_executable(parse test_parse.c)
