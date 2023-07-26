@@ -576,6 +576,11 @@ fp_poly_t *fp_poly_parse(const char* polynomial)
     }
     if (strlen(polynomial) == 0)
         return res;
+    if (strlen(polynomial) == 1 && polynomial[0] == '0')
+    {
+        mpz_set_ui(res->index_coeff, 0x0);
+        return res;
+    }
     while (*ptr != '\0')
     {
         coefficient = 0;
