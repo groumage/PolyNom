@@ -1,4 +1,4 @@
-#include "../../fp_poly/include/fp_poly.h"
+#include "../../lib/include/fp_poly.h"
 
 static fp_poly_t *init_and_assert(uint8_t* coeff, size_t len_coeff, uint8_t* list_coeff, size_t len_list_coeff, size_t expected_index_coeff)
 {

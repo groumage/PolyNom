@@ -1,4 +1,4 @@
-#include "../../fp_poly/include/fp_poly.h"
+#include "../../lib/include/fp_poly.h"
 #include <string.h>
 
 static void parse_test(char *poly, uint8_t *array_coeff, size_t array_coeff_size, size_t coefficients)

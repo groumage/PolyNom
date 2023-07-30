@@ -1,4 +1,4 @@
-#include "../../fp_poly/include/fp_poly.h"
+#include "../../lib/include/fp_poly.h"
 #include <unistd.h>
 
 #define BUFFER_SIZE 32768
