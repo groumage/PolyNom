@@ -51,10 +51,16 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
+# IDE file
 .vscode/
 .idea/
+
+# Testing and building related file
 build/
 CMakeFiles/
-archive/
 Testing/
 tests/fp_poly/input_test
+tests/fp_integer/input_test
+
+# Archives
+archive/
