@@ -1,3 +1,1 @@
-# Version
-
-0.10.0
+![GitHub tag (with filter)](https://img.shields.io/github/v/tag/groumage/PolynomArithmetic "View GitHub releases")
