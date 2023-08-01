@@ -142,3 +142,35 @@ void random_prime(mpz_t number, size_t digits)
         random_number(number, digits);
     }
 }
+
+void extended_euclide_algorithm(mpz_t a, mpz_t b, mpz_t *u, mpz_t *v, mpz_t *d)
+{
+    mpz_t old_s, s, old_r, old_t, t, r, t1, t2, t3, q;
+    mpz_inits(old_s, s, old_r, old_t, t, r, t1, t2, t3, q, NULL);
+    mpz_set(old_r, a);
+    mpz_set(r, b);
+    mpz_set_ui(old_s, 1);
+    mpz_set_ui(s, 0);
+    mpz_set_ui(old_t, 0);
+    mpz_set_ui(t, 1);
+    while (mpz_cmp_ui(r, 0) != 0)
+    {
+        mpz_fdiv_q(q, old_r, r);
+        mpz_set(t1, r);
+        mpz_mul(r, q, t1);
+        mpz_sub(r, old_r, r);
+        mpz_set(old_r, t1);
+        mpz_set(t2, s);
+        mpz_mul(s, q, t2);
+        mpz_sub(s, old_s, s);
+        mpz_set(old_s, t2);
+        mpz_set(t3, t);
+        mpz_mul(t, q, t3);
+        mpz_sub(t, old_t, t);
+        mpz_set(old_t, t3);
+    }
+    mpz_init_set(*u, old_s);
+    mpz_init_set(*v, old_t);
+    mpz_init_set(*d, old_r);
+    mpz_clears(old_s, s, old_r, old_t, t, r, t1, t2, t3, q, NULL);
+}
