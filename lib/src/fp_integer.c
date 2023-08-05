@@ -87,8 +87,7 @@ int is_prime(mpz_t n, int k)
     if (mpz_even_p(n))
         return 0;
     mpz_t s, d;
-    mpz_init(s);
-    mpz_init(d);
+    mpz_inits(s, d, NULL);
     mpz_sub_ui(d, n, 1); // n-1 = 2^s * d
     while (mpz_even_p(d))
     {
@@ -117,6 +116,7 @@ int is_prime(mpz_t n, int k)
             mpz_sub_ui(n_minus_1, n, 1);
             if (mpz_cmp_ui(y, 1) == 0 && mpz_cmp_ui(x, 1) != 0 && mpz_cmp(x, n_minus_1) != 0)
             {
+                gmp_randclear(state);
                 mpz_clears(s, d, x, y, n_minus_1, NULL);
                 return 0;
             }
@@ -126,11 +126,13 @@ int is_prime(mpz_t n, int k)
         if (mpz_cmp_ui(y, 1) != 0)
         {
             mpz_clears(s, d, x, y, NULL);
+            gmp_randclear(state);
             return 0;
         }
         mpz_clears(x, y, NULL);
     }
     mpz_clears(s, d, NULL);
+    gmp_randclear(state);
     return 1;
 }
 
@@ -173,4 +175,56 @@ void extended_euclide_algorithm(mpz_t a, mpz_t b, mpz_t *u, mpz_t *v, mpz_t *d)
     mpz_init_set(*v, old_t);
     mpz_init_set(*d, old_r);
     mpz_clears(old_s, s, old_r, old_t, t, r, t1, t2, t3, q, NULL);
+}
+
+void to_decimal(mpz_t str_decimal, char *str)
+{
+    mpz_init_set_ui(str_decimal, 0);
+    for (size_t i = 0; i < strlen(str); i++)
+    {
+        mpz_mul_ui(str_decimal, str_decimal, 95);
+        mpz_add_ui(str_decimal, str_decimal, str[i] - 32);
+    }
+}
+
+void encrypt_integer(mpz_t cipher, mpz_t plain, mpz_t e, mpz_t n)
+{
+    mpz_init(cipher);
+    mpz_powm(cipher, plain, e, n);
+}
+
+void decrypt_integer(mpz_t plain, mpz_t cipher, mpz_t d, mpz_t n)
+{
+    mpz_init(plain);
+    mpz_powm(plain, cipher, d, n);
+}
+
+void revstr(char *str)  
+{  
+    int len, temp;  
+    len = strlen(str);
+
+    for (int i = 0; i < len/2; i++)  
+    {
+        temp = str[i];  
+        str[i] = str[len - i - 1];  
+        str[len - i - 1] = temp;  
+    }  
+}  
+
+void to_string(mpz_t msg_decimal, char *msg)
+{
+    mpz_t q, r, div;
+    size_t i = 0;
+    mpz_inits(q, r, div, NULL);
+    mpz_set_ui(div, 95);
+    while (mpz_cmp_ui(msg_decimal, 0) != 0)
+    {
+        mpz_fdiv_qr(q, r, msg_decimal, div);
+        mpz_set(msg_decimal, q);
+        msg[i++] = (char) mpz_get_ui(r) + 32;
+    }
+    mpz_clears(q, r, div, NULL);
+    msg[i] = '\0';
+    revstr(msg);
 }
