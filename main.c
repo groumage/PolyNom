@@ -30,24 +30,34 @@ int main()
     mpz_init(cipher);
     printf("Alice encrypts a message...\n");
     printf("\tM = %s\n", plain_from_alice);
-    encrypt(cipher, plain_from_alice, key_pair_bob.public_key, key_pair_alice.is_polynomial);
+    encrypt(cipher, plain_from_alice, key_pair_bob.public_key);
     printf("Alice send the encrypted message to Bob...\n");
     printf("Bob decrypts the message...\n");
-    decrypt(decipher_plain_from_alice, cipher, key_pair_bob.private_key, key_pair_bob.is_polynomial);
+    decrypt(decipher_plain_from_alice, cipher, key_pair_bob.private_key);
     printf("\tM = %s\n", decipher_plain_from_alice);
     mpz_clear(cipher);
 
     mpz_init(cipher);
     printf("Bob encrypts a message...\n");
     printf("\tM = %s\n", plain_from_bob);
-    encrypt(cipher, plain_from_bob, key_pair_bob.public_key, key_pair_bob.is_polynomial);
+    encrypt(cipher, plain_from_bob, key_pair_bob.public_key);
     printf("Bob send the encrypted message to Bob...\n");
     printf("Alice decrypts the message...\n");
-    decrypt(decipher_plain_from_bob, cipher, key_pair_bob.private_key, key_pair_alice.is_polynomial);
+    decrypt(decipher_plain_from_bob, cipher, key_pair_bob.private_key);
     printf("\tM = %s\n", decipher_plain_from_bob);
     mpz_clear(cipher);
 
-    free_key_pair(&key_pair_alice);
-    free_key_pair(&key_pair_bob);
+    free_key_pair_integer(&key_pair_alice);
+    free_key_pair_integer(&key_pair_bob);
+    /*
+    alice_use_polynom = 1;
+    bob_use_polynom = 1;
+    printf("Alice generates its public and private key...\n");
+    generate_key_pair(&key_pair_alice, 100, alice_use_polynom);
+    if (VERBOSE)
+        print_key_pair(&key_pair_alice);
+    
+    free_key_pair_integer(&key_pair_alice);
+    */
     return 0;
 }
