@@ -13,9 +13,15 @@ add_subdirectory(lib)
 add_subdirectory(list)
 add_subdirectory(tests)
 
-# Add the fp_poly library and list library to the main executable
+add_library(client client.c client.h)
+target_link_libraries(client PRIVATE fp_integer fp_poly list_lib)
 add_executable(main main.c)
-target_link_libraries(main PRIVATE fp_integer fp_poly list_lib)
+target_link_libraries(main PRIVATE client fp_integer fp_poly list_lib)
+add_test(NAME main COMMAND main)
+set_tests_properties(main PROPERTIES LABELS "suite1;suite3")
+add_test(NAME main_memory COMMAND valgrind ./main)
+set_tests_properties(main_memory PROPERTIES TIMEOUT 10 PASS_REGULAR_EXPRESSION "ERROR SUMMARY: 0 errors.*")
+set_tests_properties(main PROPERTIES LABELS "suite2;suite4")
 
 add_compile_options(--coverage)
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
