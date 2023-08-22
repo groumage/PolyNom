@@ -3,64 +3,15 @@
 //
 
 #include "../include/fp_integer.h"
+#include "../include/util.h"
 
-void read_urandom_full(unsigned char *buffer, size_t size)
-{
-    int fd = open("/dev/urandom", O_RDONLY);
-    size_t totalRead = 0;
-
-    if (fd == -1)
-    {
-        perror("Failed to open /dev/urandom");
-        exit(EXIT_FAILURE);
-    }
-
-    while (totalRead < size)
-    {
-        ssize_t bytesRead = read(fd, buffer + totalRead, size - totalRead);
-        if (bytesRead <= 0)
-        {
-            perror("Failed to read from /dev/urandom");
-            close(fd);
-            exit(EXIT_FAILURE);
-        }
-        totalRead += bytesRead;
-    }
-
-    close(fd);
-}
-
-unsigned long int buffer_to_ulong(const unsigned char *buffer, size_t size) {
-    if (size > sizeof(unsigned long int))
-    {
-        fprintf(stderr, "Buffer size exceeds the size of unsigned long int.\n");
-        exit(EXIT_FAILURE);
-    }
-
-    unsigned long int result = 0;
-
-    for (size_t i = 0; i < size; ++i)
-    {
-        result <<= 8; // Shift the current result left by 8 bits (1 byte)
-        result |= buffer[i]; // Set the least significant byte with the buffer content
-    }
-
-    return result;
-}
-
-void random_number(mpz_t number, size_t digits)
+void random_number_mpz(mpz_t number, size_t digits)
 {
     gmp_randstate_t state;
     unsigned char buffer[8];
     gmp_randinit_default(state);
-    read_urandom_full(buffer, 8);
-    //printf("%ld\n", sizeof(unsigned long int));
-    
+    read_urandom_full(buffer, 8);    
     gmp_randseed_ui(state, buffer_to_ulong(buffer, 8));
-    //seed_gmp_random(state);
-    //mpz_urandomb(number, state, size);
-    //gmp_randclear(state);
-
     mpz_t lowerBound, upperBound;
     mpz_init(lowerBound);
     mpz_init(upperBound);
@@ -77,13 +28,23 @@ void random_number(mpz_t number, size_t digits)
     gmp_randclear(state);
 }
 
+uint32_t my_pow(uint32_t n, uint8_t p)
+{
+    uint32_t res = 1;
+    for (size_t i = 0; i < p; i++)
+        res *= n;
+    return res;
+}
+
 //miller-rabin test for primality
-int is_prime(mpz_t n, int k)
+uint8_t is_prime_mpz(mpz_t n, uint8_t k)
 {
     if (mpz_cmp_ui(n, 2) < 0)
         return 0;
     if (mpz_cmp_ui(n, 2) == 0)
         return 1;
+    if (mpz_cmp_ui(n, 3) == 0)
+        return 0;
     if (mpz_even_p(n))
         return 0;
     mpz_t s, d;
@@ -99,7 +60,7 @@ int is_prime(mpz_t n, int k)
     gmp_randinit_default(state);
     read_urandom_full(buffer, 8);
     gmp_randseed_ui(state, buffer_to_ulong(buffer, 8));
-    for (int i = 0; i < k; i++)
+    for (uint8_t i = 0; i < k; i++)
     {
         mpz_t a, x, bound, y;
         mpz_inits(a, x, bound, y, NULL);
@@ -136,12 +97,48 @@ int is_prime(mpz_t n, int k)
     return 1;
 }
 
-void random_prime(mpz_t number, size_t digits)
+uint8_t is_prime(uint32_t n, uint8_t k)
 {
-    random_number(number, digits);
-    while (!is_prime(number, 15))
+    if (n < 2)
+        return 0;
+    if (n == 2)
+        return 1;
+    if (n == 3)
+        return 0;
+    if (n % 2 == 0)
+        return 0;
+    uint32_t s, d;
+    d = n - 1;
+    while (d % 2 == 0)
     {
-        random_number(number, digits);
+        s++;
+        d /= 2;
+    }
+    srand(time(NULL));
+    for (uint8_t i = 0; i < k; i++)
+    {
+        uint32_t a, x, y;
+        a = rand() % (n - 3) + 2;
+        x = my_pow(a, d) % n;
+        for (size_t j = 0; j < s; j++)
+        {
+            y = my_pow(x, 2) % n;
+            if (y == 1 && x != 1 && x != n - 1)
+                return 0;
+            x = y;
+        }
+        if (y != 1)
+            return 0;
+    }
+    return 1;
+}
+
+void random_prime_mpz(mpz_t number, size_t digits)
+{
+    random_number_mpz(number, digits);
+    while (!is_prime_mpz(number, 15))
+    {
+        random_number_mpz(number, digits);
     }
 }
 
