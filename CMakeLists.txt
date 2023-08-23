@@ -14,9 +14,10 @@ add_subdirectory(list)
 add_subdirectory(tests)
 
 add_library(client client.c client.h)
-target_link_libraries(client PRIVATE fp_integer fp_poly list_lib)
+target_link_libraries(client PRIVATE util fp_integer fp_poly list_lib)
+
 add_executable(main main.c)
-target_link_libraries(main PRIVATE client fp_integer fp_poly list_lib)
+target_link_libraries(main PRIVATE client)
 add_test(NAME main COMMAND main)
 set_tests_properties(main PROPERTIES LABELS "suite1;suite3")
 add_test(NAME main_memory COMMAND valgrind ./main)
