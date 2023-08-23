@@ -9,7 +9,7 @@
 #include <gmp.h>
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h> 
+#include <ctype.h>
 #include "../../list/include/list.h"
 
 #define FP_VARN 'x'
@@ -45,13 +45,16 @@ fp_poly_t *fp_poly_init(void);
 fp_poly_t *fp_poly_init_sizet(size_t, list_t *);
 fp_poly_t *fp_poly_init_mpz(mpz_t, list_t *);
 fp_poly_t *fp_poly_init_array(uint8_t *, size_t);
+fp_poly_t *fp_poly_init_random(size_t, fp_field_t *);
+fp_poly_t *fp_poly_init_random_irreducible(size_t, fp_field_t *);
 fp_poly_t *fp_poly_parse(const char *);
 fp_poly_error_t fp_poly_free (fp_poly_t *);
 fp_poly_error_t fp_poly_pretty_print(fp_poly_t *);
 fp_poly_error_t fp_poly_assert_mpz(fp_poly_t*, mpz_t, list_t *);
 fp_poly_error_t fp_poly_assert_sizet(fp_poly_t*, size_t, list_t *);
 fp_poly_error_t fp_poly_assert_equality(fp_poly_t *, fp_poly_t *);
-fp_poly_error_t fp_poly_print(fp_poly_t *);
+fp_poly_error_t fp_poly_print(FILE*, fp_poly_t *);
+uint8_t fp_poly_is_irreducible(fp_poly_t *p, fp_field_t *f);
 
 size_t fp_poly_degree(fp_poly_t *);
 size_t fp_poly_coeff_list_to_degree(fp_poly_t *, size_t);

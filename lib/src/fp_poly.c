@@ -2,6 +2,8 @@
 // Created by guillaume on 02/10/2021.
 //
 
+#include "../include/util.h"
+#include "../include/fp_integer.h"
 #include "../include/fp_poly.h"
 
 static void fp_poly_error(fp_poly_error_t e, const char *file, const char *fct, const int line, const char *error) {
@@ -35,6 +37,15 @@ static void fp_poly_error(fp_poly_error_t e, const char *file, const char *fct, 
             fprintf(stderr, "Unhandled error in [%s, %s] line %d.\n", file, fct, line);
             break;
     }
+}
+
+static uint8_t fp_poly_is_zero(fp_poly_t *p)
+{
+    if (p->coeff->size == 0 && mpz_cmp_ui(p->index_coeff, 0) == 0)
+        return 1;
+    if (p->coeff->size == 1 && mpz_cmp_ui(p->index_coeff, 1) == 0 && p->coeff->head->coeff == 0)
+        return 1;
+    return 0;
 }
 
 /*
@@ -492,6 +503,7 @@ fp_poly_error_t fp_poly_gcd(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_fiel
     return FP_POLY_E_SUCCESS;
 }
 
+/*
 fp_poly_error_t fp_poly_gcd_extended(fp_poly_t **res, fp_poly_t **u, fp_poly_t **v, fp_poly_t *p, fp_poly_t *q, fp_field_t *f)
 {
     fp_poly_t *q_tmp, *r_tmp, *old_r, *r, *old_s, *s, *old_t, *t, *tmp, *tmp_mul;
@@ -508,37 +520,68 @@ fp_poly_error_t fp_poly_gcd_extended(fp_poly_t **res, fp_poly_t **u, fp_poly_t *
     mpz_set_ui(old_t->index_coeff, 0x0);
     mpz_set_ui(t->index_coeff, 0x1);
     list_add_beginning(t->coeff, 0x1);
-    while (fp_poly_degree(r) > 0)
+    while (fp_poly_is_zero(r) == 0)
     {
-        fp_poly_div(&q_tmp, &r_tmp, old_r, r, f);
         
+        fp_poly_print(stderr, r);
+        fprintf(stderr, "     degre = %ld      is_zero?%u\n", fp_poly_degree(r), fp_poly_is_zero(r));
+        
+        fp_poly_div(&q_tmp, &r_tmp, old_r, r, f);
+
         tmp = r;
         fp_poly_mul(&tmp_mul, q_tmp, r, f);
         fp_poly_sub(&r, old_r, tmp_mul, f);
-        fp_poly_free(old_r);
+        //fp_poly_free(old_r);
         old_r = tmp;
-        fp_poly_free(tmp_mul);
+        fprintf(stderr, "r = ");
+        fp_poly_print(stderr, r);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "old_r = ");
+        fp_poly_print(stderr, old_r);
+        fprintf(stderr, "\n");
+        //fp_poly_free(tmp_mul);
+        
+        //aux(old_r, r, q_tmp);
         
         tmp = s;
         fp_poly_mul(&tmp_mul, q_tmp, s, f);
+        fprintf(stderr, "SUB: ");
+        fp_poly_print(stderr, old_s);
+        fprintf(stderr, " - ");
+        fp_poly_print(stderr, tmp_mul);
+        fprintf(stderr, "\n");
         fp_poly_sub(&s, old_s, tmp_mul, f);
-        fp_poly_free(old_s);
+        //fp_poly_free(old_s);
         old_s = tmp;
-        fp_poly_free(tmp_mul);
+        //fprintf(stderr, "s = ");
+        //fp_poly_print(stderr, s);
+        //fprintf(stderr, "\n");
+        //fprintf(stderr, "old_s = ");
+        //fp_poly_print(stderr, old_s);
+        //fprintf(stderr, "\n");
+
+        //fp_poly_free(tmp_mul);
+        
+        //aux(old_s, s, q_tmp);
         
         tmp = t;
         fp_poly_mul(&tmp_mul, q_tmp, t, f);
-        if ((err = fp_poly_sub(&t, old_t, tmp_mul, f)) != FP_POLY_E_SUCCESS)
-        {
-            fp_poly_error(err, __FILE__, __func__, __LINE__, "");
-            return err;
-        }
-        fp_poly_free(old_t);
+        fp_poly_sub(&t, old_t, tmp_mul, f);
+        //fp_poly_free(old_t);
         old_t = tmp;
-        fp_poly_free(tmp_mul);
+        fprintf(stderr, "t = ");
+        fp_poly_print(stderr, t);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "old_t = ");
+        fp_poly_print(stderr, old_t);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "\n");
+        //fp_poly_free(tmp_mul);
         
-        fp_poly_free(q_tmp);
-        fp_poly_free(r_tmp);
+        //aux(old_t, t, q_tmp);
+        
+        //fp_poly_free(q_tmp);
+        //fp_poly_free(r_tmp);
     }
     *res = old_r;
     *u = old_s;
@@ -548,6 +591,7 @@ fp_poly_error_t fp_poly_gcd_extended(fp_poly_t **res, fp_poly_t **u, fp_poly_t *
     fp_poly_free(t);
     return FP_POLY_E_SUCCESS;
 }
+*/
 
 /*
 * Parse a string to create a polynom.
@@ -744,6 +788,102 @@ fp_poly_t *fp_poly_init_array(uint8_t *coeff, size_t len)
             //list_add_beginning(res->coeff, coeff[i]);
         }
     }
+    return res;
+}
+
+static uint8_t fp_poly_is_unit(fp_poly_t *p)
+{
+    if (p->coeff->size == 1 && mpz_cmp_ui(p->index_coeff, 1) == 0 && p->coeff->head->coeff == 1)
+        return 1;
+    return 0;
+}
+
+static fp_poly_t *fp_poly_is_irreducible_aux(uint64_t n, fp_field_t *f)
+{
+    fp_poly_t *x_n_minux_x;
+    mpz_t deg_x_n_minux_x;
+    list_t *list;
+    mpz_init_set_ui(deg_x_n_minux_x, 0x0);
+    mpz_setbit(deg_x_n_minux_x, n);
+    mpz_setbit(deg_x_n_minux_x, 1);
+    list = list_init();
+    list_add_beginning(list, 1);
+    list_add_beginning(list, f->order - 1);
+    x_n_minux_x = fp_poly_init_mpz(deg_x_n_minux_x, list);
+    return x_n_minux_x;
+}
+
+uint8_t fp_poly_is_irreducible(fp_poly_t *p, fp_field_t *f)
+{
+    fp_poly_t *x_n_minus_x, *q, *r, *res_gcd;
+    x_n_minus_x = fp_poly_is_irreducible_aux(my_pow(f->order, fp_poly_degree(p)-1), f);
+    fp_poly_div(&q, &r, x_n_minus_x, p, f);
+    if (!fp_poly_is_zero(r))
+        return 0;
+    for (size_t i = 0; i < fp_poly_degree(p); i++)
+    {
+        if (is_prime(i, 15))
+        {
+            if ((fp_poly_degree(p) - 1) % i == 0)
+            {
+                x_n_minus_x = fp_poly_is_irreducible_aux(i, f);
+                fp_poly_gcd(&res_gcd, x_n_minus_x, p, f);
+                if (!fp_poly_is_unit(res_gcd))
+                    return 0;
+            }
+        }
+    }
+    return 1;
+}
+
+fp_poly_t *fp_poly_init_random(size_t degree, fp_field_t *f)
+{
+    fp_poly_t *res;
+    size_t i;
+    
+    res = (fp_poly_t *) malloc(sizeof(fp_poly_t));
+    if (!res)
+    {
+        fp_poly_error(FP_POLY_E_MALLOC_ERROR, __FILE__, __func__, __LINE__, "");
+        return NULL;
+    }
+    mpz_init_set_ui(res->index_coeff, 0x0);
+    res->coeff = list_init();
+    for (i = 0; i < degree; i++)
+    {
+        unsigned char buffer[8];
+        read_urandom_full(buffer, 8);
+        if (buffer_to_ulong(buffer, 8) % f->order != 0)
+        {
+            mpz_setbit(res->index_coeff, i);
+            list_add_end(res->coeff, buffer_to_ulong(buffer, 8) % f->order);
+        }
+    }
+    return res;
+}
+
+fp_poly_t *fp_poly_init_random_irreducible(size_t digits, fp_field_t *f)
+{
+    /*
+    fp_poly_t *res;
+    res = fp_poly_init_random(degree, f);
+    while (!fp_poly_is_irreducible(res, f))
+    {
+        fp_poly_free(res);
+        res = fp_poly_init_random(degree, f);
+    }
+    return res;
+    */
+    fp_poly_t *res;
+    mpz_t rand;
+    list_t *list;
+    list = list_init();
+    mpz_init(rand);
+    random_prime_mpz(rand, digits);
+    for (size_t i = 0; i < mpz_sizeinbase(rand, 2); i++)
+        if (mpz_tstbit(rand, i))
+            list_add_beginning(list, 1);
+    res = fp_poly_init_mpz(rand, list);
     return res;
 }
 
@@ -982,7 +1122,7 @@ fp_poly_error_t fp_poly_assert_equality(fp_poly_t *expected_p, fp_poly_t *actual
 * - FP_POLY_E_POLY_IS_NULL if the polynom is NULL.
 * - FP_POLY_E_LIST_COEFF_IS_NULL if the list of coefficients is NULL.
 */
-fp_poly_error_t fp_poly_print(fp_poly_t *p)
+fp_poly_error_t fp_poly_print(FILE *fd, fp_poly_t *p)
 {
     list_node_t *node;
 
@@ -997,26 +1137,33 @@ fp_poly_error_t fp_poly_print(fp_poly_t *p)
         return FP_POLY_E_LIST_COEFF_IS_NULL;
     }
     node = p->coeff->head;
+    if (fp_poly_is_zero(p))
+    {
+        fprintf(fd, "0");
+        return FP_POLY_E_SUCCESS;
+    }
     for (size_t i = 0; i < fp_poly_degree(p); i++)
     {
         if (mpz_tstbit(p->index_coeff, i))
         {
             if (i == 0)
-                fprintf(stderr, "%u + ", node->coeff);
+                fprintf(fd, "%u", node->coeff);
             else if (i == 1)
             {
                 if (node->coeff == 1)
-                    fprintf(stderr, "x + ");
+                    fprintf(fd, "x");
                 else
-                    fprintf(stderr, "%u*x + ", node->coeff);
+                    fprintf(fd, "%u*x", node->coeff);
             }
             else
             {
                 if (node->coeff == 1)
-                    fprintf(stderr, "x^%ld + ", i);
+                    fprintf(fd, "x^%ld", i);
                 else
-                    fprintf(stderr, "%u*x^%ld + ", node->coeff, i);
+                    fprintf(fd, "%u*x^%ld", node->coeff, i);
             }
+            if (node->next != NULL)
+                fprintf(fd, " + ");
             node = node->next;
         }
     }
