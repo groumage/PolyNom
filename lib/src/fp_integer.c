@@ -108,6 +108,7 @@ uint8_t is_prime(uint32_t n, uint8_t k)
     if (n % 2 == 0)
         return 0;
     uint32_t s, d;
+    s = 0;
     d = n - 1;
     while (d % 2 == 0)
     {
