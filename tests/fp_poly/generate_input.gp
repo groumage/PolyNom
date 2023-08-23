@@ -168,4 +168,8 @@ filewrite(fd, lift(v));
 filewrite(fd, lift(d));
 fileclose(fd);
 
+fd = fileopen("input_test/test_check_poly_irred.txt", "w");
+for (n = 2, 6, {filewrite(fd, c); filewrite(fd, lift(ffinit(2, n)))});
+fileclose(fd);
+
 quit;
