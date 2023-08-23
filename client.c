@@ -7,8 +7,8 @@ static void generate_key_pair_integer(key_pair_t *key_pair, size_t key_size)
 {
     mpz_t p, q, d, e, n, phi, gcd, foo;
     mpz_inits(p, q, d, e, n, phi, NULL);
-    random_prime(p, key_size/2);
-    random_prime(q, key_size/2);
+    random_prime_mpz(p, key_size/2);
+    random_prime_mpz(q, key_size/2);
     mpz_mul(n, p, q);
     assert (mpz_sizeinbase(n, 2) >= key_size);
     mpz_sub_ui(p, p, 1);
@@ -93,18 +93,18 @@ static void print_private_key_integer(private_key_integer_t *private_key)
 static void print_public_key_polynom(public_key_polynomial_t *public_key)
 {
     printf("Public key is (e, n) = (");
-    fp_poly_print(public_key->e);
+    fp_poly_print(stdout, public_key->e);
     printf(", ");
-    fp_poly_print(public_key->n);
+    fp_poly_print(stdout, public_key->n);
     printf(")\n");
 }
 
 static void print_private_key_polynom(private_key_polynomial_t *private_key)
 {
     printf("Public key is (e, n) = (");
-    fp_poly_print(private_key->d);
+    fp_poly_print(stdout, private_key->d);
     printf(", ");
-    fp_poly_print(private_key->n);
+    fp_poly_print(stdout, private_key->n);
     printf(")\n");
 }
 

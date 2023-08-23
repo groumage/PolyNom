@@ -49,7 +49,13 @@ int main()
 
     free_key_pair_integer(&key_pair_alice);
     free_key_pair_integer(&key_pair_bob);
+
     /*
+    fp_field_t *field = fp_poly_init_prime_field(2);
+    fp_poly_t *poly = fp_poly_init_random(10, field);
+    fp_poly_print(stdout, poly);
+    printf("\n");
+    
     alice_use_polynom = 1;
     bob_use_polynom = 1;
     printf("Alice generates its public and private key...\n");
