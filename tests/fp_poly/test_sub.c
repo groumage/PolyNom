@@ -34,11 +34,14 @@ static void sub_polynom(fp_poly_t *p, fp_poly_t *q, fp_field_t *f, size_t expect
 
 static void hello_world_tests()
 {
-    fp_poly_t *p1 = init_and_assert((uint8_t[]) {3, 3, 0, 3}, 4, (uint8_t[]) {3, 3, 3}, 3, 11); // p1 = 2 + 2*x + 2*x^3
+    fp_poly_t *p1 = init_and_assert((uint8_t[]) {2, 2, 0, 2}, 4, (uint8_t[]) {2, 2, 2}, 3, 11); // p1 = 2 + 2*x + 2*x^3
     fp_poly_t *p2 = init_and_assert((uint8_t[]) {1, 1, 0, 1}, 4, (uint8_t[]) {1, 1, 1}, 3, 11); // p2 = 1 + x + x^3
-    sub_polynom(p1, p2, NULL, 11, (uint8_t[]) {2, 2, 2}, 3);
-    assert (fp_poly_free(p2) == FP_POLY_E_SUCCESS);
+    fp_poly_t *p3 = init_and_assert((uint8_t[]) {2, 2, 0, 2}, 4, (uint8_t[]) {2, 2, 2}, 3, 11); // p3 = 2 + 2*x + 2*x^3
+    sub_polynom(p1, p2, NULL, 11, (uint8_t[]) {1, 1, 1}, 3);
+    sub_polynom(p1, p3, NULL, 1, (uint8_t[]) {0}, 1);
     assert (fp_poly_free(p1) == FP_POLY_E_SUCCESS);
+    assert (fp_poly_free(p2) == FP_POLY_E_SUCCESS);
+    assert (fp_poly_free(p3) == FP_POLY_E_SUCCESS);
 }
 
 static void pari_gp_tests(char *filename)
