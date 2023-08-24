@@ -21,5 +21,6 @@ int main()
     parse_test("2*x^13 + x^11 + 1", (uint8_t[]) {1, 1, 2}, 3, 10241);
     parse_test("x^2 + x + 2", (uint8_t[]) {2, 1, 1}, 3, 7);
     parse_test("2*x^3 + x^2 + 1", (uint8_t[]) {1, 1, 2}, 3, 13);
+    parse_test("0", (uint8_t[]) {0}, 1, 1);
     return 0;
 }
