@@ -117,8 +117,13 @@ void test_error()
     q->coeff = NULL;
     assert (fp_poly_add(&res, p, q, NULL) == FP_POLY_E_LIST_COEFF_IS_NULL);
     q->coeff = mem;
+    mem_node = q->coeff->head;
     q->coeff->head = NULL;
     assert (fp_poly_add(&res, p, q, NULL) == FP_POLY_E_LIST_COEFF_HEAD_IS_NULL);
+    q->coeff->head = mem_node;
+    p->coeff->head->coeff = 200;
+    q->coeff->head->coeff = 200;
+    assert (fp_poly_add(&res, p, q, NULL) == FP_POLY_E_COEFF_OVERFLOW);
     assert (fp_poly_free(p) == FP_POLY_E_SUCCESS);
     assert (fp_poly_free(q) == FP_POLY_E_SUCCESS);
 }

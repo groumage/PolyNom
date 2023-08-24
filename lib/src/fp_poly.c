@@ -176,6 +176,51 @@ static fp_poly_error_t fp_poly_add_single_term_aux(fp_poly_t *p, uint8_t coeff, 
     if (mpz_tstbit(p->index_coeff, degree))
     {
         list_node_t *node = fp_poly_degree_to_node_list(p, degree);
+        if (field == NULL)
+        {
+            if (is_addition)
+            {
+                if (node-> coeff > 0 && coeff > UINT8_MAX - node->coeff)
+                {
+                    fp_poly_error(FP_POLY_E_COEFF_OVERFLOW, __FILE__, __func__, __LINE__, "");
+                    return FP_POLY_E_COEFF_OVERFLOW;
+                }
+                node->coeff += coeff;
+            }
+            else
+            {
+                if (node->coeff < coeff)
+                {
+                    fp_poly_error(FP_POLY_E_COEFF_OVERFLOW, __FILE__, __func__, __LINE__, "");
+                    return FP_POLY_E_COEFF_UNDERFLOW;
+                }
+                node->coeff -= coeff;
+            }
+            if (node->coeff == 0)
+            {
+                mpz_clrbit(p->index_coeff, degree);
+                list_remove_node(p->coeff, node);
+            }
+        }
+        else
+        {
+            if (is_addition)
+                node->coeff = (node->coeff + coeff) % field->order;
+            else
+            {
+                if (node->coeff < coeff)
+                    node->coeff = (field->order + node->coeff - coeff);
+                else
+                    node->coeff = (node->coeff - coeff) % field->order;
+            }
+            if (node->coeff == 0)
+            {
+                mpz_clrbit(p->index_coeff, degree);
+                list_remove_node(p->coeff, node);
+            }
+        }
+        /*
+        list_node_t *node = fp_poly_degree_to_node_list(p, degree);
         if (field != NULL)
         {
             if (is_addition)
@@ -186,7 +231,7 @@ static fp_poly_error_t fp_poly_add_single_term_aux(fp_poly_t *p, uint8_t coeff, 
                     node->coeff = (field->order + node->coeff - coeff);
                 else
                     node->coeff = (node->coeff - coeff) % field->order;
-            }   
+            }
             if (node->coeff == 0)
             {
                 mpz_clrbit(p->index_coeff, degree);
@@ -217,6 +262,7 @@ static fp_poly_error_t fp_poly_add_single_term_aux(fp_poly_t *p, uint8_t coeff, 
             fp_poly_error(FP_POLY_E_COEFF_OVERFLOW, __FILE__, __func__, __LINE__, "");
             return FP_POLY_E_COEFF_OVERFLOW;
         }
+        */
     }
     else
     {
