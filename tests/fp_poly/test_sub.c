@@ -80,9 +80,42 @@ static void pari_gp_tests(char *filename)
     fclose(file);
 }
 
+void test_error()
+{
+    fp_poly_t *p = fp_poly_init_array((uint8_t[]) {1, 1, 0, 1}, 4);
+    fp_poly_t *q = fp_poly_init_array((uint8_t[]) {1, 0, 1, 1}, 4);
+    fp_poly_t *res;
+    list_t *mem;
+    list_node_t *mem_node;
+    assert (fp_poly_sub(&res, NULL, q, NULL) == FP_POLY_E_POLY_IS_NULL);
+    assert (fp_poly_sub(&res, p, NULL, NULL) == FP_POLY_E_POLY_IS_NULL);
+    mem = p->coeff;
+    p->coeff = NULL;
+    assert (fp_poly_sub(&res, p, q, NULL) == FP_POLY_E_LIST_COEFF_IS_NULL);
+    p->coeff = mem;
+    mem_node = p->coeff->head;
+    p->coeff->head = NULL;
+    assert (fp_poly_sub(&res, p, q, NULL) == FP_POLY_E_LIST_COEFF_HEAD_IS_NULL);
+    p->coeff->head = mem_node;
+    mem = q->coeff;
+    q->coeff = NULL;
+    assert (fp_poly_sub(&res, p, q, NULL) == FP_POLY_E_LIST_COEFF_IS_NULL);
+    q->coeff = mem;
+    mem_node = q->coeff->head;
+    q->coeff->head = NULL;
+    assert (fp_poly_sub(&res, p, q, NULL) == FP_POLY_E_LIST_COEFF_HEAD_IS_NULL);
+    q->coeff->head = mem_node;
+    p->coeff->head->coeff = 150;
+    q->coeff->head->coeff = 200;
+    assert (fp_poly_sub(&res, p, q, NULL) == FP_POLY_E_COEFF_UNDERFLOW);
+    assert (fp_poly_free(p) == FP_POLY_E_SUCCESS);
+    assert (fp_poly_free(q) == FP_POLY_E_SUCCESS);
+}
+
 int main()
 {
     hello_world_tests();
+    test_error();
     pari_gp_tests("../../../tests/fp_poly/input_test/test_sub.txt");
     return 0;
 }

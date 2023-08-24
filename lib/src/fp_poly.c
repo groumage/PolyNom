@@ -424,6 +424,26 @@ fp_poly_error_t fp_poly_sub(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_fiel
         fp_poly_error(FP_POLY_E_POLY_IS_NULL, __FILE__, __func__, __LINE__, "");
         return FP_POLY_E_POLY_IS_NULL;
     }
+    if (!(p->coeff))
+    {
+        fp_poly_error(FP_POLY_E_LIST_COEFF_IS_NULL, __FILE__, __func__, __LINE__, "");
+        return FP_POLY_E_LIST_COEFF_IS_NULL;
+    }
+    if (!(p->coeff->head))
+    {
+        fp_poly_error(FP_POLY_E_LIST_COEFF_HEAD_IS_NULL, __FILE__, __func__, __LINE__, "");
+        return FP_POLY_E_LIST_COEFF_HEAD_IS_NULL;
+    }
+    if (!(q->coeff))
+    {
+        fp_poly_error(FP_POLY_E_LIST_COEFF_IS_NULL, __FILE__, __func__, __LINE__, "");
+        return FP_POLY_E_LIST_COEFF_IS_NULL;
+    }
+    if (!(q->coeff->head))
+    {
+        fp_poly_error(FP_POLY_E_LIST_COEFF_HEAD_IS_NULL, __FILE__, __func__, __LINE__, "");
+        return FP_POLY_E_LIST_COEFF_HEAD_IS_NULL;
+    }
     return fp_poly_add_aux(*res, p, q, f, 0);
 }
 
