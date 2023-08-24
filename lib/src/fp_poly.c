@@ -44,9 +44,36 @@ static void fp_poly_error(fp_poly_error_t e, const char *file, const char *fct, 
 
 static uint8_t fp_poly_is_zero(fp_poly_t *p)
 {
-    if (p->coeff->size == 0 && mpz_cmp_ui(p->index_coeff, 0) == 0)
-        return 1;
-    if (p->coeff->size == 1 && mpz_cmp_ui(p->index_coeff, 1) == 0 && p->coeff->head->coeff == 0)
+    list_node_t *node = p->coeff->head;
+    while (node != NULL)
+    {
+        if (node->coeff != 0)
+            return 0;
+        node = node->next;
+    }
+    return 1;
+}
+
+static fp_poly_error_t fp_poly_normalise_zero_polynom(fp_poly_t *p)
+{
+    if (fp_poly_is_zero(p))
+    {
+        mpz_set_ui(p->index_coeff, 1);
+        list_destroy(p->coeff);
+        p->coeff = list_init();
+        if (!p->coeff)
+        {
+            fp_poly_error(FP_POLY_E_MALLOC_ERROR, __FILE__, __func__, __LINE__, "");
+            return FP_POLY_E_MALLOC_ERROR;
+        }
+        list_add_beginning(p->coeff, 0);
+    }
+    return FP_POLY_E_SUCCESS;
+}
+
+static uint8_t fp_poly_is_unit(fp_poly_t *p)
+{
+    if (p->coeff->size == 1 && mpz_cmp_ui(p->index_coeff, 1) == 0 && p->coeff->head->coeff == 1)
         return 1;
     return 0;
 }
@@ -169,6 +196,7 @@ list_node_t *fp_poly_degree_to_node_list(fp_poly_t *p, size_t degree)
 
 static fp_poly_error_t fp_poly_add_single_term_aux(fp_poly_t *p, uint8_t coeff, size_t degree, fp_field_t *field, uint8_t is_addition)
 {
+    fp_poly_error_t err;
     if (coeff == 0)
         return FP_POLY_E_SUCCESS;
     if (field != NULL && coeff % field->order == 0)
@@ -195,61 +223,23 @@ static fp_poly_error_t fp_poly_add_single_term_aux(fp_poly_t *p, uint8_t coeff, 
                     return FP_POLY_E_COEFF_UNDERFLOW;
                 }
                 node->coeff -= coeff;
-            }
-            if (node->coeff == 0)
-            {
-                mpz_clrbit(p->index_coeff, degree);
-                list_remove_node(p->coeff, node);
-            }
-        }
-        else
-        {
-            if (is_addition)
-                node->coeff = (node->coeff + coeff) % field->order;
-            else
-            {
-                if (node->coeff < coeff)
-                    node->coeff = (field->order + node->coeff - coeff);
-                else
-                    node->coeff = (node->coeff - coeff) % field->order;
-            }
-            if (node->coeff == 0)
-            {
-                mpz_clrbit(p->index_coeff, degree);
-                list_remove_node(p->coeff, node);
-            }
-        }
-        /*
-        list_node_t *node = fp_poly_degree_to_node_list(p, degree);
-        if (field != NULL)
-        {
-            if (is_addition)
-                node->coeff = (node->coeff + coeff) % field->order;
-            else
-            {
-                if (node->coeff < coeff)
-                    node->coeff = (field->order + node->coeff - coeff);
-                else
-                    node->coeff = (node->coeff - coeff) % field->order;
-            }
-            if (node->coeff == 0)
-            {
-                mpz_clrbit(p->index_coeff, degree);
-                list_remove_node(p->coeff, node);
-            }
-        }
-        else if ((uint8_t) UINT8_MAX - node->coeff >= coeff)
-        {
-            if (is_addition)
-                node->coeff += coeff;
-            else
-            {
-                if (node->coeff < coeff)
+                if (node->coeff == 0)
                 {
-                    fp_poly_error(FP_POLY_E_COEFF_LESS_THAN_ZERO, __FILE__, __func__, __LINE__, "");
-                    return FP_POLY_E_COEFF_LESS_THAN_ZERO;
+                    mpz_clrbit(p->index_coeff, degree);
+                    list_remove_node(p->coeff, node);
                 }
-                node->coeff -= coeff;
+            }
+        }
+        else
+        {
+            if (is_addition)
+                node->coeff = (node->coeff + coeff) % field->order;
+            else
+            {
+                if (node->coeff < coeff)
+                    node->coeff = (field->order + node->coeff - coeff);
+                else
+                    node->coeff = (node->coeff - coeff) % field->order;
             }
             if (node->coeff == 0)
             {
@@ -257,12 +247,6 @@ static fp_poly_error_t fp_poly_add_single_term_aux(fp_poly_t *p, uint8_t coeff, 
                 list_remove_node(p->coeff, node);
             }
         }
-        else
-        {
-            fp_poly_error(FP_POLY_E_COEFF_OVERFLOW, __FILE__, __func__, __LINE__, "");
-            return FP_POLY_E_COEFF_OVERFLOW;
-        }
-        */
     }
     else
     {
@@ -275,6 +259,12 @@ static fp_poly_error_t fp_poly_add_single_term_aux(fp_poly_t *p, uint8_t coeff, 
         }
         mpz_setbit(p->index_coeff, degree);
         list_add_at(p->coeff, coeff, count_bit_set_to_index(p->index_coeff, degree));
+    }
+    err = fp_poly_normalise_zero_polynom(p);
+    if (err != FP_POLY_E_SUCCESS)
+    {
+        fp_poly_error(err, __FILE__, __func__, __LINE__, "");
+        return err;
     }
     return FP_POLY_E_SUCCESS;
 }
@@ -554,7 +544,7 @@ fp_poly_error_t fp_poly_div(fp_poly_t **q, fp_poly_t **r, fp_poly_t *n, fp_poly_
     t = fp_poly_init();
     list_add_beginning(t->coeff, 0);
     mpz_init(bitwise);
-    while (fp_poly_degree(*r) >= fp_poly_degree(d))
+    while (fp_poly_is_zero(*r) == 0 && fp_poly_degree(*r) >= fp_poly_degree(d))
     {
         if (mpz_cmp_ui((*r)->index_coeff, 1) == 0 && (*r)->coeff->head->coeff == 0)
         {
@@ -599,8 +589,10 @@ fp_poly_error_t fp_poly_gcd(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_fiel
     fp_poly_error_t err;
     r1 = fp_poly_init_mpz(p->index_coeff, list_copy(p->coeff));
     r2 = fp_poly_init_mpz(q->index_coeff, list_copy(q->coeff));
-    while (fp_poly_degree(r2) > 0)
+    while (fp_poly_is_zero(r2) == 0)
     {
+        fprintf(stderr, "r2 is zero ? %d\n", fp_poly_is_zero(r2));
+        fprintf(stderr, "r2 is unit ? %d\n", fp_poly_is_unit(r2));
         err = fp_poly_div(&q_tmp, &r_tmp, r1, r2, f);
         fp_poly_free(q_tmp);
         mem = r1;
@@ -906,13 +898,6 @@ fp_poly_t *fp_poly_init_array(uint8_t *coeff, size_t len)
     return res;
 }
 
-static uint8_t fp_poly_is_unit(fp_poly_t *p)
-{
-    if (p->coeff->size == 1 && mpz_cmp_ui(p->index_coeff, 1) == 0 && p->coeff->head->coeff == 1)
-        return 1;
-    return 0;
-}
-
 static fp_poly_t *fp_poly_is_irreducible_aux(uint64_t n, fp_field_t *f)
 {
     fp_poly_t *x_n_minux_x;
@@ -1110,7 +1095,7 @@ fp_poly_error_t fp_poly_assert_mpz(fp_poly_t *p, mpz_t expected_pos_coeff, list_
 * - FP_POLY_E_LIST_COEFF_IS_NULL if the list of coefficients is NULL.
 * - FP_POLY_E_ASSERT_SIZET_FAILED if the assertion failed.
 */
-fp_poly_error_t fp_poly_assert_sizet(fp_poly_t * p, size_t expected_pos_coeff, list_t *expected_coeff)
+fp_poly_error_t fp_poly_assert_sizet(fp_poly_t *p, size_t expected_pos_coeff, list_t *expected_coeff)
 {
     list_node_t *node_p;
     list_node_t *node_expected;
@@ -1157,9 +1142,14 @@ fp_poly_error_t fp_poly_assert_sizet(fp_poly_t * p, size_t expected_pos_coeff, l
         node_p = node_p->next;
         node_expected = node_expected->next;
     }
-    if (node_p != NULL || node_expected != NULL)
+    if (node_p != NULL)
     {
-        fp_poly_error(FP_POLY_E_ASSERT_SIZET_FAILED, __FILE__, __func__, __LINE__, "");
+        fp_poly_error(FP_POLY_E_ASSERT_SIZET_FAILED, __FILE__, __func__, __LINE__, "There is more coefficients in the polynom than expected");
+        return FP_POLY_E_ASSERT_SIZET_FAILED;
+    }
+    if (node_expected != NULL)
+    {
+        fp_poly_error(FP_POLY_E_ASSERT_SIZET_FAILED, __FILE__, __func__, __LINE__, "There is less coefficients in the polynom than expected");
         return FP_POLY_E_ASSERT_SIZET_FAILED;
     }
     return FP_POLY_E_SUCCESS;
