@@ -391,10 +391,12 @@ fp_poly_error_t fp_poly_add(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_fiel
     return fp_poly_add_aux(*res, p, q, f, 1);
 }
 
+/*
 fp_poly_error_t fp_poly_sub_single_term(fp_poly_t *p, uint8_t coeff, size_t degree, fp_field_t *field)
 {
     return fp_poly_add_single_term_aux(p, coeff, degree, field, 0);
 }
+*/
 
 fp_poly_error_t fp_poly_sub(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_field_t *f)
 {
@@ -546,11 +548,13 @@ fp_poly_error_t fp_poly_div(fp_poly_t **q, fp_poly_t **r, fp_poly_t *n, fp_poly_
     mpz_init(bitwise);
     while (fp_poly_is_zero(*r) == 0 && fp_poly_degree(*r) >= fp_poly_degree(d))
     {
-        if (mpz_cmp_ui((*r)->index_coeff, 1) == 0 && (*r)->coeff->head->coeff == 0)
+        /*
+        if (fp_poly_is_zero(*r))
         {
             fp_poly_free(*r);
             break;
         }
+        */
         mpz_set_ui(bitwise, 0);
         mpz_setbit(bitwise, fp_poly_degree(*r) - fp_poly_degree(d));
         mpz_set(t->index_coeff, bitwise);
@@ -577,6 +581,7 @@ fp_poly_error_t fp_poly_div(fp_poly_t **q, fp_poly_t **r, fp_poly_t *n, fp_poly_
         }
         fp_poly_free(mem);
         fp_poly_free(intermediate);
+        //fp_poly_normalise_zero_polynom(*r);
     }
     fp_poly_free(t);
     mpz_clear(bitwise);
@@ -591,8 +596,6 @@ fp_poly_error_t fp_poly_gcd(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_fiel
     r2 = fp_poly_init_mpz(q->index_coeff, list_copy(q->coeff));
     while (fp_poly_is_zero(r2) == 0)
     {
-        fprintf(stderr, "r2 is zero ? %d\n", fp_poly_is_zero(r2));
-        fprintf(stderr, "r2 is unit ? %d\n", fp_poly_is_unit(r2));
         err = fp_poly_div(&q_tmp, &r_tmp, r1, r2, f);
         fp_poly_free(q_tmp);
         mem = r1;
@@ -729,7 +732,8 @@ fp_poly_t *fp_poly_parse(const char* polynomial)
         return res;
     if (strlen(polynomial) == 1 && polynomial[0] == '0')
     {
-        mpz_set_ui(res->index_coeff, 0x0);
+        mpz_set_ui(res->index_coeff, 0x1);
+        list_add_beginning(res->coeff, 0);
         return res;
     }
     while (*ptr != '\0')
@@ -1193,7 +1197,7 @@ fp_poly_error_t fp_poly_assert_equality(fp_poly_t *expected_p, fp_poly_t *actual
     if (mpz_cmp(expected_p->index_coeff, actual->index_coeff) != 0)
     {
         char buffer[1024];
-        snprintf(buffer, 1024, "expected: %s , got: %s", mpz_get_str(NULL, 10, expected_p->index_coeff), mpz_get_str(NULL, 10, actual->index_coeff));
+        snprintf(buffer, 1024, "wrong index_coeff: expected: %s , actual: %s", mpz_get_str(NULL, 10, expected_p->index_coeff), mpz_get_str(NULL, 10, actual->index_coeff));
         fp_poly_error(FP_POLY_E_ASSERT_EQUALITY_FAILED, __FILE__, __func__, __LINE__, buffer);
         return FP_POLY_E_ASSERT_EQUALITY_FAILED;
     }
