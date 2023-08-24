@@ -18,6 +18,9 @@ static void fp_poly_error(fp_poly_error_t e, const char *file, const char *fct, 
         case FP_POLY_E_LIST_COEFF_IS_NULL:
             fprintf(stderr, "Error in [%s, %s] line %d: list of coefficient is NULL.\n", file, fct, line);
             break;
+        case FP_POLY_E_LIST_COEFF_HEAD_IS_NULL:
+            fprintf(stderr, "Error in [%s, %s] line %d: list of coefficient head is NULL.\n", file, fct, line);
+            break;
         case FP_POLY_E_REQUESTED_DEGREE_IS_TOO_HIGH:
             fprintf(stderr, "Error in [%s, %s] line %d: requested degree is too high.\n", file, fct, line);
             break;
@@ -166,16 +169,6 @@ list_node_t *fp_poly_degree_to_node_list(fp_poly_t *p, size_t degree)
 
 static fp_poly_error_t fp_poly_add_single_term_aux(fp_poly_t *p, uint8_t coeff, size_t degree, fp_field_t *field, uint8_t is_addition)
 {
-    if (!p)
-    {
-        fp_poly_error(FP_POLY_E_POLY_IS_NULL, __FILE__, __func__, __LINE__, "");
-        return FP_POLY_E_POLY_IS_NULL;
-    }
-    if (!(p->coeff))
-    {
-        fp_poly_error(FP_POLY_E_LIST_COEFF_IS_NULL, __FILE__, __func__, __LINE__, "");
-        return FP_POLY_E_LIST_COEFF_IS_NULL;
-    }
     if (coeff == 0)
         return FP_POLY_E_SUCCESS;
     if (field != NULL && coeff % field->order == 0)
@@ -261,23 +254,27 @@ fp_poly_error_t fp_poly_add_single_term(fp_poly_t *p, uint8_t coeff, size_t degr
     return fp_poly_add_single_term_aux(p, coeff, degree, field, 1);
 }
 
-static fp_poly_error_t fp_poly_add_aux(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_field_t * f, uint8_t is_addition)
+/*
+* Documentation todo.
+*
+* Parameters:
+*
+* Pre-condition:
+* - The following variable are not NULL: *res, (2) p, (3) q, (4) list of coeff of p, (5) the head of list of coeff of p, (6) list of coeff of q and (7) the head of list of coeff of q.
+*
+* Returns:
+*/
+static fp_poly_error_t fp_poly_add_aux(fp_poly_t *res, fp_poly_t *p, fp_poly_t *q, fp_field_t * field, uint8_t is_addition)
 {
     size_t pos;
     list_node_t *node;
     fp_poly_error_t err;
 
-    *res = fp_poly_init();
-    if (!*res)
-    {
-        fp_poly_error(FP_POLY_E_MALLOC_ERROR, __FILE__, __func__, __LINE__, "");
-        return FP_POLY_E_MALLOC_ERROR;
-    }
     pos = 0;
     node = p->coeff->head;
     while (node != NULL)
     {
-        err = fp_poly_add_single_term_aux(*res, node->coeff, fp_poly_coeff_list_to_degree(p, pos), f, 1);
+        err = fp_poly_add_single_term_aux(res, node->coeff, fp_poly_coeff_list_to_degree(p, pos), field, 1);
         if (err)
         {
             fp_poly_error(FP_POLY_E_MALLOC_ERROR, __FILE__, __func__, __LINE__, "");
@@ -290,7 +287,7 @@ static fp_poly_error_t fp_poly_add_aux(fp_poly_t **res, fp_poly_t *p, fp_poly_t 
     node = q->coeff->head;
     while (node != NULL)
     {
-        err = fp_poly_add_single_term_aux(*res, node->coeff, fp_poly_coeff_list_to_degree(q, pos), f, is_addition);
+        err = fp_poly_add_single_term_aux(res, node->coeff, fp_poly_coeff_list_to_degree(q, pos), field, is_addition);
         if (err)
         {
             fp_poly_error(err, __FILE__, __func__, __LINE__, "");
@@ -319,7 +316,43 @@ static fp_poly_error_t fp_poly_add_aux(fp_poly_t **res, fp_poly_t *p, fp_poly_t 
  */
 fp_poly_error_t fp_poly_add(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_field_t *f)
 {
-    return fp_poly_add_aux(res, p, q, f, 1);
+    *res = fp_poly_init();
+    if (!*res)
+    {
+        fp_poly_error(FP_POLY_E_MALLOC_ERROR, __FILE__, __func__, __LINE__, "");
+        return FP_POLY_E_MALLOC_ERROR;
+    }
+    if (!p)
+    {
+        fp_poly_error(FP_POLY_E_POLY_IS_NULL, __FILE__, __func__, __LINE__, "");
+        return FP_POLY_E_POLY_IS_NULL;
+    }
+    if (!q)
+    {
+        fp_poly_error(FP_POLY_E_POLY_IS_NULL, __FILE__, __func__, __LINE__, "");
+        return FP_POLY_E_POLY_IS_NULL;
+    }
+    if (!(p->coeff))
+    {
+        fp_poly_error(FP_POLY_E_LIST_COEFF_IS_NULL, __FILE__, __func__, __LINE__, "");
+        return FP_POLY_E_LIST_COEFF_IS_NULL;
+    }
+    if (!(p->coeff->head))
+    {
+        fp_poly_error(FP_POLY_E_LIST_COEFF_HEAD_IS_NULL, __FILE__, __func__, __LINE__, "");
+        return FP_POLY_E_LIST_COEFF_HEAD_IS_NULL;
+    }
+    if (!(q->coeff))
+    {
+        fp_poly_error(FP_POLY_E_LIST_COEFF_IS_NULL, __FILE__, __func__, __LINE__, "");
+        return FP_POLY_E_LIST_COEFF_IS_NULL;
+    }
+    if (!(q->coeff->head))
+    {
+        fp_poly_error(FP_POLY_E_LIST_COEFF_HEAD_IS_NULL, __FILE__, __func__, __LINE__, "");
+        return FP_POLY_E_LIST_COEFF_HEAD_IS_NULL;
+    }
+    return fp_poly_add_aux(*res, p, q, f, 1);
 }
 
 fp_poly_error_t fp_poly_sub_single_term(fp_poly_t *p, uint8_t coeff, size_t degree, fp_field_t *field)
@@ -329,7 +362,23 @@ fp_poly_error_t fp_poly_sub_single_term(fp_poly_t *p, uint8_t coeff, size_t degr
 
 fp_poly_error_t fp_poly_sub(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_field_t *f)
 {
-    return fp_poly_add_aux(res, p, q, f, 0);
+    *res = fp_poly_init();
+    if (!*res)
+    {
+        fp_poly_error(FP_POLY_E_MALLOC_ERROR, __FILE__, __func__, __LINE__, "");
+        return FP_POLY_E_MALLOC_ERROR;
+    }
+    if (!p)
+    {
+        fp_poly_error(FP_POLY_E_POLY_IS_NULL, __FILE__, __func__, __LINE__, "");
+        return FP_POLY_E_POLY_IS_NULL;
+    }
+    if (!q)
+    {
+        fp_poly_error(FP_POLY_E_POLY_IS_NULL, __FILE__, __func__, __LINE__, "");
+        return FP_POLY_E_POLY_IS_NULL;
+    }
+    return fp_poly_add_aux(*res, p, q, f, 0);
 }
 
 /*
