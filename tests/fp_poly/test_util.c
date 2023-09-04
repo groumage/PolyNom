@@ -30,6 +30,11 @@ int main()
     assert (fp_poly_degree_to_node_list(p, 9) == p->coeff->head->next->next->next->next);
     assert (fp_poly_degree_to_node_list(p, 9)->coeff == 7);
     assert (fp_poly_free(p) == FP_POLY_E_SUCCESS);
+    
+    // fp_poly_degree
     assert (fp_poly_degree(NULL) == 0);
+
+    // fp_poly_is_unit
+    assert (fp_poly_is_unit(NULL) == 0);
     return 0;
 }

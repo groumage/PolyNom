@@ -21,7 +21,9 @@ static void pari_gp_test(char *filename)
         fgets(line, sizeof(line), file);
         remove_last_newline(line);
         poly = fp_poly_parse(line);
+        //fprintf(stderr, "ici\n");
         assert (fp_poly_is_irreducible(poly, field) == 1);
+        //fprintf(stderr, "ici2\n");
         assert (fp_poly_free(poly) == FP_POLY_E_SUCCESS);
         assert (fp_poly_free_field(field) == FP_POLY_E_SUCCESS);
     }
