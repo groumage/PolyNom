@@ -32,22 +32,36 @@ typedef enum fp_poly_error_e
     FP_POLY_E_MALLOC_ERROR,
     FP_POLY_E_POLY_IS_NULL,
     FP_POLY_E_FIELD_IS_NULL,
-    FP_POLY_E_LIST_COEFF_IS_NULL,
     FP_POLY_E_LIST_COEFF_HEAD_IS_NULL,
+    FP_POLY_E_LIST_COEFF_IS_NULL,
     FP_POLY_E_REQUESTED_DEGREE_IS_TOO_HIGH,
     FP_POLY_E_COEFF_OVERFLOW,
     FP_POLY_E_COEFF_UNDERFLOW,
     FP_POLY_E_COEFF_LESS_THAN_ZERO,
-    FP_POLY_E_ASSERT_MPZ_FAILED,
-    FP_POLY_E_ASSERT_SIZET_FAILED,
-    FP_POLY_E_ASSERT_EQUALITY_FAILED,
+
+    FP_POLY_E_PRINT,
+
+    FP_POLY_E_INIT_RANDOM,
+    FP_POLY_E_INIT_GALOIS_FIELD,
+    
+    FP_POLY_E_ASSERT_MPZ,
+    FP_POLY_E_ASSERT_SIZET,
+    FP_POLY_E_ASSERT_EQUALITY,
+    FP_POLY_E_STR_OF_ZERO_LENGTH,
+
+    FP_POLY_E_INIT_SIZET,
+    FP_POLY_INIT_ARRAY,
+    FP_POLY_E_INIT_MPZ,
+
+    FP_POLY_E_FREE,
+    FP_POLY_E_FREE_FIELD,
 } fp_poly_error_t;
 
 fp_poly_t *fp_poly_init(void);
 fp_poly_t *fp_poly_init_sizet(size_t, list_t *);
 fp_poly_t *fp_poly_init_mpz(mpz_t, list_t *);
 fp_poly_t *fp_poly_init_array(uint8_t *, size_t);
-fp_poly_t *fp_poly_init_random(size_t, fp_field_t *);
+fp_poly_t *fp_poly_init_random(size_t degree, fp_field_t *field);
 fp_poly_t *fp_poly_init_random_irreducible(size_t, fp_field_t *);
 fp_poly_t *fp_poly_parse(const char *);
 fp_poly_error_t fp_poly_free (fp_poly_t *);
