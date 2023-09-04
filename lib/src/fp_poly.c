@@ -97,10 +97,6 @@ static fp_poly_error_t fp_poly_normalise_zero_polynom(fp_poly_t *p)
             return FP_POLY_E_MALLOC_ERROR;
         }
         list_add_beginning(p->coeff, 0);
-        /*
-        fp_poly_free(p);
-        p = fp_poly_init_array((uint8_t[]) {0}, 1);
-        */
     }
     return FP_POLY_E_SUCCESS;
 }
@@ -133,11 +129,6 @@ size_t fp_poly_degree(fp_poly_t *p)
         fp_poly_error(FP_POLY_E_POLY_IS_NULL, __FILE__, __func__, __LINE__, "");
         return 0;
     }
-    /*
-    if (mpz_cmp_ui(p->index_coeff, 0) == 0 || mpz_cmp_ui(p->index_coeff, 1) == 0)
-        return 0;
-    else
-    */
     return mpz_sizeinbase(p->index_coeff, 2) - 1;
 }
 
@@ -432,13 +423,6 @@ fp_poly_error_t fp_poly_add(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_fiel
     return fp_poly_add_aux(*res, p, q, f, 1);
 }
 
-/*
-fp_poly_error_t fp_poly_sub_single_term(fp_poly_t *p, uint8_t coeff, size_t degree, fp_field_t *field)
-{
-    return fp_poly_add_single_term_aux(p, coeff, degree, field, 0);
-}
-*/
-
 fp_poly_error_t fp_poly_sub(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_field_t *f)
 {
     *res = fp_poly_init();
@@ -479,37 +463,6 @@ fp_poly_error_t fp_poly_sub(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_fiel
     }
     return fp_poly_add_aux(*res, p, q, f, 0);
 }
-
-/*
-fp_poly_error_t fp_poly_mul_single_term(fp_poly_t *p, uint8_t coeff, size_t degree, fp_field_t *field)
-{
-    size_t pos;
-    list_node_t *node;
-    fp_poly_error_t err = 0;
-
-    pos = 0;
-    node = p->coeff->head;
-    mpz_mul_2exp(p->index_coeff, p->index_coeff, degree);
-    while (node != NULL)
-    {
-        node->coeff = node->coeff * coeff;
-        if (err)
-        {
-            fp_poly_error(err, __FILE__, __func__, __LINE__, "");
-            return err;
-        }
-        if (node->coeff == 0)
-        {
-            mpz_clrbit(p->index_coeff, fp_poly_coeff_list_to_degree(p, pos));
-            list_node_t *tmp = node;
-            list_remove_node(p->coeff, tmp);
-        }
-        node = node->next;
-        pos += 1;
-    }
-    return FP_POLY_E_SUCCESS;
-}
-*/
 
 fp_poly_error_t fp_poly_mul(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_field_t *f)
 {
@@ -575,7 +528,6 @@ uint8_t fp_poly_inv(uint8_t element, fp_field_t *field) {
     return 0; // If no inverse is found
 }
 
-// a = b * q + r    q = 1; r = 0
 fp_poly_error_t fp_poly_div(fp_poly_t **q, fp_poly_t **r, fp_poly_t *n, fp_poly_t *d, fp_field_t *f)
 {
     fp_poly_t *t, *intermediate, *mem;
@@ -590,13 +542,6 @@ fp_poly_error_t fp_poly_div(fp_poly_t **q, fp_poly_t **r, fp_poly_t *n, fp_poly_
     mpz_init(bitwise);
     while (fp_poly_is_zero(*r) == 0 && fp_poly_degree(*r) >= fp_poly_degree(d))
     {
-        /*
-        if (fp_poly_is_zero(*r))
-        {
-            fp_poly_free(*r);
-            break;
-        }
-        */
         mpz_set_ui(bitwise, 0);
         mpz_setbit(bitwise, fp_poly_degree(*r) - fp_poly_degree(d));
         mpz_set(t->index_coeff, bitwise);
@@ -623,7 +568,6 @@ fp_poly_error_t fp_poly_div(fp_poly_t **q, fp_poly_t **r, fp_poly_t *n, fp_poly_
         }
         fp_poly_free(mem);
         fp_poly_free(intermediate);
-        //fp_poly_normalise_zero_polynom(*r);
     }
     fp_poly_free(t);
     mpz_clear(bitwise);
@@ -638,17 +582,7 @@ fp_poly_error_t fp_poly_gcd(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_fiel
     r2 = fp_poly_init_mpz(q->index_coeff, list_copy(q->coeff));
     while (fp_poly_is_zero(r2) == 0)
     {
-        /*
-        fprintf(stderr, "toto1\n");
-        fprintf(stderr, "r1 = ");
-        fp_poly_print(stderr, r1);
-        fprintf(stderr, "\n");
-        fprintf(stderr, "r2 = ");
-        fp_poly_print(stderr, r2);
-        fprintf(stderr, "\n");
-        */
         err = fp_poly_div(&q_tmp, &r_tmp, r1, r2, f);
-        //fprintf(stderr, "toto2\n\n");
         fp_poly_free(q_tmp);
         mem = r1;
         r1 = r2;
@@ -659,7 +593,6 @@ fp_poly_error_t fp_poly_gcd(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_fiel
             fp_poly_error(err, __FILE__, __func__, __LINE__, "");
             return err;
         }
-        //fp_poly_normalise_zero_polynom(r2);
     }
     *res = r1;
     fp_poly_free(r2);
@@ -888,16 +821,6 @@ static size_t fp_poly_count_set_bits(size_t n)
 }
 
 /*
-static size_t fp_poly_count_set_bits_mpz(mpz_t n)
-{
-    size_t count = 0;
-    for (size_t i = 0; i < mpz_sizeinbase(n, 2); i++)
-        count += mpz_tstbit(n, i);
-    return count;
-}
-*/
-
-/*
 * Initialize a polynom with a specified index coefficient and list of coefficients. The index coefficient is a size_t.
 *
 * Parameters:
@@ -1035,7 +958,6 @@ static fp_poly_t *fp_poly_is_irreducible_aux(uint64_t n, fp_field_t *f)
     mpz_t deg_x_n_minux_x;
     list_t *list;
     mpz_init_set_ui(deg_x_n_minux_x, 0x0);
-    //fprintf(stderr, "n = %ld\n", n);
     mpz_setbit(deg_x_n_minux_x, n-1);
     mpz_setbit(deg_x_n_minux_x, 0);
     list = list_init();
@@ -1105,16 +1027,6 @@ fp_poly_t *fp_poly_init_random(size_t degree, fp_field_t *f)
 
 fp_poly_t *fp_poly_init_random_irreducible(size_t digits, fp_field_t *f)
 {
-    /*
-    fp_poly_t *res;
-    res = fp_poly_init_random(degree, f);
-    while (!fp_poly_is_irreducible(res, f))
-    {
-        fp_poly_free(res);
-        res = fp_poly_init_random(degree, f);
-    }
-    return res;
-    */
     fp_poly_t *res;
     mpz_t rand;
     list_t *list;
