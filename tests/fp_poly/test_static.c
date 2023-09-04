@@ -20,7 +20,7 @@ int main()
     assert (fp_poly_free(p) == FP_POLY_E_SUCCESS);
 
     // fp_poly_normalise_zero_polynom
-    assert (fp_poly_normalise_zero_polynom(NULL) == FP_POLY_E_POLY_IS_NULL);
+    assert (fp_poly_normalise_zero_polynom(NULL) == FP_POLY_E_POLYNOM_IS_NULL);
     p = fp_poly_init_array((uint8_t[]) {0}, 1);
     assert (fp_poly_normalise_zero_polynom(p) == FP_POLY_E_SUCCESS);
     list_t *lst = list_init();

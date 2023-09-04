@@ -58,16 +58,16 @@ int main()
     }
 
     //fp_poly_free
-    assert (fp_poly_free(NULL) == FP_POLY_E_FREE);
+    assert (fp_poly_free(NULL) == FP_POLY_E_POLYNOM_IS_NULL);
     p = fp_poly_init_array((uint8_t[]) {1, 1}, 2);
     list_t *mem = p->coeff;
     p->coeff = NULL;
-    assert (fp_poly_free(p) == FP_POLY_E_FREE);
+    assert (fp_poly_free(p) == FP_POLY_E_LIST_COEFFICIENT_IS_NULL);
     p->coeff = mem;
     assert (fp_poly_free(p) == FP_POLY_E_SUCCESS);
 
     //fp_poly_free_field
-    assert (fp_poly_free_field(NULL) == FP_POLY_E_FREE_FIELD);
+    assert (fp_poly_free_field(NULL) == FP_POLY_E_FIELD_IS_NULL);
 
     //fp_poly_init_galois_field
     assert (fp_poly_init_galois_field(0, NULL) == NULL);

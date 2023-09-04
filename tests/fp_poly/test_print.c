@@ -2,12 +2,12 @@
 
 int main()
 {
-    assert (fp_poly_print(NULL, NULL) == FP_POLY_E_PRINT);
-    assert (fp_poly_print(stdout, NULL) == FP_POLY_E_PRINT);
+    assert (fp_poly_print(NULL, NULL) == FP_POLY_E_FILE_DESCRIPTOR_IS_NULL);
+    assert (fp_poly_print(stdout, NULL) == FP_POLY_E_POLYNOM_IS_NULL);
     fp_poly_t *p = fp_poly_init();
     list_t *mem = p->coeff;
     p->coeff = NULL;
-    assert (fp_poly_print(stdout, p) == FP_POLY_E_PRINT);
+    assert (fp_poly_print(stdout, p) == FP_POLY_E_LIST_COEFFICIENT_IS_NULL);
     p->coeff = mem;
     mpz_set_ui(p->index_coeff, 0x1);
     list_add_beginning(p->coeff, 0x0);
