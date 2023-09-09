@@ -444,6 +444,31 @@ fp_poly_error_t fp_poly_div(fp_poly_t **q, fp_poly_t **r, fp_poly_t *n, fp_poly_
     return FP_POLY_E_SUCCESS;
 }
 
+fp_poly_error_t fp_poly_gcd(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_field_t *f)
+{
+    fp_poly_t *q_tmp, *r_tmp, *r1, *r2, *mem;
+    fp_poly_error_t err;
+    r1 = fp_poly_init_mpz(p->index_coeff, list_copy(p->coeff));
+    r2 = fp_poly_init_mpz(q->index_coeff, list_copy(q->coeff));
+    while (fp_poly_degree(r2) > 0)
+    {
+        err = fp_poly_div(&q_tmp, &r_tmp, r1, r2, f);
+        fp_poly_free(q_tmp);
+        mem = r1;
+        r1 = r2;
+        r2 = r_tmp;
+        fp_poly_free(mem);
+        if (err)
+        {
+            fp_poly_error(err, __FILE__, __func__, __LINE__, "");
+            return err;
+        }
+    }
+    *res = r1;
+    fp_poly_free(r2);
+    return FP_POLY_E_SUCCESS;
+}
+
 /*
 * Parse a string to create a polynom.
 *
