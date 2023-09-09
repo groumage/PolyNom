@@ -1,3 +1,18 @@
+## **0.4.0**&emsp;<sub><sup>2023-06-12 ([9785424...162d06d](https://github.com/groumage/PolynomArithmetic/compare/9785424813a91cbf0c0c7ada5dd5008016a90570...162d06dc1c8e0da7f5decb96f4abbda6234790d0?diff=split))</sup></sub>
+
+### Features
+
+- add an error for poly library ([420b19b](https://github.com/groumage/PolynomArithmetic/commit/420b19b2dff3888a80b8dda1ee65a619febfd834))
+- add polynom substraction ([1c61196](https://github.com/groumage/PolynomArithmetic/commit/1c61196c66e64ec21565a63b58ef09657ef3d62c))
+
+### Tests
+
+- update CMakeList files \+ refactor code architecture of unit tests ([9785424](https://github.com/groumage/PolynomArithmetic/commit/9785424813a91cbf0c0c7ada5dd5008016a90570))
+- add unit tests for polynom parsing ([f77c677](https://github.com/groumage/PolynomArithmetic/commit/f77c67710b65b105c409653197f3256777c72205))
+- add unit test for polynom substraction ([1e6b4b7](https://github.com/groumage/PolynomArithmetic/commit/1e6b4b72780ab0e089dc12dc2869d02a9f2a38bf))
+
+<br>
+
 ## **0.3.0**&emsp;<sub><sup>2023-06-12 ([9337c40...fbe3f6b](https://github.com/groumage/PolynomArithmetic/compare/9337c4087999aeeeb1d0919daf5d02250c846ace...fbe3f6bb81250f7ee6fbd53e463f3fa8fd3250d4?diff=split))</sup></sub>
 
 ### Features
