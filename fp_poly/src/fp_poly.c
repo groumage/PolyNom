@@ -150,10 +150,8 @@ list_node_t *fp_poly_degree_to_node_list(fp_poly_t *p, size_t degree)
     return list_get_at_pos(p->coeff, count_bit_set_to_index(p->index_coeff, degree));
 }
 
-fp_poly_error_t fp_poly_add_single_term(fp_poly_t *p, uint8_t coeff, size_t degree, fp_field_t *field)
+static fp_poly_error_t fp_poly_add_single_term_aux(fp_poly_t *p, uint8_t coeff, size_t degree, fp_field_t *field, uint8_t is_addition)
 {
-    list_node_t *node;
-
     if (!p)
     {
         fp_poly_error(FP_POLY_E_POLY_IS_NULL, __FILE__, __func__, __LINE__, "");
@@ -170,10 +168,18 @@ fp_poly_error_t fp_poly_add_single_term(fp_poly_t *p, uint8_t coeff, size_t degr
         return FP_POLY_E_SUCCESS;
     if (mpz_tstbit(p->index_coeff, degree))
     {
-        node = fp_poly_degree_to_node_list(p, degree);
+        list_node_t *node = fp_poly_degree_to_node_list(p, degree);
         if (field != NULL)
         {
-            node->coeff = (node->coeff + coeff) % field->order;
+            if (is_addition)
+                node->coeff = (node->coeff + coeff) % field->order;
+            else
+            {
+                if (node->coeff < coeff)
+                    node->coeff = (field->order + node->coeff - coeff);
+                else
+                    node->coeff = (node->coeff - coeff) % field->order;
+            }   
             if (node->coeff == 0)
             {
                 mpz_clrbit(p->index_coeff, degree);
@@ -182,7 +188,22 @@ fp_poly_error_t fp_poly_add_single_term(fp_poly_t *p, uint8_t coeff, size_t degr
         }
         else if ((uint8_t) UINT8_MAX - node->coeff >= coeff)
         {
-            node->coeff += coeff;
+            if (is_addition)
+                node->coeff += coeff;
+            else
+            {
+                if (node->coeff < coeff)
+                {
+                    fp_poly_error(FP_POLY_E_COEFF_LESS_THAN_ZERO, __FILE__, __func__, __LINE__, "");
+                    return FP_POLY_E_COEFF_LESS_THAN_ZERO;
+                }
+                node->coeff -= coeff;
+            }
+            if (node->coeff == 0)
+            {
+                mpz_clrbit(p->index_coeff, degree);
+                list_remove_node(p->coeff, node);
+            }
         }
         else
         {
@@ -193,14 +214,18 @@ fp_poly_error_t fp_poly_add_single_term(fp_poly_t *p, uint8_t coeff, size_t degr
     else
     {
         if (field != NULL)
-            coeff = coeff % field->order;
+        {
+            if (is_addition)
+                coeff = coeff % field->order;
+            else
+                coeff = (field->order - coeff) % field->order;
+        }
         mpz_setbit(p->index_coeff, degree);
         list_add_at(p->coeff, coeff, count_bit_set_to_index(p->index_coeff, degree));
     }
     return FP_POLY_E_SUCCESS;
 }
 
-fp_poly_error_t fp_poly_add(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_field_t * f)
 /*
  * Add a single term at a specified degree to the polynom within a field.
  *
@@ -217,6 +242,12 @@ fp_poly_error_t fp_poly_add(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_fiel
  * - FP_POLY_E_COEFF_OVERFLOW if there is no field provided and if the term is too high to be stored within an uint8_t.
  *
  */
+fp_poly_error_t fp_poly_add_single_term(fp_poly_t *p, uint8_t coeff, size_t degree, fp_field_t *field)
+{
+    return fp_poly_add_single_term_aux(p, coeff, degree, field, 1);
+}
+
+static fp_poly_error_t fp_poly_add_aux(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_field_t * f, uint8_t is_addition)
 {
     size_t pos;
     list_node_t *node;
@@ -232,7 +263,7 @@ fp_poly_error_t fp_poly_add(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_fiel
     node = p->coeff->head;
     while (node != NULL)
     {
-        err = fp_poly_add_single_term(*res, node->coeff, fp_poly_coeff_list_to_degree(p, pos), f);
+        err = fp_poly_add_single_term_aux(*res, node->coeff, fp_poly_coeff_list_to_degree(p, pos), f, 1);
         if (err)
         {
             fp_poly_error(FP_POLY_E_MALLOC_ERROR, __FILE__, __func__, __LINE__, "");
@@ -245,7 +276,7 @@ fp_poly_error_t fp_poly_add(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_fiel
     node = q->coeff->head;
     while (node != NULL)
     {
-        err = fp_poly_add_single_term(*res, node->coeff, fp_poly_coeff_list_to_degree(q, pos), f);
+        err = fp_poly_add_single_term_aux(*res, node->coeff, fp_poly_coeff_list_to_degree(q, pos), f, is_addition);
         if (err)
         {
             fp_poly_error(err, __FILE__, __func__, __LINE__, "");
@@ -255,6 +286,36 @@ fp_poly_error_t fp_poly_add(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_fiel
         pos += 1;
     }
     return FP_POLY_E_SUCCESS;
+}
+
+/*
+ * Add two polynom together within a field.
+ *
+ * Parameters:
+ * - res: the polynom which store the result of the addition.
+ * - p: the first polynom.
+ * - q: the second polynom.
+ * - field: the field in which the operation is performed (optionnal).
+ *
+ * Returns:
+ * - FP_POLY_E_SUCCESS if the operation was successful.
+ * - FP_POLY_E_MALLOC_ERROR if there was an error during the memory allocation.
+ * - any error return by fp_poly_add_single_term.
+ *
+ */
+fp_poly_error_t fp_poly_add(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_field_t *f)
+{
+    return fp_poly_add_aux(res, p, q, f, 1);
+}
+
+fp_poly_error_t fp_poly_sub_single_term(fp_poly_t *p, uint8_t coeff, size_t degree, fp_field_t *field)
+{
+    return fp_poly_add_single_term_aux(p, coeff, degree, field, 0);
+}
+
+fp_poly_error_t fp_poly_sub(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_field_t *f)
+{
+    return fp_poly_add_aux(res, p, q, f, 0);
 }
 
 /*
@@ -329,7 +390,7 @@ fp_poly_t *fp_poly_parse(const char* polynomial)
         }
         if (coefficient == 0)
             coefficient = 1;
-        err = fp_poly_add_single_term(res, coefficient, degree, NULL);
+        err = fp_poly_add_single_term_aux(res, coefficient, degree, NULL, 1);
         if (err)
         {
             fp_poly_error(err, __FILE__, __func__, __LINE__, "");
