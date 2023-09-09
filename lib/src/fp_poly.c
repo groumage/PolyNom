@@ -931,8 +931,9 @@ static fp_poly_t *fp_poly_is_irreducible_aux(uint64_t n, fp_field_t *f)
     mpz_t deg_x_n_minux_x;
     list_t *list;
     mpz_init_set_ui(deg_x_n_minux_x, 0x0);
-    mpz_setbit(deg_x_n_minux_x, n);
-    mpz_setbit(deg_x_n_minux_x, 1);
+    //fprintf(stderr, "n = %ld\n", n);
+    mpz_setbit(deg_x_n_minux_x, n-1);
+    mpz_setbit(deg_x_n_minux_x, 0);
     list = list_init();
     list_add_beginning(list, 1);
     list_add_beginning(list, f->order - 1);
@@ -943,7 +944,7 @@ static fp_poly_t *fp_poly_is_irreducible_aux(uint64_t n, fp_field_t *f)
 uint8_t fp_poly_is_irreducible(fp_poly_t *p, fp_field_t *f)
 {
     fp_poly_t *x_n_minus_x, *q, *r, *res_gcd;
-    x_n_minus_x = fp_poly_is_irreducible_aux(my_pow(f->order, fp_poly_degree(p)-1), f);
+    x_n_minus_x = fp_poly_is_irreducible_aux(my_pow(f->order, fp_poly_degree(p)), f);
     fp_poly_div(&q, &r, x_n_minus_x, p, f);
     if (!fp_poly_is_zero(r))
         return 0;
@@ -951,7 +952,7 @@ uint8_t fp_poly_is_irreducible(fp_poly_t *p, fp_field_t *f)
     {
         if (is_prime(i, 15))
         {
-            if ((fp_poly_degree(p) - 1) % i == 0)
+            if (fp_poly_degree(p) % i == 0)
             {
                 x_n_minus_x = fp_poly_is_irreducible_aux(i, f);
                 fp_poly_gcd(&res_gcd, x_n_minus_x, p, f);
