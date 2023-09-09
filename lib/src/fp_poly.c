@@ -188,7 +188,7 @@ list_node_t *fp_poly_degree_to_node_list(fp_poly_t *p, size_t degree)
         fp_poly_error(FP_POLY_E_POLY_IS_NULL, __FILE__, __func__, __LINE__, "");
         return NULL;
     }
-    if (degree >= fp_poly_degree(p))
+    if (degree > fp_poly_degree(p))
     {
         fp_poly_error(FP_POLY_E_REQUESTED_DEGREE_IS_TOO_HIGH, __FILE__, __func__, __LINE__, "");
         return NULL;
