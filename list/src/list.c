@@ -30,7 +30,9 @@ static void list_error_no_custom_msg(list_error_t err, const char *file, const c
     list_error(err, file, fct, line, NULL);
 }
 
-    list = (list_t *) malloc(sizeof(list_t));
+list_t *list_init(void)
+{
+    list_t *list = (list_t *) malloc(sizeof(list_t));
     if (list == NULL)
         return NULL;
     list->head = NULL;
@@ -41,15 +43,12 @@ static void list_error_no_custom_msg(list_error_t err, const char *file, const c
 
 list_t *list_copy(list_t *l)
 {
-    list_t *list;
-    list_node_t *node;
-
     if (l == NULL)
         return NULL;
-    list = list_init();
+    list_t *list = list_init();
     if (list == NULL)
         return NULL;
-    node = l->head;
+    list_node_t *node = l->head;
     while (node != NULL)
     {
         if (list_add_end(list, node->coeff) != LIST_E_SUCCESS)
@@ -69,14 +68,12 @@ list_t *list_copy(list_t *l)
 
 list_error_t list_destroy(list_t *l)
 {
-    list_node_t *node, *tmp;
-
     if (l == NULL)
-    node = l->head;
         return LIST_E_LIST_IS_NULL;
+    list_node_t *node = l->head;
     while (node != NULL)
     {
-        tmp = node;
+        list_node_t *tmp = node;
         node = node->next;
         free(tmp);
     }
@@ -86,14 +83,12 @@ list_error_t list_destroy(list_t *l)
 
 list_error_t list_add_beginning(list_t *l, uint8_t coeff)
 {
-    list_node_t *node;
-
     if (l == NULL)
-    node = (list_node_t *) malloc(sizeof(list_node_t));
     {
         list_error_no_custom_msg(LIST_E_LIST_IS_NULL, __FILE__, __func__, __LINE__);
         return LIST_E_LIST_IS_NULL;
     }
+    list_node_t *node = (list_node_t *) malloc(sizeof(list_node_t));
     if (node == NULL)
         return LIST_E_MEMORY;
     node->coeff = coeff;
@@ -107,11 +102,9 @@ list_error_t list_add_beginning(list_t *l, uint8_t coeff)
 
 list_error_t list_add_end(list_t *l, uint8_t coeff)
 {
-    list_node_t *node;
-
     if (l == NULL)
-    node = (list_node_t *) malloc(sizeof(list_node_t));
         return LIST_E_LIST_IS_NULL;
+    list_node_t *node = (list_node_t *) malloc(sizeof(list_node_t));
     if (node == NULL)
         return LIST_E_MEMORY;
     node->coeff = coeff;
@@ -132,9 +125,6 @@ list_error_t list_add_end(list_t *l, uint8_t coeff)
 
 list_error_t list_add_at(list_t *l, uint8_t coeff, size_t pos)
 {
-    list_node_t *node, *tmp;
-    size_t i;
-
     if (l == NULL)
     {
         list_error_no_custom_msg(LIST_E_LIST_IS_NULL, __FILE__, __func__, __LINE__);
@@ -149,15 +139,15 @@ list_error_t list_add_at(list_t *l, uint8_t coeff, size_t pos)
         return list_add_beginning(l, coeff);
     if (pos == l->size)
         return list_add_end(l, coeff);
-    node = (list_node_t *) malloc(sizeof(list_node_t));
+    list_node_t *node = (list_node_t *) malloc(sizeof(list_node_t));
     if (node == NULL)
     {
         list_error(LIST_E_MEMORY, __FILE__, __func__, __LINE__, NULL);
         return LIST_E_MEMORY;
     }
     node->coeff = coeff;
-    tmp = l->head;
-    for (i = 0; i < pos - 1; i++)
+    list_node_t *tmp = l->head;
+    for (size_t i = 0; i < pos - 1; i++)
         tmp = tmp->next;
     node->next = tmp->next;
     tmp->next = node;
@@ -167,8 +157,6 @@ list_error_t list_add_at(list_t *l, uint8_t coeff, size_t pos)
 
 list_error_t list_add_after(list_t *l, uint8_t coeff, list_node_t *node)
 {
-    list_node_t *new_node;
-
     if (l == NULL)
     {
         list_error_no_custom_msg(LIST_E_LIST_IS_NULL, __FILE__, __func__, __LINE__);
@@ -181,7 +169,7 @@ list_error_t list_add_after(list_t *l, uint8_t coeff, list_node_t *node)
     }
     if (node == l->tail)
         return list_add_end(l, coeff);
-    new_node = (list_node_t *) malloc(sizeof(list_node_t));
+    list_node_t *new_node = (list_node_t *) malloc(sizeof(list_node_t));
     if (new_node == NULL)
     {
         list_error(LIST_E_MEMORY, __FILE__, __func__, __LINE__, NULL);
@@ -268,19 +256,17 @@ list_error_t list_remove_node(list_t *l, list_node_t *node)
 
 list_error_t list_remove_head(list_t *l)
 {
-    list_node_t *tmp;
-
     if (l == NULL)
     {
         list_error_no_custom_msg(LIST_E_LIST_IS_NULL, __FILE__, __func__, __LINE__);
         return LIST_E_LIST_IS_NULL;
     }
     if (l->head == NULL)
-    tmp = l->head;
     {
         list_error(LIST_E_LIST_MANIPULATION, __FILE__, __func__, __LINE__, "head of list is NULL");
         return LIST_E_LIST_MANIPULATION;
     }
+    list_node_t *tmp = l->head;
     l->head = l->head->next;
     free(tmp);
     l->size--;
@@ -289,19 +275,17 @@ list_error_t list_remove_head(list_t *l)
 
 list_error_t list_remove_tail(list_t *l)
 {
-    list_node_t *tmp;
-
     if (l == NULL)
     {
         list_error_no_custom_msg(LIST_E_LIST_IS_NULL, __FILE__, __func__, __LINE__);
         return LIST_E_LIST_IS_NULL;
     }
     if (l->tail == NULL)
-    tmp = l->head;
     {
         list_error(LIST_E_LIST_MANIPULATION, __FILE__, __func__, __LINE__, "tail of list is NULL");
         return LIST_E_LIST_MANIPULATION;
     }
+    list_node_t *tmp = l->head;
     while (tmp != NULL)
     {
         if (tmp->next == l->tail)
@@ -346,9 +330,6 @@ list_error_t list_get_pos(list_t* l, list_node_t *node)
 
 list_node_t *list_get_at_pos(list_t *l, size_t pos)
 {
-    list_node_t *tmp;
-    size_t i;
-
     if (l == NULL)
     {
         list_error_no_custom_msg(LIST_E_LIST_IS_NULL, __FILE__, __func__, __LINE__);
@@ -359,8 +340,8 @@ list_node_t *list_get_at_pos(list_t *l, size_t pos)
         list_error(LIST_E_LIST_MANIPULATION, __FILE__, __func__, __LINE__, "requested pos is greater than the size of the list");
         return NULL;
     }
-    tmp = l->head;
-    for (i = 0; i < pos; i++)
+    list_node_t *tmp = l->head;
+    for (size_t i = 0; i < pos; i++)
         tmp = tmp->next;
     return tmp;
 }
@@ -391,9 +372,6 @@ list_error_t list_print(FILE *fd, list_t *l)
 
 list_error_t list_assert(list_t *l, uint8_t *coeffs, size_t size)
 {
-    list_node_t *node;
-    size_t i;
-
     if (l == NULL)
         return LIST_E_LIST_IS_NULL;
     if (coeffs == NULL)
@@ -402,12 +380,12 @@ list_error_t list_assert(list_t *l, uint8_t *coeffs, size_t size)
         return LIST_E_LIST_MANIPULATION;
     }
     if (l->size != size)
-    node = l->head;
-    for (i = 0; i < size; i++)
     {
         list_error(LIST_E_LIST_MANIPULATION, __FILE__, __func__, __LINE__, "size of the list does not match the expected size");
         return LIST_E_LIST_MANIPULATION;
     }
+    list_node_t *node = l->head;
+    for (size_t i = 0; i < size; i++)
     {
         if (node->coeff != coeffs[i])
         {
@@ -423,9 +401,6 @@ list_error_t list_assert(list_t *l, uint8_t *coeffs, size_t size)
 
 list_t *list_create_from_array(uint8_t *coeffs, size_t size)
 {
-    list_t *l;
-    size_t i;
-
     list_t *lst = list_init();
     if (lst == NULL)
         return NULL;
@@ -434,7 +409,7 @@ list_t *list_create_from_array(uint8_t *coeffs, size_t size)
         list_destroy(lst);
         return NULL;
     }
-    for (i = 0; i < size; i++)
+    for (size_t i = 0; i < size; i++)
     {
         if (list_add_end(lst, coeffs[i]) != LIST_E_SUCCESS)
         {
