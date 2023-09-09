@@ -1,3 +1,16 @@
+## **0.6.0**&emsp;<sub><sup>2023-06-22 ([4a1289b...ad23c6f](https://github.com/groumage/PolynomArithmetic/compare/4a1289b9e52941f946a00f156eb76603701e346d...ad23c6f9d04e5a004f9f1611fba5a2b7850b9a04?diff=split))</sup></sub>
+
+### Features
+
+- add function to copy list ([4a1289b](https://github.com/groumage/PolynomArithmetic/commit/4a1289b9e52941f946a00f156eb76603701e346d))
+- add polynom division ([2af5e15](https://github.com/groumage/PolynomArithmetic/commit/2af5e15351b8d3a5e0dbc40a55fb76020f59f6d1))
+
+### Tests
+
+- add polynom division unit tests ([e919a9b](https://github.com/groumage/PolynomArithmetic/commit/e919a9be1008066f0147baa2c6d8987166b87d96))
+
+<br>
+
 ## **0.5.0**&emsp;<sub><sup>2023-06-21 ([2872cce...33dbece](https://github.com/groumage/PolynomArithmetic/compare/2872ccefa63b2f4be9353579205b620ef724f600...33dbeceae5af5aa7c1e615e46707a6d1bbee7e05?diff=split))</sup></sub>
 
 ### Features
