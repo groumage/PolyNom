@@ -99,6 +99,26 @@ list_error_t list_add_at(list_t *l, uint8_t coeff, size_t pos)
     return LIST_E_SUCCESS;
 }
 
+list_error_t list_add_after(list_t *l, uint8_t coeff, list_node_t *node)
+{
+    list_node_t *new_node;
+
+    if (l == NULL)
+        return LIST_E_NULL_PTR;
+    if (node == NULL)
+        return LIST_E_INVALID_ARGUMENT;
+    if (node == l->tail)
+        return list_add_end(l, coeff);
+    new_node = (list_node_t *) malloc(sizeof(list_node_t));
+    if (new_node == NULL)
+        return LIST_E_MEMORY;
+    new_node->coeff = coeff;
+    new_node->next = node->next;
+    node->next = new_node;
+    l->size++;
+    return LIST_E_SUCCESS;
+}
+
 list_error_t list_remove_coeff(list_t *l, uint8_t coeff)
 {
     list_node_t *tmp;
@@ -194,6 +214,40 @@ list_error_t list_remove_tail(list_t *l)
         tmp = tmp->next;
     }
     return LIST_E_NOT_FOUND;
+}
+
+list_error_t list_get_pos(list_t* l, list_node_t *node)
+{
+    list_node_t *tmp;
+    size_t i;
+
+    if (l == NULL)
+        return LIST_E_NULL_PTR;
+    if (node == NULL)
+        return LIST_E_INVALID_ARGUMENT;
+    tmp = l->head;
+    for (i = 0; i < l->size; i++)
+    {
+        if (tmp == node)
+            return i;
+        tmp = tmp->next;
+    }
+    return LIST_E_NOT_FOUND;
+}
+
+list_node_t *list_get_at_pos(list_t *l, size_t pos)
+{
+    list_node_t *tmp;
+    size_t i;
+
+    if (l == NULL)
+        return NULL;
+    if (pos >= l->size)
+        return NULL;
+    tmp = l->head;
+    for (i = 0; i < pos; i++)
+        tmp = tmp->next;
+    return tmp;
 }
 
 list_error_t list_print(FILE *fd, list_t *l)
