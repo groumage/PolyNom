@@ -27,14 +27,29 @@ static void fp_poly_error(fp_poly_error_t e, const char *file, const char *fct, 
         case FP_POLY_E_COEFF_OVERFLOW:
             fprintf(stderr, "Error in [%s, %s] line %d: coefficient overflow.\n", file, fct, line);
             break;
-        case FP_POLY_E_ASSERT_MPZ_FAILED:
-            fprintf(stderr, "Error in [%s, %s] line %d: assert mpz function failed.\n", file, fct, line);
+        case FP_POLY_E_ASSERT_MPZ:
+            fprintf(stderr, "Error in [%s, %s] line %d: function fp_poly_assert_mpz failed : %s.\n", file, fct, line, error);
             break;
-        case FP_POLY_E_ASSERT_SIZET_FAILED:
+        case FP_POLY_E_ASSERT_SIZET:
             fprintf(stderr, "Error in [%s, %s] line %d: assert size_t function failed : %s.\n", file, fct, line, error);
             break;
-        case FP_POLY_E_ASSERT_EQUALITY_FAILED:
+        case FP_POLY_E_ASSERT_EQUALITY:
             fprintf(stderr, "Error in [%s, %s] line %d: assert equality function failed : %s.\n", file, fct, line, error);
+            break;
+        case FP_POLY_E_INIT_SIZET:
+            fprintf(stderr, "Error in [%s, %s] line %d: fp_poly_init size_t function failed: %s\n", file, fct, line, error);
+            break;
+        case FP_POLY_INIT_ARRAY:
+            fprintf(stderr, "Error in [%s, %s] line %d: fp_poly_init_array function failed: %s\n", file, fct, line, error);
+            break;
+        case FP_POLY_E_INIT_MPZ:
+            fprintf(stderr, "Error in [%s, %s] line %d: fp_poly_init_mpz function failed: %s\n", file, fct, line, error);
+            break;
+        case FP_POLY_E_FREE:
+            fprintf(stderr, "Error in [%s, %s] line %d: fp_poly_free function failed: %s\n", file, fct, line, error);
+            break;
+        case FP_POLY_E_FREE_FIELD:
+            fprintf(stderr, "Error in [%s, %s] line %d: fp_poly_free_field function failed: %s\n", file, fct, line, error);
             break;
         default:
             fprintf(stderr, "Unhandled error in [%s, %s] line %d.\n", file, fct, line);
@@ -42,8 +57,18 @@ static void fp_poly_error(fp_poly_error_t e, const char *file, const char *fct, 
     }
 }
 
+static void fp_poly_error_no_custom_msg(fp_poly_error_t e, const char *file, const char *fct, const int line)
+{
+    fp_poly_error(e, file, fct, line, "");
+}
+
 static uint8_t fp_poly_is_zero(fp_poly_t *p)
 {
+    if (!p)
+    {
+        fp_poly_error_no_custom_msg(FP_POLY_E_POLY_IS_NULL, __FILE__, __func__, __LINE__);
+        return 0;
+    }
     list_node_t *node = p->coeff->head;
     while (node != NULL)
     {
@@ -56,6 +81,11 @@ static uint8_t fp_poly_is_zero(fp_poly_t *p)
 
 static fp_poly_error_t fp_poly_normalise_zero_polynom(fp_poly_t *p)
 {
+    if (!p)
+    {
+        fp_poly_error_no_custom_msg(FP_POLY_E_POLY_IS_NULL, __FILE__, __func__, __LINE__);
+        return FP_POLY_E_POLY_IS_NULL;
+    }
     if (fp_poly_is_zero(p))
     {
         mpz_set_ui(p->index_coeff, 1);
@@ -73,6 +103,11 @@ static fp_poly_error_t fp_poly_normalise_zero_polynom(fp_poly_t *p)
 
 static uint8_t fp_poly_is_unit(fp_poly_t *p)
 {
+    if (!p)
+    {
+        fp_poly_error_no_custom_msg(FP_POLY_E_POLY_IS_NULL, __FILE__, __func__, __LINE__);
+        return 0;
+    }
     if (p->coeff->size == 1 && mpz_cmp_ui(p->index_coeff, 1) == 0 && p->coeff->head->coeff == 1)
         return 1;
     return 0;
@@ -723,6 +758,16 @@ fp_poly_t *fp_poly_parse(const char* polynomial)
     uint8_t coefficient;
     size_t degree;
 
+    if (!polynomial)
+    {
+        fp_poly_error(FP_POLY_E_POLY_IS_NULL, __FILE__, __func__, __LINE__, "");
+        return NULL;
+    }
+    if (strlen(polynomial) == 0)
+    {
+        fp_poly_error(FP_POLY_E_STR_OF_ZERO_LENGTH, __FILE__, __func__, __LINE__, "");
+        return NULL;
+    }
     res = fp_poly_init();
     ptr = polynomial;
     if (!res)
@@ -730,8 +775,6 @@ fp_poly_t *fp_poly_parse(const char* polynomial)
         fp_poly_error(FP_POLY_E_MALLOC_ERROR, __FILE__, __func__, __LINE__, "");
         return NULL;
     }
-    if (strlen(polynomial) == 0)
-        return res;
     if (strlen(polynomial) == 1 && polynomial[0] == '0')
     {
         mpz_set_ui(res->index_coeff, 0x1);
@@ -854,9 +897,24 @@ fp_poly_t *fp_poly_init_sizet(size_t pos_coeff, list_t *coeff)
     fp_poly_t *res;
     
     res = (fp_poly_t *) malloc(sizeof(fp_poly_t));
+    if (!coeff)
+    {
+        fp_poly_error(FP_POLY_E_INIT_SIZET, __FILE__, __func__, __LINE__, "list of coefficients is NULL");
+        return NULL;
+    }
+    if (pos_coeff == 0)
+    {
+        fp_poly_error(FP_POLY_E_INIT_SIZET, __FILE__, __func__, __LINE__, "index of the coefficients is zero");
+        return NULL;
+    }
     if (!res)
     {
         fp_poly_error(FP_POLY_E_MALLOC_ERROR, __FILE__, __func__, __LINE__, "");
+        return NULL;
+    }
+    if (fp_poly_count_set_bits(pos_coeff) != coeff->size)
+    {
+        fp_poly_error(FP_POLY_E_INIT_SIZET, __FILE__, __func__, __LINE__, "the number of coefficients in the list and the index of the coefficients are not consistent");
         return NULL;
     }
     mpz_init_set_ui(res->index_coeff, pos_coeff);
@@ -880,9 +938,26 @@ fp_poly_t *fp_poly_init_mpz(mpz_t pos_coeff, list_t *coeff)
     fp_poly_t *res;
     
     res = (fp_poly_t *) malloc(sizeof(fp_poly_t));
+    if (!coeff)
+    {
+        fp_poly_error(FP_POLY_E_INIT_MPZ, __FILE__, __func__, __LINE__, "list of coefficients is NULL");
+        return NULL;
+    }
+    if (mpz_cmp_ui(pos_coeff, 0) == 0)
+    {
+        fp_poly_error(FP_POLY_E_INIT_MPZ, __FILE__, __func__, __LINE__, "index of the coefficients is zero");
+        return NULL;
+    }
     if (!res)
     {
         fp_poly_error(FP_POLY_E_MALLOC_ERROR, __FILE__, __func__, __LINE__, "");
+        return NULL;
+    }
+    if (fp_poly_count_set_bits(mpz_get_ui(pos_coeff)) != coeff->size)
+    {
+        char buffer[150];
+        snprintf(buffer, 150, "the number of coefficients in the list and the index of the coefficients are not consistent: number of coefficients is %ld but index of coeff is %ld", coeff->size, fp_poly_count_set_bits(mpz_get_ui(pos_coeff)));
+        fp_poly_error(FP_POLY_E_INIT_MPZ, __FILE__, __func__, __LINE__, buffer);
         return NULL;
     }
     mpz_init_set(res->index_coeff, pos_coeff);
@@ -906,6 +981,16 @@ fp_poly_t *fp_poly_init_array(uint8_t *coeff, size_t len)
     fp_poly_t *res;
     
     res = (fp_poly_t *) malloc(sizeof(fp_poly_t));
+    if (!coeff)
+    {
+        fp_poly_error(FP_POLY_INIT_ARRAY, __FILE__, __func__, __LINE__, "the array of coefficients is NULL");
+        return NULL;
+    }
+    if (len == 0)
+    {
+        fp_poly_error(FP_POLY_INIT_ARRAY, __FILE__, __func__, __LINE__, "the len of the array is zero");
+        return NULL;
+    }
     if (!res)
     {
         fp_poly_error(FP_POLY_E_MALLOC_ERROR, __FILE__, __func__, __LINE__, "");
@@ -970,6 +1055,11 @@ fp_poly_t *fp_poly_init_random(size_t degree, fp_field_t *f)
     size_t i;
     
     res = (fp_poly_t *) malloc(sizeof(fp_poly_t));
+    if (!f)
+    {
+        fp_poly_error(FP_POLY_E_INIT_RANDOM, __FILE__, __func__, __LINE__, "field is NULL");
+        return NULL;
+    }
     if (!res)
     {
         fp_poly_error(FP_POLY_E_MALLOC_ERROR, __FILE__, __func__, __LINE__, "");
@@ -1037,13 +1127,13 @@ fp_poly_error_t fp_poly_free(fp_poly_t *p)
 {
     if (!p)
     {
-        fp_poly_error(FP_POLY_E_POLY_IS_NULL, __FILE__, __func__, __LINE__, "");
-        return FP_POLY_E_POLY_IS_NULL;
+        fp_poly_error(FP_POLY_E_FREE, __FILE__, __func__, __LINE__, "poly is NULL");
+        return FP_POLY_E_FREE;
     }
     if (!p->coeff)
     {
-        fp_poly_error(FP_POLY_E_LIST_COEFF_IS_NULL, __FILE__, __func__, __LINE__, "");
-        return FP_POLY_E_LIST_COEFF_IS_NULL;
+        fp_poly_error(FP_POLY_E_FREE, __FILE__, __func__, __LINE__, "list of coefficients is NULL");
+        return FP_POLY_E_FREE;
     }
     list_destroy(p->coeff);
     mpz_clear(p->index_coeff);
@@ -1074,23 +1164,30 @@ fp_poly_error_t fp_poly_assert_mpz(fp_poly_t *p, mpz_t expected_pos_coeff, list_
 
     if (!p)
     {
-        fp_poly_error(FP_POLY_E_POLY_IS_NULL, __FILE__, __func__, __LINE__, "");
-        return FP_POLY_E_POLY_IS_NULL;
+        fp_poly_error(FP_POLY_E_ASSERT_MPZ, __FILE__, __func__, __LINE__, "poly is NULL");
+        return FP_POLY_E_ASSERT_MPZ;
     }
     if (!p->coeff)
     {
-        fp_poly_error(FP_POLY_E_LIST_COEFF_IS_NULL, __FILE__, __func__, __LINE__, "");
-        return FP_POLY_E_LIST_COEFF_IS_NULL;
+        fp_poly_error(FP_POLY_E_ASSERT_MPZ, __FILE__, __func__, __LINE__, "list of coefficients is NULL");
+        return FP_POLY_E_ASSERT_MPZ;
+    }
+    if (!expected_pos_coeff)
+    {
+        fp_poly_error(FP_POLY_E_ASSERT_MPZ, __FILE__, __func__, __LINE__, "expected index of coefficients is NULL");
+        return FP_POLY_E_ASSERT_MPZ;
     }
     if (!expected_coeff)
     {
-        fp_poly_error(FP_POLY_E_LIST_COEFF_IS_NULL, __FILE__, __func__, __LINE__, "");
-        return FP_POLY_E_LIST_COEFF_IS_NULL;
+        fp_poly_error(FP_POLY_E_ASSERT_MPZ, __FILE__, __func__, __LINE__, "expected list of coefficients is NULL");
+        return FP_POLY_E_ASSERT_MPZ;
     }
     if (mpz_cmp(p->index_coeff, expected_pos_coeff) != 0)
     {
-        fp_poly_error(FP_POLY_E_ASSERT_MPZ_FAILED, __FILE__, __func__, __LINE__, "");
-        return FP_POLY_E_ASSERT_MPZ_FAILED;
+        char buffer[150];
+        snprintf(buffer, 150, "expected index of coefficients : %s , got index of coefficients: %s\n", mpz_get_str(NULL, 10, p->index_coeff), mpz_get_str(NULL, 10, expected_pos_coeff));
+        fp_poly_error(FP_POLY_E_ASSERT_MPZ, __FILE__, __func__, __LINE__, buffer);
+        return FP_POLY_E_ASSERT_MPZ;
     }
     pos_p = 0;
     pos_expected = 0;
@@ -1139,25 +1236,25 @@ fp_poly_error_t fp_poly_assert_sizet(fp_poly_t *p, size_t expected_pos_coeff, li
 
     if (!p)
     {
-        fp_poly_error(FP_POLY_E_POLY_IS_NULL, __FILE__, __func__, __LINE__, "");
-        return FP_POLY_E_POLY_IS_NULL;
+        fp_poly_error(FP_POLY_E_ASSERT_SIZET, __FILE__, __func__, __LINE__, "");
+        return FP_POLY_E_ASSERT_SIZET;
     }
     if (!p->coeff)
     {
-        fp_poly_error(FP_POLY_E_LIST_COEFF_IS_NULL, __FILE__, __func__, __LINE__, "");
-        return FP_POLY_E_LIST_COEFF_IS_NULL;
+        fp_poly_error(FP_POLY_E_ASSERT_SIZET, __FILE__, __func__, __LINE__, "");
+        return FP_POLY_E_ASSERT_SIZET;
     }
     if (!expected_coeff)
     {
-        fp_poly_error(FP_POLY_E_LIST_COEFF_IS_NULL, __FILE__, __func__, __LINE__, "");
-        return FP_POLY_E_LIST_COEFF_IS_NULL;
+        fp_poly_error(FP_POLY_E_ASSERT_SIZET, __FILE__, __func__, __LINE__, "");
+        return FP_POLY_E_ASSERT_SIZET;
     }
     if (mpz_cmp_ui(p->index_coeff, expected_pos_coeff) != 0)
     {
-        char buffer[100];
-        snprintf(buffer, 100, "expected: %lu , got: %s\n", expected_pos_coeff, mpz_get_str(NULL, 10, p->index_coeff));
-        fp_poly_error(FP_POLY_E_ASSERT_SIZET_FAILED, __FILE__, __func__, __LINE__, buffer);
-        return FP_POLY_E_ASSERT_SIZET_FAILED;
+        char buffer[150];
+        snprintf(buffer, 150, "expected index of coefficients : %s , got index of coefficients: %ld\n", mpz_get_str(NULL, 10, p->index_coeff), expected_pos_coeff);
+        fp_poly_error(FP_POLY_E_ASSERT_SIZET, __FILE__, __func__, __LINE__, buffer);
+        return FP_POLY_E_ASSERT_SIZET;
     }
     pos_p = 0;
     pos_expected = 0;
@@ -1169,8 +1266,8 @@ fp_poly_error_t fp_poly_assert_sizet(fp_poly_t *p, size_t expected_pos_coeff, li
         {
             char buffer[100];
             snprintf(buffer, 100, "expected coeff : %u , got coeff: %u (pos = %ld)\n", node_expected->coeff, node_p->coeff, pos_p);
-            fp_poly_error(FP_POLY_E_ASSERT_SIZET_FAILED, __FILE__, __func__, __LINE__, buffer);
-            return FP_POLY_E_ASSERT_SIZET_FAILED;
+            fp_poly_error(FP_POLY_E_ASSERT_SIZET, __FILE__, __func__, __LINE__, buffer);
+            return FP_POLY_E_ASSERT_SIZET;
         }
         pos_p += 1;
         pos_expected += 1;
@@ -1179,13 +1276,13 @@ fp_poly_error_t fp_poly_assert_sizet(fp_poly_t *p, size_t expected_pos_coeff, li
     }
     if (node_p != NULL)
     {
-        fp_poly_error(FP_POLY_E_ASSERT_SIZET_FAILED, __FILE__, __func__, __LINE__, "There is more coefficients in the polynom than expected");
-        return FP_POLY_E_ASSERT_SIZET_FAILED;
+        fp_poly_error(FP_POLY_E_ASSERT_SIZET, __FILE__, __func__, __LINE__, "There is more coefficients in the polynom than expected");
+        return FP_POLY_E_ASSERT_SIZET;
     }
     if (node_expected != NULL)
     {
-        fp_poly_error(FP_POLY_E_ASSERT_SIZET_FAILED, __FILE__, __func__, __LINE__, "There is less coefficients in the polynom than expected");
-        return FP_POLY_E_ASSERT_SIZET_FAILED;
+        fp_poly_error(FP_POLY_E_ASSERT_SIZET, __FILE__, __func__, __LINE__, "There is less coefficients in the polynom than expected");
+        return FP_POLY_E_ASSERT_SIZET;
     }
     return FP_POLY_E_SUCCESS;
 }
@@ -1266,15 +1363,20 @@ fp_poly_error_t fp_poly_print(FILE *fd, fp_poly_t *p)
 {
     list_node_t *node;
 
+    if (!fd)
+    {
+        fp_poly_error(FP_POLY_E_PRINT, __FILE__, __func__, __LINE__, "file descriptor is NULL");
+        return FP_POLY_E_PRINT;
+    }
     if (!p)
     {
-        fp_poly_error(FP_POLY_E_POLY_IS_NULL, __FILE__, __func__, __LINE__, "");
-        return FP_POLY_E_POLY_IS_NULL;
+        fp_poly_error(FP_POLY_E_PRINT, __FILE__, __func__, __LINE__, "");
+        return FP_POLY_E_PRINT;
     }
     if (!p->coeff)
     {
-        fp_poly_error(FP_POLY_E_LIST_COEFF_IS_NULL, __FILE__, __func__, __LINE__, "");
-        return FP_POLY_E_LIST_COEFF_IS_NULL;
+        fp_poly_error(FP_POLY_E_PRINT, __FILE__, __func__, __LINE__, "");
+        return FP_POLY_E_PRINT;
     }
     node = p->coeff->head;
     if (fp_poly_is_zero(p))
@@ -1341,6 +1443,11 @@ fp_field_t *fp_poly_init_galois_field(uint8_t order, fp_poly_t *irreducible_poly
     fp_field_t *field;
 
     field = (fp_field_t *)malloc(sizeof(fp_field_t));
+    if (order == 0)
+    {
+        fp_poly_error(FP_POLY_E_INIT_GALOIS_FIELD, __FILE__, __func__, __LINE__, "order is zero");
+        return NULL;
+    }
     if (!field)
     {
         fp_poly_error(FP_POLY_E_MALLOC_ERROR, __FILE__, __func__, __LINE__, "");
@@ -1366,8 +1473,8 @@ fp_poly_error_t fp_poly_free_field(fp_field_t *field)
 {
     if (!field)
     {
-        fp_poly_error(FP_POLY_E_FIELD_IS_NULL, __FILE__, __func__, __LINE__, "");
-        return FP_POLY_E_FIELD_IS_NULL;
+        fp_poly_error(FP_POLY_E_FREE_FIELD, __FILE__, __func__, __LINE__, "");
+        return FP_POLY_E_FREE_FIELD;
     }
     if (field->irreducible_polynom)
         fp_poly_free(field->irreducible_polynom);
