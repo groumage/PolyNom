@@ -575,6 +575,7 @@ uint8_t fp_poly_inv(uint8_t element, fp_field_t *field) {
     return 0; // If no inverse is found
 }
 
+// a = b * q + r    q = 1; r = 0
 fp_poly_error_t fp_poly_div(fp_poly_t **q, fp_poly_t **r, fp_poly_t *n, fp_poly_t *d, fp_field_t *f)
 {
     fp_poly_t *t, *intermediate, *mem;
@@ -1147,18 +1148,26 @@ fp_poly_error_t fp_poly_free(fp_poly_t *p)
 }
 
 /*
-* Assert that a the parameters of a polynom is equal to the expected parameters. The expected index of the coefficient is a mpz_t.
+* Check that an actual polynom is equal to expected one. The parameters of the expected polynom must be manually defined. The expected index of the coefficient is of type mpz_t.
+*
+* The check fails if:
+* - the polynom is NULL.
+* - the list of the values of the coefficients of the polynom is NULL.
+* - the expected index of the coefficient is NULL.
+* - the list of the expected values of the coefficients is NULL.
+* - the actual index of the coefficient is different from the expected index of the coefficient.
+* - both list of the values of the coefficient has equal size but a value doesn't match.
+* - the actual list of the values of the coefficients is longer than the expected list of the values of the coefficients.
+* - the actual list of the values of the coefficients is shorter than the expected list of the values of the coefficients.
 *
 * Parameters:
-* - p: the polynom to check.
+* - p: the polynom.
 * - expected_pos_coeff: the expected index of the coefficient.
-* - expected_coeff: the expected list of coefficients.
+* - expected_coeff: the list of the expected values of the coefficients.
 *
 * Returns:
-* - FP_POLY_E_SUCCESS if the operation was successful.
-* - FP_POLY_E_POLY_IS_NULL if the polynom is NULL.
-* - FP_POLY_E_LIST_COEFF_IS_NULL if the list of coefficients is NULL.
-* - FP_POLY_E_ASSERT_MPZ_FAILED if the assertion failed.
+* - FP_POLY_E_SUCCESS if the equality succeed.
+* - FP_POLY_E_ASSERT_MPZ if the equality fails.
 */
 fp_poly_error_t fp_poly_assert_mpz(fp_poly_t *p, mpz_t expected_pos_coeff, list_t *expected_coeff)
 {
@@ -1202,24 +1211,40 @@ fp_poly_error_t fp_poly_assert_mpz(fp_poly_t *p, mpz_t expected_pos_coeff, list_
     {
         if (node_p->coeff != node_expected->coeff)
         {
-            fp_poly_error(FP_POLY_E_ASSERT_MPZ_FAILED, __FILE__, __func__, __LINE__, "");
-            return FP_POLY_E_ASSERT_MPZ_FAILED;
+            char buffer[100];
+            snprintf(buffer, 100, "expected coeff : %u but got coeff: %u at pos = %ld\n", node_expected->coeff, node_p->coeff, pos_p);
+            fp_poly_error(FP_POLY_E_ASSERT_MPZ, __FILE__, __func__, __LINE__, buffer);
+            return FP_POLY_E_ASSERT_MPZ;
         }
         pos_p += 1;
         pos_expected += 1;
         node_p = node_p->next;
         node_expected = node_expected->next;
     }
-    if (node_p != NULL || node_expected != NULL)
+    if (node_p != NULL)
     {
-        fp_poly_error(FP_POLY_E_ASSERT_MPZ_FAILED, __FILE__, __func__, __LINE__, "");
-        return FP_POLY_E_ASSERT_MPZ_FAILED;
+        fp_poly_error(FP_POLY_E_ASSERT_MPZ, __FILE__, __func__, __LINE__, "There is more coefficients in the polynom than expected");
+        return FP_POLY_E_ASSERT_MPZ;
+    }
+    if (node_expected != NULL)
+    {
+        fp_poly_error(FP_POLY_E_ASSERT_MPZ, __FILE__, __func__, __LINE__, "There is less coefficients in the polynom than expected");
+        return FP_POLY_E_ASSERT_MPZ;
     }
     return FP_POLY_E_SUCCESS;
 }
 
 /*
-* Assert that a the parameters of a polynom is equal to the expected parameters. The expected index of the coefficient is a size_t.
+* Check that an actual polynom is equal to expected one. The parameters of the expected polynom must be manually defined. The expected index of the coefficient is of type mpz_t.
+*
+* The check fails if:
+* - the polynom is NULL.
+* - the list of the values of the coefficients of the polynom is NULL.
+* - the list of the expected values of the coefficients is NULL.
+* - the actual index of the coefficient is different from the expected index of the coefficient.
+* - both list of the values of the coefficient has equal size but a value doesn't match.
+* - the actual list of the values of the coefficients is longer than the expected list of the values of the coefficients.
+* - the actual list of the values of the coefficients is shorter than the expected list of the values of the coefficients.
 *
 * Parameters:
 * - p: the polynom to check.
@@ -1227,10 +1252,8 @@ fp_poly_error_t fp_poly_assert_mpz(fp_poly_t *p, mpz_t expected_pos_coeff, list_
 * - expected_coeff: the expected list of coefficients.
 *
 * Returns:
-* - FP_POLY_E_SUCCESS if the operation was successful.
-* - FP_POLY_E_POLY_IS_NULL if the polynom is NULL.
-* - FP_POLY_E_LIST_COEFF_IS_NULL if the list of coefficients is NULL.
-* - FP_POLY_E_ASSERT_SIZET_FAILED if the assertion failed.
+* - FP_POLY_E_SUCCESS if the equality succeed.
+* - FP_POLY_E_ASSERT_SIZET if the equality fails.
 */
 fp_poly_error_t fp_poly_assert_sizet(fp_poly_t *p, size_t expected_pos_coeff, list_t *expected_coeff)
 {
