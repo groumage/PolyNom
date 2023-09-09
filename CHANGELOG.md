@@ -1,3 +1,23 @@
+## **0.7.0**&emsp;<sub><sup>2023-06-28 ([d186b8a...3478bdd](https://github.com/groumage/PolynomArithmetic/compare/d186b8aa5be055f29a57041cf85e97a8747ad80a...3478bdd6845022505c1032f0d5489cf5d7a3a7e4?diff=split))</sup></sub>
+
+### Features
+
+- add polynom GCD ([220e701](https://github.com/groumage/PolynomArithmetic/commit/220e701d96d5c3cf5a31f00f608a8aba04014dff))
+
+### Bug Fixes
+
+- repair polynom division ([d186b8a](https://github.com/groumage/PolynomArithmetic/commit/d186b8aa5be055f29a57041cf85e97a8747ad80a))
+- repair function that compute the degree of a polynom ([054a29c](https://github.com/groumage/PolynomArithmetic/commit/054a29c6960ac0ab68cadee579e1b77cb7b39eba))
+
+### Tests
+
+- enhance multiplication and division unit tests ([0e2e541](https://github.com/groumage/PolynomArithmetic/commit/0e2e5416b260179f3d19ff9a365b1138d9976dbc))
+- update CMakeList with test labels ([2bc8d63](https://github.com/groumage/PolynomArithmetic/commit/2bc8d638269f824b8b5d76d44cac696b3ebd40bd))
+- add polynom GCD unit tests ([a937f0a](https://github.com/groumage/PolynomArithmetic/commit/a937f0a99479151a2be47724a608b2b6278ba8dc))
+- generate input test for polynom GCD unit tests ([971b3f7](https://github.com/groumage/PolynomArithmetic/commit/971b3f711552602e5485c748cfdb2db535bd99d8))
+
+<br>
+
 ## **0.6.0**&emsp;<sub><sup>2023-06-22 ([4a1289b...ad23c6f](https://github.com/groumage/PolynomArithmetic/compare/4a1289b9e52941f946a00f156eb76603701e346d...ad23c6f9d04e5a004f9f1611fba5a2b7850b9a04?diff=split))</sup></sub>
 
 ### Features
