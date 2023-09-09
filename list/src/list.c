@@ -1,5 +1,15 @@
 #include "../include/list.h"
 
+#ifdef MOCK_MALLOC
+#define malloc(size) mock_malloc(size)
+void* mock_malloc(size_t size)
+{
+    (void) size;
+    return NULL;
+}
+list_t global_list = {NULL, NULL, 0};
+#endif
+
 list_t *list_init(void)
 {
     list_t *list;
