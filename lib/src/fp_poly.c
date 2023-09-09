@@ -1006,8 +1006,18 @@ fp_poly_t *fp_poly_init_array(uint8_t *coeff, size_t len)
         fp_poly_error(FP_POLY_E_MALLOC_ERROR, __FILE__, __func__, __LINE__, "");
         return NULL;
     }
-    mpz_init_set_ui(res->index_coeff, 0x0);
     res->coeff = list_init();
+    mpz_init_set_ui(res->index_coeff, 0x0);
+    uint8_t is_all_coeff_zero = 1;
+    for (size_t i = 0; i < len; i++)
+        if (coeff[i] != 0)
+            is_all_coeff_zero = 0;
+    if (is_all_coeff_zero)
+    {
+        mpz_set_ui(res->index_coeff, 0x1);
+        list_add_beginning(res->coeff, 0);
+        return res;
+    }
     for (size_t i = 0; i < len; i++)
     {
         if (coeff[i] != 0)
