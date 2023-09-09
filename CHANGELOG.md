@@ -1,3 +1,15 @@
+## **0.12.0**&emsp;<sub><sup>2023-08-06 ([17b421f...940d20a](https://github.com/groumage/PolynomArithmetic/compare/17b421f0d728456c4103531a12ccab3d2b4649c6...940d20abe04dfc3e46e45afb860bb14e5f816f65?diff=split))</sup></sub>
+
+### Features
+
+- add a ibrary to encrypt / decrypt messages with RSA cryptosystem ([8621b21](https://github.com/groumage/PolynomArithmetic/commit/8621b21689066d701244dbd812e2a7a21cfe94e8))
+
+### Tests
+
+- remove valgrind option leak\-check=full for unit testing ([7266931](https://github.com/groumage/PolynomArithmetic/commit/726693134d53b8d0acd60ca11a56036a5fa0bfc3))
+
+<br>
+
 ## **0.11.0**&emsp;<sub><sup>2023-08-01 ([5dc074c...f82efa0](https://github.com/groumage/PolynomArithmetic/compare/5dc074cb7517494a5477b2cb5016a611825ee917...f82efa0071050f0dbb6675c693e5006150e1391a?diff=split))</sup></sub>
 
 ### Features
