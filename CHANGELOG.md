@@ -1,3 +1,15 @@
+## **0.8.0**&emsp;<sub><sup>2023-07-01 ([b7d5a9b...dc6422f](https://github.com/groumage/PolynomArithmetic/compare/b7d5a9baa67e2e301e72dd4c4731793e856265b7...dc6422fce4e0c9974d1de5613d375c2c2711cb9c?diff=split))</sup></sub>
+
+### Features
+
+- add polynom multiplication over galois fields ([b7d5a9b](https://github.com/groumage/PolynomArithmetic/commit/b7d5a9baa67e2e301e72dd4c4731793e856265b7))
+
+### Tests
+
+- add unit tests of polynom multiplication over finite fields ([4ea693d](https://github.com/groumage/PolynomArithmetic/commit/4ea693db3a91908ccacab8fef62be321d56f4170))
+
+<br>
+
 ## **0.7.0**&emsp;<sub><sup>2023-06-28 ([d186b8a...3478bdd](https://github.com/groumage/PolynomArithmetic/compare/d186b8aa5be055f29a57041cf85e97a8747ad80a...3478bdd6845022505c1032f0d5489cf5d7a3a7e4?diff=split))</sup></sub>
 
 ### Features
