@@ -97,6 +97,10 @@ static fp_poly_error_t fp_poly_normalise_zero_polynom(fp_poly_t *p)
             return FP_POLY_E_MALLOC_ERROR;
         }
         list_add_beginning(p->coeff, 0);
+        /*
+        fp_poly_free(p);
+        p = fp_poly_init_array((uint8_t[]) {0}, 1);
+        */
     }
     return FP_POLY_E_SUCCESS;
 }
@@ -633,7 +637,17 @@ fp_poly_error_t fp_poly_gcd(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_fiel
     r2 = fp_poly_init_mpz(q->index_coeff, list_copy(q->coeff));
     while (fp_poly_is_zero(r2) == 0)
     {
+        /*
+        fprintf(stderr, "toto1\n");
+        fprintf(stderr, "r1 = ");
+        fp_poly_print(stderr, r1);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "r2 = ");
+        fp_poly_print(stderr, r2);
+        fprintf(stderr, "\n");
+        */
         err = fp_poly_div(&q_tmp, &r_tmp, r1, r2, f);
+        //fprintf(stderr, "toto2\n\n");
         fp_poly_free(q_tmp);
         mem = r1;
         r1 = r2;
@@ -644,6 +658,7 @@ fp_poly_error_t fp_poly_gcd(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_fiel
             fp_poly_error(err, __FILE__, __func__, __LINE__, "");
             return err;
         }
+        //fp_poly_normalise_zero_polynom(r2);
     }
     *res = r1;
     fp_poly_free(r2);
@@ -1004,7 +1019,6 @@ fp_poly_t *fp_poly_init_array(uint8_t *coeff, size_t len)
         {
             mpz_setbit(res->index_coeff, i);
             list_add_end(res->coeff, coeff[i]);
-            //list_add_beginning(res->coeff, coeff[i]);
         }
     }
     return res;
