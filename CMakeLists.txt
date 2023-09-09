@@ -1,15 +1,14 @@
 cmake_minimum_required(VERSION 3.5)
-
 project(myproject)
 
 include(cmake/FindGMP.cmake)
+set(BUILD_TESTING ON)
 
-set (BUILD_TESTING ON)
-
-
-# Add list library
-add_library(list STATIC list/src/list.c)
-target_include_directories(list PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/list/include)
+add_library(list_lib STATIC list/src/list.c)
+target_include_directories(list_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/list/include)
+add_library(list_malloc STATIC list/src/list.c)
+target_include_directories(list_malloc PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/list/include)
+target_compile_definitions(list_malloc PUBLIC MOCK_MALLOC)
 
 # Add fp_poly library
 add_library(fp_poly STATIC fp_poly/src/fp_poly.c)
@@ -19,21 +18,40 @@ target_link_libraries(fp_poly PRIVATE list)
 
 enable_testing()
 
-# Add list test executable
-add_executable(list_test list/tests/test_list.c)
-target_include_directories(list_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/list/include)
-target_link_libraries(list_test PRIVATE list)
-add_test(NAME list_test COMMAND list_test)
-add_test(NAME list_test_mem_check COMMAND valgrind --leak-check=full ./list_test)
-set_tests_properties(list_test_mem_check PROPERTIES TIMEOUT 10 PASS_REGULAR_EXPRESSION "ERROR SUMMARY: 0 errors.*")
+add_executable(list list/tests/test_list.c)
+target_include_directories(list PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/list/include)
+target_link_libraries(list PRIVATE list_lib)
+add_test(NAME list COMMAND list)
+add_test(NAME list_memory COMMAND valgrind --leak-check=full ./list)
+set_tests_properties(list_memory PROPERTIES TIMEOUT 10 PASS_REGULAR_EXPRESSION "ERROR SUMMARY: 0 errors.*")
 
-# Add fp_poly_add_test executable
-add_executable(add_test fp_poly/tests/test_add.c)
-target_include_directories(add_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/fp_poly/include)
-target_link_libraries(add_test PRIVATE fp_poly)
-add_test(NAME add_test COMMAND add_test)
-add_test(NAME add_test_mem_check COMMAND valgrind --leak-check=full ./add_test)
-set_tests_properties(add_test_mem_check PROPERTIES TIMEOUT 10 PASS_REGULAR_EXPRESSION "ERROR SUMMARY: 0 errors.*")
+add_executable(list_mock_malloc list/tests/test_list_malloc.c)
+target_include_directories(list_mock_malloc PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/list/include)
+target_link_libraries(list_mock_malloc PRIVATE list_malloc)
+add_test(NAME list_mock_malloc COMMAND list_mock_malloc)
+#add_test(NAME list_mock_malloc_memory COMMAND valgrind --leak-check=full ./list_mock_malloc)
+#set_tests_properties(list_mock_malloc_memory PROPERTIES TIMEOUT 10 PASS_REGULAR_EXPRESSION "ERROR SUMMARY: 0 errors.*")
+
+add_executable(parse fp_poly/tests/test_parse.c)
+target_include_directories(parse PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/fp_poly/include)
+target_link_libraries(parse PRIVATE fp_poly)
+add_test(NAME parse COMMAND parse)
+add_test(NAME parse_memory COMMAND valgrind --leak-check=full ./parse)
+set_tests_properties(parse_memory PROPERTIES TIMEOUT 10 PASS_REGULAR_EXPRESSION "ERROR SUMMARY: 0 errors.*")
+
+add_executable(util fp_poly/tests/test_util.c)
+target_include_directories(util PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/fp_poly/include)
+target_link_libraries(util PRIVATE fp_poly)
+add_test(NAME util COMMAND util)
+add_test(NAME util_memory COMMAND valgrind --leak-check=full ./util)
+set_tests_properties(util_memory PROPERTIES TIMEOUT 10 PASS_REGULAR_EXPRESSION "ERROR SUMMARY: 0 errors.*")
+
+add_executable(addition fp_poly/tests/test_add.c)
+target_include_directories(addition PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/fp_poly/include)
+target_link_libraries(addition PRIVATE fp_poly)
+add_test(NAME addition COMMAND sh -c "gp -q ../fp_poly/tests/generate_input.gp; ./addition")
+add_test(NAME addition_memory COMMAND valgrind --leak-check=full ./addition)
+set_tests_properties(addition_memory PROPERTIES TIMEOUT 10 PASS_REGULAR_EXPRESSION "ERROR SUMMARY: 0 errors.*")
 
 # Set the C standard
 set(CMAKE_C_STANDARD 11)
