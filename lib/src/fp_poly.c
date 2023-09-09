@@ -977,6 +977,13 @@ fp_poly_t *fp_poly_init_random(size_t degree, fp_field_t *f)
     }
     mpz_init_set_ui(res->index_coeff, 0x0);
     res->coeff = list_init();
+    unsigned char buffer[8];
+    do
+    {
+        read_urandom_full(buffer, 8);
+    } while (buffer_to_ulong(buffer, 8) % f->order == 0);
+    mpz_setbit(res->index_coeff, degree);
+    list_add_end(res->coeff, buffer_to_ulong(buffer, 8) % f->order);
     for (i = 0; i < degree; i++)
     {
         unsigned char buffer[8];
