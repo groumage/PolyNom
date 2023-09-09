@@ -92,4 +92,19 @@ filewrite(fd, lift(t_11[1]));
 filewrite(fd, lift(t_11[2]));
 fileclose(fd);
 
+c = 2;
+vp_2 = vector(200, i, if (i == 1, (random % (c - 1)) + 1, random % c));
+p_2 = Mod(Pol(vp_2), c);
+threshold = 1;
+vq_2 = vector(100, i, if (i > threshold, random % c, 0));
+q_2 = Mod(Pol(vq_2), c);
+r_2 = gcd(p_2,q_2);
+
+fd = fileopen("input_test/test_gcd.txt", "w");
+filewrite(fd, c);
+filewrite(fd, lift(p_2));
+filewrite(fd, lift(q_2));
+filewrite(fd, lift(r_2));
+fileclose(fd);
+
 quit;
