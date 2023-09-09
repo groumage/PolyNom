@@ -35,6 +35,7 @@ typedef enum fp_poly_error_e
     FP_POLY_E_LIST_COEFF_IS_NULL,
     FP_POLY_E_REQUESTED_DEGREE_IS_TOO_HIGH,
     FP_POLY_E_COEFF_OVERFLOW,
+    FP_POLY_E_COEFF_LESS_THAN_ZERO,
     FP_POLY_E_ASSERT_MPZ_FAILED,
     FP_POLY_E_ASSERT_SIZET_FAILED,
     FP_POLY_E_ASSERT_EQUALITY_FAILED,
@@ -58,6 +59,7 @@ list_node_t *fp_poly_degree_to_node_list(fp_poly_t *, size_t);
 
 fp_poly_error_t fp_poly_add_single_term(fp_poly_t *, uint8_t, size_t, fp_field_t *);
 fp_poly_error_t fp_poly_add(fp_poly_t **, fp_poly_t *, fp_poly_t *, fp_field_t *);
+fp_poly_error_t fp_poly_sub_single_term(fp_poly_t *, uint8_t, size_t, fp_field_t *);
 fp_poly_error_t fp_poly_sub(fp_poly_t **, fp_poly_t *, fp_poly_t *, fp_field_t *);
 
 fp_field_t *fp_poly_init_prime_field(uint8_t);
