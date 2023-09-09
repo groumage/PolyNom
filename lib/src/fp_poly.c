@@ -817,6 +817,27 @@ fp_poly_t *fp_poly_init(void)
     return res;
 }
 
+static size_t fp_poly_count_set_bits(size_t n)
+{
+    size_t count = 0;
+    while (n)
+    {
+        count += n & 1;
+        n >>= 1;
+    }
+    return count;
+}
+
+/*
+static size_t fp_poly_count_set_bits_mpz(mpz_t n)
+{
+    size_t count = 0;
+    for (size_t i = 0; i < mpz_sizeinbase(n, 2); i++)
+        count += mpz_tstbit(n, i);
+    return count;
+}
+*/
+
 /*
 * Initialize a polynom with a specified index coefficient and list of coefficients. The index coefficient is a size_t.
 *
