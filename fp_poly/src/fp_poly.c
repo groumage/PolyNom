@@ -37,6 +37,15 @@ static void fp_poly_error(fp_poly_error_t e, const char *file, const char *fct, 
     }
 }
 
+/*
+* Return the degree of the polynom p.
+*
+* Parameters:
+* - p: the polynom.
+*
+* Returns:
+* - the degree of the polynom p.
+*/
 size_t fp_poly_degree(fp_poly_t *p)
 {
     if (!p)
@@ -47,6 +56,16 @@ size_t fp_poly_degree(fp_poly_t *p)
     return mpz_sizeinbase(p->index_coeff, 2);
 }
 
+/*
+* Return the index of the n-th set bit in the number.
+*
+* Parameters:
+* - number: the number.
+* - n: the index of the set bit.
+*
+* Returns:
+* - the index of the n-th set bit in the number.
+*/
 static size_t index_of_n_th_set_bit(mpz_t number, size_t n)
 {
     size_t setBitCount = 0;
@@ -61,7 +80,16 @@ static size_t index_of_n_th_set_bit(mpz_t number, size_t n)
     } while (1);
 }
 
-// return the degree of the coefficient stored at the position pos in the list of coefficient of the polynom p
+/*
+* Return the degree of the coefficient stored at the position pos in the list of coefficient of the polynom p.
+*
+* Parameters:
+* - p: the polynom.
+* - pos: the position of the coefficient in the list of coefficient.
+*
+* Returns:
+* - the degree of the coefficient stored at the position pos in the list of coefficient of the polynom p.
+*/
 size_t fp_poly_coeff_list_to_degree(fp_poly_t *p, size_t pos)
 {
     if (!p)
@@ -72,18 +100,41 @@ size_t fp_poly_coeff_list_to_degree(fp_poly_t *p, size_t pos)
     return index_of_n_th_set_bit(p->index_coeff, pos);
 }
 
+/*
+* Count the number of bit sets to 1 that are less than the index degree.
+*
+* Parameters:
+* - number: the number to count the bit sets to 1.
+* - degree: the index until which bits are count.
+*
+* Returns:
+* - the number of bit sets to 1 that are less than the index degree.
+*/
 static size_t count_bit_set_to_index(const mpz_t number, size_t degree) {
     size_t count;
 
     count = 0;
-    // iterate through each bit position up to the specified index
+    
     for (size_t i = 0; i < degree; i++)
         if (mpz_tstbit(number, i))
             count++;
     return count;
 }
 
-
+/*
+ * Return a node containing the coefficient at the specified degree.
+ *
+ * Parameters:
+ * - p: the polynom.
+ * - degree: the degree associated to the coefficient we want.
+ *
+ * Returns:
+ * - NULL if an error occurred.
+ * - a node if the operation was successful.
+ * - FP_POLY_E_POLY_IS_NULL if the polynom p is NULL.
+ * - FP_POLY_E_REQUESTED_DEGREE_IS_TOO_HIGH if the requested degree is too high.
+ *
+ */
 list_node_t *fp_poly_degree_to_node_list(fp_poly_t *p, size_t degree)
 {
     if (!p)
@@ -150,6 +201,22 @@ fp_poly_error_t fp_poly_add_single_term(fp_poly_t *p, uint8_t coeff, size_t degr
 }
 
 fp_poly_error_t fp_poly_add(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_field_t * f)
+/*
+ * Add a single term at a specified degree to the polynom within a field.
+ *
+ * Parameters:
+ * - p: the polynom.
+ * - coeff: the value of the term to add.
+ * - degree: the degree of the term to add.
+ * - field: the field in which the operation is performed (optionnal).
+ *
+ * Returns:
+ * - FP_POLY_E_SUCCESS if the operation was successful.
+ * - FP_POLY_E_POLY_IS_NULL if the polynom p is NULL.
+ * - FP_POLY_E_LIST_COEFF_IS_NULL if the list of coefficient of the polynom p is NULL.
+ * - FP_POLY_E_COEFF_OVERFLOW if there is no field provided and if the term is too high to be stored within an uint8_t.
+ *
+ */
 {
     size_t pos;
     list_node_t *node;
@@ -190,6 +257,16 @@ fp_poly_error_t fp_poly_add(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_fiel
     return FP_POLY_E_SUCCESS;
 }
 
+/*
+* Parse a string to create a polynom.
+*
+* Parameters:
+* - polynomial: the string to parse.
+*
+* Returns:
+* - a pointer to the polynom if the operation was successful.
+* - NULL if there was an error during the memory allocation.
+*/
 fp_poly_t *fp_poly_parse(const char* polynomial)
 {
     fp_poly_t *res;
@@ -264,6 +341,13 @@ fp_poly_t *fp_poly_parse(const char* polynomial)
     return res;
 }
 
+/*
+* Initialize a polynom where index of the coefficient is zero.
+*
+* Returns:
+* - a pointer to the polynom if the operation was successful.
+* - NULL if there was an error during the memory allocation.
+*/
 fp_poly_t *fp_poly_init(void)
 {
     fp_poly_t *res;
@@ -279,6 +363,17 @@ fp_poly_t *fp_poly_init(void)
     return res;
 }
 
+/*
+* Initialize a polynom with a specified index coefficient and list of coefficients. The index coefficient is a size_t.
+*
+* Parameters:
+* - pos_coeff: the index of the coefficient.
+* - coeff: the list of coefficients.
+*
+* Returns:
+* - a pointer to the polynom if the operation was successful.
+* - NULL if there was an error during the memory allocation.
+*/
 fp_poly_t *fp_poly_init_sizet(size_t pos_coeff, list_t *coeff)
 {
     fp_poly_t *res;
@@ -294,6 +389,17 @@ fp_poly_t *fp_poly_init_sizet(size_t pos_coeff, list_t *coeff)
     return res;
 }
 
+/*
+* Initialize a polynom with a specified index coefficient and list of coefficients. The index coefficient is a mpz_t.
+*
+* Parameters:
+* - pos_coeff: the index of the coefficient.
+* - coeff: the list of coefficients.
+*
+* Returns:
+* - a pointer to the polynom if the operation was successful.
+* - NULL if there was an error during the memory allocation.
+*/
 fp_poly_t *fp_poly_init_mpz(mpz_t pos_coeff, list_t *coeff)
 {
     fp_poly_t *res;
@@ -309,6 +415,17 @@ fp_poly_t *fp_poly_init_mpz(mpz_t pos_coeff, list_t *coeff)
     return res;
 }
 
+/*
+* Initialize a polynom with a n array of coefficients. The coefficient in the array are given from the LOWEST to the HIGHEST degree.
+*
+* Parameters:
+* - coeff: the array of coefficients.
+* - len: the length of the array.
+*
+* Returns:
+* - a pointer to the polynom if the operation was successful.
+* - NULL if there was an error during the memory allocation.
+*/
 fp_poly_t *fp_poly_init_array(uint8_t *coeff, size_t len)
 {
     fp_poly_t *res;
@@ -333,6 +450,17 @@ fp_poly_t *fp_poly_init_array(uint8_t *coeff, size_t len)
     return res;
 }
 
+/*
+* Free a polynom.
+*
+* Parameters:
+* - p: the polynom to free.
+*
+* Returns:
+* - FP_POLY_E_SUCCESS if the operation was successful.
+* - FP_POLY_E_POLY_IS_NULL if the polynom is NULL.
+* - FP_POLY_E_LIST_COEFF_IS_NULL if the list of coefficients is NULL.
+*/
 fp_poly_error_t fp_poly_free(fp_poly_t *p)
 {
     if (!p)
@@ -351,6 +479,20 @@ fp_poly_error_t fp_poly_free(fp_poly_t *p)
     return FP_POLY_E_SUCCESS;
 }
 
+/*
+* Assert that a the parameters of a polynom is equal to the expected parameters. The expected index of the coefficient is a mpz_t.
+*
+* Parameters:
+* - p: the polynom to check.
+* - expected_pos_coeff: the expected index of the coefficient.
+* - expected_coeff: the expected list of coefficients.
+*
+* Returns:
+* - FP_POLY_E_SUCCESS if the operation was successful.
+* - FP_POLY_E_POLY_IS_NULL if the polynom is NULL.
+* - FP_POLY_E_LIST_COEFF_IS_NULL if the list of coefficients is NULL.
+* - FP_POLY_E_ASSERT_MPZ_FAILED if the assertion failed.
+*/
 fp_poly_error_t fp_poly_assert_mpz(fp_poly_t *p, mpz_t expected_pos_coeff, list_t *expected_coeff)
 {
     list_node_t *node_p;
@@ -402,6 +544,20 @@ fp_poly_error_t fp_poly_assert_mpz(fp_poly_t *p, mpz_t expected_pos_coeff, list_
     return FP_POLY_E_SUCCESS;
 }
 
+/*
+* Assert that a the parameters of a polynom is equal to the expected parameters. The expected index of the coefficient is a size_t.
+*
+* Parameters:
+* - p: the polynom to check.
+* - expected_pos_coeff: the expected index of the coefficient.
+* - expected_coeff: the expected list of coefficients.
+*
+* Returns:
+* - FP_POLY_E_SUCCESS if the operation was successful.
+* - FP_POLY_E_POLY_IS_NULL if the polynom is NULL.
+* - FP_POLY_E_LIST_COEFF_IS_NULL if the list of coefficients is NULL.
+* - FP_POLY_E_ASSERT_SIZET_FAILED if the assertion failed.
+*/
 fp_poly_error_t fp_poly_assert_sizet(fp_poly_t * p, size_t expected_pos_coeff, list_t *expected_coeff)
 {
     list_node_t *node_p;
@@ -457,6 +613,19 @@ fp_poly_error_t fp_poly_assert_sizet(fp_poly_t * p, size_t expected_pos_coeff, l
     return FP_POLY_E_SUCCESS;
 }
 
+/*
+* Assert that a two polynoms are equal.
+*
+* Parameters:
+* - expected_p: the expected polynom.
+* - actual: the actual polynom.
+*
+* Returns:
+* - FP_POLY_E_SUCCESS if the operation was successful.
+* - FP_POLY_E_POLY_IS_NULL if one of the polynom is NULL.
+* - FP_POLY_E_LIST_COEFF_IS_NULL if one of the list of coefficients is NULL.
+* - FP_POLY_E_ASSERT_EQUALITY_FAILED if the assertion failed.
+*/
 fp_poly_error_t fp_poly_assert_equality(fp_poly_t *expected_p, fp_poly_t *actual)
 {
     list_node_t *expected_node;
@@ -489,23 +658,36 @@ fp_poly_error_t fp_poly_assert_equality(fp_poly_t *expected_p, fp_poly_t *actual
         fp_poly_error(FP_POLY_E_ASSERT_EQUALITY_FAILED, __FILE__, __func__, __LINE__, buffer);
         return FP_POLY_E_ASSERT_EQUALITY_FAILED;
     }
-    expected_node = expected_p->coeff->head;
-    actual_node = actual->coeff->head;
+    list_node_t *expected_node = expected_p->coeff->head;
+    list_node_t *actual_node = actual->coeff->head;
+    size_t pos = 0;
     while (expected_node != NULL && actual_node != NULL)
     {
         if (expected_node->coeff != actual_node->coeff)
         {
             char buffer[1024];
-            snprintf(buffer, 1024, "expected: %u , got: %u", expected_node->coeff, actual_node->coeff);
+            snprintf(buffer, 1024, "expected: %u , got: %u (pos = %ld)", expected_node->coeff, actual_node->coeff, pos);
             fp_poly_error(FP_POLY_E_ASSERT_EQUALITY_FAILED, __FILE__, __func__, __LINE__, buffer);
             return FP_POLY_E_ASSERT_EQUALITY_FAILED;
         }
         expected_node = expected_node->next;
         actual_node = actual_node->next;
+        pos += 1;
     }
     return FP_POLY_E_SUCCESS;
 }
 
+/*
+* Print a polynom.
+*
+* Parameters:
+* - p: the polynom to print.
+*
+* Returns:
+* - FP_POLY_E_SUCCESS if the operation was successful.
+* - FP_POLY_E_POLY_IS_NULL if the polynom is NULL.
+* - FP_POLY_E_LIST_COEFF_IS_NULL if the list of coefficients is NULL.
+*/
 fp_poly_error_t fp_poly_print(fp_poly_t *p)
 {
     list_node_t *node;
@@ -547,11 +729,32 @@ fp_poly_error_t fp_poly_print(fp_poly_t *p)
     return FP_POLY_E_SUCCESS;
 }
 
+/*
+* Initialize a prime field.
+*
+* Parameters:
+* - order: the order of the field.
+*
+* Returns:
+* - a pointer to the field if the operation was successful.
+* - NULL if there was an error during the memory allocation.
+*/
 fp_field_t *fp_poly_init_prime_field(uint8_t order)
 {
     return fp_poly_init_galois_field(order, NULL);
 }
 
+/*
+* Initialize a Galois field.
+*
+* Parameters:
+* - order: the order of the field.
+* - irreducible_polynom: the irreducible polynom of the field.
+*
+* Returns:
+* - a pointer to the field if the operation was successful.
+* - NULL if there was an error during the memory allocation.
+*/
 fp_field_t *fp_poly_init_galois_field(uint8_t order, fp_poly_t *irreducible_polynom)
 {
     fp_field_t *field;
@@ -568,6 +771,16 @@ fp_field_t *fp_poly_init_galois_field(uint8_t order, fp_poly_t *irreducible_poly
     return field;
 }
 
+/*
+* Free a field.
+*
+* Parameters:
+* - field: the field to free.
+*
+* Returns:
+* - FP_POLY_E_SUCCESS if the operation was successful.
+* - FP_POLY_E_FIELD_IS_NULL if the field is NULL.
+*/
 fp_poly_error_t fp_poly_free_field(fp_field_t *field)
 {
     if (!field)
