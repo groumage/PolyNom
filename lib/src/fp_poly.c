@@ -1342,48 +1342,25 @@ fp_poly_error_t fp_poly_assert_equality(fp_poly_t *expected_p, fp_poly_t *actual
 {
     if (!expected_p)
     {
-        fp_poly_error(FP_POLY_E_POLY_IS_NULL, __FILE__, __func__, __LINE__, "");
-        return FP_POLY_E_POLY_IS_NULL;
+        fp_poly_error(FP_POLY_E_ASSERT_EQUALITY, __FILE__, __func__, __LINE__, "");
+        return FP_POLY_E_ASSERT_EQUALITY;
     }
     if (!expected_p->coeff)
     {
-        fp_poly_error(FP_POLY_E_LIST_COEFF_IS_NULL, __FILE__, __func__, __LINE__, "");
-        return FP_POLY_E_LIST_COEFF_IS_NULL;
+        fp_poly_error(FP_POLY_E_ASSERT_EQUALITY, __FILE__, __func__, __LINE__, "");
+        return FP_POLY_E_ASSERT_EQUALITY;
     }
     if (!actual)
     {
-        fp_poly_error(FP_POLY_E_POLY_IS_NULL, __FILE__, __func__, __LINE__, "");
-        return FP_POLY_E_POLY_IS_NULL;
+        fp_poly_error(FP_POLY_E_ASSERT_EQUALITY, __FILE__, __func__, __LINE__, "");
+        return FP_POLY_E_ASSERT_EQUALITY;
     }
     if (!actual->coeff)
     {
-        fp_poly_error(FP_POLY_E_LIST_COEFF_IS_NULL, __FILE__, __func__, __LINE__, "");
-        return FP_POLY_E_LIST_COEFF_IS_NULL;
+        fp_poly_error(FP_POLY_E_ASSERT_EQUALITY, __FILE__, __func__, __LINE__, "");
+        return FP_POLY_E_ASSERT_EQUALITY;
     }
-    if (mpz_cmp(expected_p->index_coeff, actual->index_coeff) != 0)
-    {
-        char buffer[1024];
-        snprintf(buffer, 1024, "wrong index_coeff: expected: %s , actual: %s", mpz_get_str(NULL, 10, expected_p->index_coeff), mpz_get_str(NULL, 10, actual->index_coeff));
-        fp_poly_error(FP_POLY_E_ASSERT_EQUALITY_FAILED, __FILE__, __func__, __LINE__, buffer);
-        return FP_POLY_E_ASSERT_EQUALITY_FAILED;
-    }
-    list_node_t *expected_node = expected_p->coeff->head;
-    list_node_t *actual_node = actual->coeff->head;
-    size_t pos = 0;
-    while (expected_node != NULL && actual_node != NULL)
-    {
-        if (expected_node->coeff != actual_node->coeff)
-        {
-            char buffer[1024];
-            snprintf(buffer, 1024, "expected: %u , got: %u (pos = %ld)", expected_node->coeff, actual_node->coeff, pos);
-            fp_poly_error(FP_POLY_E_ASSERT_EQUALITY_FAILED, __FILE__, __func__, __LINE__, buffer);
-            return FP_POLY_E_ASSERT_EQUALITY_FAILED;
-        }
-        expected_node = expected_node->next;
-        actual_node = actual_node->next;
-        pos += 1;
-    }
-    return FP_POLY_E_SUCCESS;
+    return fp_poly_assert_mpz(expected_p, actual->index_coeff, actual->coeff);
 }
 
 /*
