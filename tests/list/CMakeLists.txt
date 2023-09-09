@@ -1,0 +1,13 @@
+add_executable(list test_list.c)
+target_include_directories(list PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../include)
+target_link_libraries(list PRIVATE list_lib)
+add_test(NAME list COMMAND list)
+add_test(NAME list_memory COMMAND valgrind --leak-check=full ./list)
+set_tests_properties(list_memory PROPERTIES TIMEOUT 10 PASS_REGULAR_EXPRESSION "ERROR SUMMARY: 0 errors.*")
+
+add_executable(list_mock_malloc test_list_malloc.c)
+target_include_directories(list_mock_malloc PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../include)
+target_link_libraries(list_mock_malloc PRIVATE list_malloc)
+add_test(NAME list_mock_malloc COMMAND list_mock_malloc)
+#add_test(NAME list_mock_malloc_memory COMMAND valgrind --leak-check=full ./list_mock_malloc)
+#set_tests_properties(list_mock_malloc_memory PROPERTIES TIMEOUT 10 PASS_REGULAR_EXPRESSION "ERROR SUMMARY: 0 errors.*")
