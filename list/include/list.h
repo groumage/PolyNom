@@ -10,11 +10,9 @@
 typedef enum list_error_e {
     LIST_E_SUCCESS,
     LIST_E_MEMORY,
-    LIST_E_INVALID_ARGUMENT,
-    LIST_E_NOT_FOUND,
-    LIST_E_EMPTY,
-    LIST_E_NULL_PTR,
-    LIST_E_FD_IS_NULL,
+    LIST_E_LIST_IS_NULL,
+    LIST_E_LIST_MANIPULATION,
+    LIST_E_FILE_DESCRIPTOR_IS_NULL,
 } list_error_t;
 
 typedef struct list_node_t {
