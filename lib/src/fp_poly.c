@@ -94,10 +94,12 @@ size_t fp_poly_degree(fp_poly_t *p)
         fp_poly_error(FP_POLY_E_POLY_IS_NULL, __FILE__, __func__, __LINE__, "");
         return 0;
     }
-    if (mpz_cmp_ui(p->index_coeff, 0) == 0)
+    /*
+    if (mpz_cmp_ui(p->index_coeff, 0) == 0 || mpz_cmp_ui(p->index_coeff, 1) == 0)
         return 0;
     else
-        return mpz_sizeinbase(p->index_coeff, 2);
+    */
+    return mpz_sizeinbase(p->index_coeff, 2) - 1;
 }
 
 /*
