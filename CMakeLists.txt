@@ -10,11 +10,10 @@ add_library(list_malloc STATIC list/src/list.c)
 target_include_directories(list_malloc PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/list/include)
 target_compile_definitions(list_malloc PUBLIC MOCK_MALLOC)
 
-# Add fp_poly library
 add_library(fp_poly STATIC fp_poly/src/fp_poly.c)
 target_include_directories(fp_poly PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/fp_poly/include)
 target_link_libraries(fp_poly PRIVATE ${GMP_LIBRARIES})
-target_link_libraries(fp_poly PRIVATE list)
+target_link_libraries(fp_poly PRIVATE list_lib)
 
 enable_testing()
 
@@ -58,14 +57,23 @@ set(CMAKE_C_STANDARD 11)
 
 # Set the C flags
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wpedantic --coverage")
-set(CMAKE_EXE_LINKER_FLAGS "--coverage")
-
+list(APPEND CMAKE_EXE_LINKER_FLAGS "--coverage")
 
 # Add the fp_poly library and list library to the main executable
 add_executable(main main.c)
-target_link_libraries(main PRIVATE fp_poly list)
+target_link_libraries(main PRIVATE fp_poly list_lib)
+
+#add_custom_target(coverage
+#    COMMAND gcovr --root=../ --html --html-details -o ../coverage/coverage.html
+#    COMMENT "Generating coverage report"
+#)
+
+add_compile_options(--coverage)
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
 
 add_custom_target(coverage
-    COMMAND gcovr --root=../ --html --html-details -o ../coverage/coverage.html
+    COMMAND lcov --rc lcov_branch_coverage=1 --capture --directory . --output-file coverage.info
+    COMMAND genhtml coverage.info --output-directory coverage_report
+    COMMAND firefox coverage_report/index.html
     COMMENT "Generating coverage report"
 )
