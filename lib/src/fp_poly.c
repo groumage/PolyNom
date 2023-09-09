@@ -909,9 +909,6 @@ static size_t fp_poly_count_set_bits_mpz(mpz_t n)
 */
 fp_poly_t *fp_poly_init_sizet(size_t pos_coeff, list_t *coeff)
 {
-    fp_poly_t *res;
-    
-    res = (fp_poly_t *) malloc(sizeof(fp_poly_t));
     if (!coeff)
     {
         fp_poly_error(FP_POLY_E_INIT_SIZET, __FILE__, __func__, __LINE__, "list of coefficients is NULL");
@@ -922,6 +919,7 @@ fp_poly_t *fp_poly_init_sizet(size_t pos_coeff, list_t *coeff)
         fp_poly_error(FP_POLY_E_INIT_SIZET, __FILE__, __func__, __LINE__, "index of the coefficients is zero");
         return NULL;
     }
+    fp_poly_t *res = (fp_poly_t *) malloc(sizeof(fp_poly_t));
     if (!res)
     {
         fp_poly_error(FP_POLY_E_MALLOC_ERROR, __FILE__, __func__, __LINE__, "");
@@ -950,9 +948,6 @@ fp_poly_t *fp_poly_init_sizet(size_t pos_coeff, list_t *coeff)
 */
 fp_poly_t *fp_poly_init_mpz(mpz_t pos_coeff, list_t *coeff)
 {
-    fp_poly_t *res;
-    
-    res = (fp_poly_t *) malloc(sizeof(fp_poly_t));
     if (!coeff)
     {
         fp_poly_error(FP_POLY_E_INIT_MPZ, __FILE__, __func__, __LINE__, "list of coefficients is NULL");
@@ -963,6 +958,7 @@ fp_poly_t *fp_poly_init_mpz(mpz_t pos_coeff, list_t *coeff)
         fp_poly_error(FP_POLY_E_INIT_MPZ, __FILE__, __func__, __LINE__, "index of the coefficients is zero");
         return NULL;
     }
+    fp_poly_t *res = (fp_poly_t *) malloc(sizeof(fp_poly_t));
     if (!res)
     {
         fp_poly_error(FP_POLY_E_MALLOC_ERROR, __FILE__, __func__, __LINE__, "");
@@ -993,9 +989,6 @@ fp_poly_t *fp_poly_init_mpz(mpz_t pos_coeff, list_t *coeff)
 */
 fp_poly_t *fp_poly_init_array(uint8_t *coeff, size_t len)
 {
-    fp_poly_t *res;
-    
-    res = (fp_poly_t *) malloc(sizeof(fp_poly_t));
     if (!coeff)
     {
         fp_poly_error(FP_POLY_INIT_ARRAY, __FILE__, __func__, __LINE__, "the array of coefficients is NULL");
@@ -1006,6 +999,7 @@ fp_poly_t *fp_poly_init_array(uint8_t *coeff, size_t len)
         fp_poly_error(FP_POLY_INIT_ARRAY, __FILE__, __func__, __LINE__, "the len of the array is zero");
         return NULL;
     }
+    fp_poly_t *res = (fp_poly_t *) malloc(sizeof(fp_poly_t));
     if (!res)
     {
         fp_poly_error(FP_POLY_E_MALLOC_ERROR, __FILE__, __func__, __LINE__, "");
@@ -1065,15 +1059,12 @@ uint8_t fp_poly_is_irreducible(fp_poly_t *p, fp_field_t *f)
 
 fp_poly_t *fp_poly_init_random(size_t degree, fp_field_t *f)
 {
-    fp_poly_t *res;
-    size_t i;
-    
-    res = (fp_poly_t *) malloc(sizeof(fp_poly_t));
     if (!f)
     {
         fp_poly_error(FP_POLY_E_INIT_RANDOM, __FILE__, __func__, __LINE__, "field is NULL");
         return NULL;
     }
+    fp_poly_t *res = (fp_poly_t *) malloc(sizeof(fp_poly_t));
     if (!res)
     {
         fp_poly_error(FP_POLY_E_MALLOC_ERROR, __FILE__, __func__, __LINE__, "");
@@ -1088,7 +1079,7 @@ fp_poly_t *fp_poly_init_random(size_t degree, fp_field_t *f)
     } while (buffer_to_ulong(buffer, 8) % f->order == 0);
     mpz_setbit(res->index_coeff, degree);
     list_add_end(res->coeff, buffer_to_ulong(buffer, 8) % f->order);
-    for (i = 0; i < degree; i++)
+    for (size_t i = 0; i < degree; i++)
     {
         unsigned char buffer[8];
         read_urandom_full(buffer, 8);
@@ -1398,7 +1389,7 @@ fp_poly_error_t fp_poly_print(FILE *fd, fp_poly_t *p)
         fprintf(fd, "0");
         return FP_POLY_E_SUCCESS;
     }
-    for (size_t i = 0; i < fp_poly_degree(p); i++)
+    for (size_t i = 0; i <= fp_poly_degree(p); i++)
     {
         if (mpz_tstbit(p->index_coeff, i))
         {
@@ -1454,14 +1445,12 @@ fp_field_t *fp_poly_init_prime_field(uint8_t order)
 */
 fp_field_t *fp_poly_init_galois_field(uint8_t order, fp_poly_t *irreducible_polynom)
 {
-    fp_field_t *field;
-
-    field = (fp_field_t *)malloc(sizeof(fp_field_t));
     if (order == 0)
     {
         fp_poly_error(FP_POLY_E_INIT_GALOIS_FIELD, __FILE__, __func__, __LINE__, "order is zero");
         return NULL;
     }
+    fp_field_t *field = (fp_field_t *)malloc(sizeof(fp_field_t));
     if (!field)
     {
         fp_poly_error(FP_POLY_E_MALLOC_ERROR, __FILE__, __func__, __LINE__, "");
