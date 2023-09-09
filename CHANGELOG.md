@@ -1,3 +1,21 @@
+## **0.10.0**&emsp;<sub><sup>2023-07-30 ([f3cbcc0...b7e0ae0](https://github.com/groumage/PolynomArithmetic/compare/f3cbcc09b58c6bc0d4a8693cc817b0e527c73848...b7e0ae0b66b5eceff5ac5fc9ce9f4f76cac17293?diff=split))</sup></sub>
+
+### Features
+
+- add generation of random prime integer ([d1ce9e9](https://github.com/groumage/PolynomArithmetic/commit/d1ce9e9fc6f8cea8bdfbf9098591778902c33053))
+
+### Bug Fixes
+
+- correct the parsing of the null polynom \(i\.e\., p\(x\) = 0\) ([165a7a4](https://github.com/groumage/PolynomArithmetic/commit/165a7a41042786546c6d1d8d6846026cf68f41f0))
+
+### Tests
+
+- create test suites ([8161b8b](https://github.com/groumage/PolynomArithmetic/commit/8161b8b3c5410782041cfd1f43af85c0cce093a4))
+- enhance generation of input tests ([9bb1391](https://github.com/groumage/PolynomArithmetic/commit/9bb13916b131b5b5b71268e275dae52ea1b37eec))
+- add unit test for random integer prime generation ([1dcd707](https://github.com/groumage/PolynomArithmetic/commit/1dcd70789a56c948b80c3d2f397a8180e8c7a852))
+
+<br>
+
 ## **0.9.0**&emsp;<sub><sup>2023-07-04 ([e1c9505...459c067](https://github.com/groumage/PolynomArithmetic/compare/e1c9505a7471dfe595b4e932a2390356d4c59886...459c067cef19b2382a7604cf075e38f428ea5abe?diff=split))</sup></sub>
 
 ### Features
