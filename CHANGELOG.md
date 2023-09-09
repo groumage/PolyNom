@@ -1,3 +1,15 @@
+## **0.9.0**&emsp;<sub><sup>2023-07-04 ([e1c9505...459c067](https://github.com/groumage/PolynomArithmetic/compare/e1c9505a7471dfe595b4e932a2390356d4c59886...459c067cef19b2382a7604cf075e38f428ea5abe?diff=split))</sup></sub>
+
+### Features
+
+- add polynom extended GCD ([e1c9505](https://github.com/groumage/PolynomArithmetic/commit/e1c9505a7471dfe595b4e932a2390356d4c59886))
+
+### Tests
+
+- add polynom extended GCD unit tests ([148fd47](https://github.com/groumage/PolynomArithmetic/commit/148fd4732508c0c8a74df28ac1126956c7155d3b))
+
+<br>
+
 ## **0.8.0**&emsp;<sub><sup>2023-07-01 ([b7d5a9b...dc6422f](https://github.com/groumage/PolynomArithmetic/compare/b7d5a9baa67e2e301e72dd4c4731793e856265b7...dc6422fce4e0c9974d1de5613d375c2c2711cb9c?diff=split))</sup></sub>
 
 ### Features
