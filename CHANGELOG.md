@@ -1,3 +1,17 @@
+## **0.5.0**&emsp;<sub><sup>2023-06-21 ([2872cce...33dbece](https://github.com/groumage/PolynomArithmetic/compare/2872ccefa63b2f4be9353579205b620ef724f600...33dbeceae5af5aa7c1e615e46707a6d1bbee7e05?diff=split))</sup></sub>
+
+### Features
+
+- add polynom multiplication ([fd2b14b](https://github.com/groumage/PolynomArithmetic/commit/fd2b14b23612bc1d84719cb6780c066cf34202cc))
+
+### Tests
+
+- add unit tests for polynom multiplication ([aa0d81b](https://github.com/groumage/PolynomArithmetic/commit/aa0d81b0597d157a88b674ba9c39a55eb736e5d8))
+- update CMakeLists for mulitplication unit tests ([c638466](https://github.com/groumage/PolynomArithmetic/commit/c638466be35869457b7f5bc835bc7a3ae3aad26e))
+- enhance polynom multiplication unit tests ([368b686](https://github.com/groumage/PolynomArithmetic/commit/368b68639b15b7f1e331c7714a44f464251da3fe))
+
+<br>
+
 ## **0.4.0**&emsp;<sub><sup>2023-06-12 ([9785424...162d06d](https://github.com/groumage/PolynomArithmetic/compare/9785424813a91cbf0c0c7ada5dd5008016a90570...162d06dc1c8e0da7f5decb96f4abbda6234790d0?diff=split))</sup></sub>
 
 ### Features
