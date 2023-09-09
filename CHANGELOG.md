@@ -1,3 +1,15 @@
+## **0.11.0**&emsp;<sub><sup>2023-08-01 ([5dc074c...f82efa0](https://github.com/groumage/PolynomArithmetic/compare/5dc074cb7517494a5477b2cb5016a611825ee917...f82efa0071050f0dbb6675c693e5006150e1391a?diff=split))</sup></sub>
+
+### Features
+
+- add extended euclide algorithm for integers ([9edb7e1](https://github.com/groumage/PolynomArithmetic/commit/9edb7e1826841951b248e5859432d8fe8f6640a2))
+
+### Tests
+
+- add unit test for extended euclide algorithm for integers ([6a6269e](https://github.com/groumage/PolynomArithmetic/commit/6a6269e3fb884d594a678d5a8bd9f5c12462e50c))
+
+<br>
+
 ## **0.10.0**&emsp;<sub><sup>2023-07-30 ([f3cbcc0...b7e0ae0](https://github.com/groumage/PolynomArithmetic/compare/f3cbcc09b58c6bc0d4a8693cc817b0e527c73848...b7e0ae0b66b5eceff5ac5fc9ce9f4f76cac17293?diff=split))</sup></sub>
 
 ### Features
