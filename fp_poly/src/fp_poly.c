@@ -657,7 +657,7 @@ fp_poly_error_t fp_poly_assert_sizet(fp_poly_t * p, size_t expected_pos_coeff, l
         if (node_p->coeff != node_expected->coeff)
         {
             char buffer[100];
-            snprintf(buffer, 100, "expected coeff : %u , got coeff: %u\n", node_expected->coeff, node_p->coeff);
+            snprintf(buffer, 100, "expected coeff : %u , got coeff: %u (pos = %ld)\n", node_expected->coeff, node_p->coeff, pos_p);
             fp_poly_error(FP_POLY_E_ASSERT_SIZET_FAILED, __FILE__, __func__, __LINE__, buffer);
             return FP_POLY_E_ASSERT_SIZET_FAILED;
         }
@@ -689,9 +689,6 @@ fp_poly_error_t fp_poly_assert_sizet(fp_poly_t * p, size_t expected_pos_coeff, l
 */
 fp_poly_error_t fp_poly_assert_equality(fp_poly_t *expected_p, fp_poly_t *actual)
 {
-    list_node_t *expected_node;
-    list_node_t *actual_node;
-
     if (!expected_p)
     {
         fp_poly_error(FP_POLY_E_POLY_IS_NULL, __FILE__, __func__, __LINE__, "");
