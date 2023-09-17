@@ -1,4 +1,4 @@
-#include "../../list/include/list.h"
+#include "../../lib/include/list.h"
 
 int main()
 {

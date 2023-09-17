@@ -2,6 +2,12 @@ add_library(util STATIC src/util.c)
 target_include_directories(util PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(util PRIVATE ${GMP_LIBRARIES})
 
+add_library(list_lib STATIC src/list.c)
+target_include_directories(list_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+add_library(list_malloc STATIC src/list.c)
+target_include_directories(list_malloc PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_compile_definitions(list_malloc PUBLIC MOCK_MALLOC)
+
 add_library(fp_integer STATIC src/fp_integer.c)
 target_include_directories(fp_integer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(fp_integer PRIVATE ${GMP_LIBRARIES})

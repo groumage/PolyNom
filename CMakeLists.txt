@@ -9,7 +9,6 @@ set(BUILD_TESTING ON)
 enable_testing()
 
 add_subdirectory(lib)
-add_subdirectory(list)
 add_subdirectory(tests)
 
 add_library(client client.c client.h)

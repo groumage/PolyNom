@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include "../../list/include/list.h"
+#include "../../lib/include/list.h"
 
 #define FP_VARN 'x'
 
