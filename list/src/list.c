@@ -211,8 +211,6 @@ list_error_t list_add_after(list_t *l, uint8_t coeff, list_node_t *node)
 
 list_error_t list_remove_coeff(list_t *l, uint8_t coeff)
 {
-    list_node_t *tmp;
-
     if (l == NULL)
     {
         list_error_no_custom_msg(LIST_E_LIST_IS_NULL, __FILE__, __func__, __LINE__);
@@ -225,7 +223,7 @@ list_error_t list_remove_coeff(list_t *l, uint8_t coeff)
     }
     if (l->head->coeff == coeff)
         return list_remove_head(l);
-    tmp = l->head;
+    list_node_t *tmp = l->head;
     while (tmp->next != NULL)
     {
         if (tmp->next->coeff == coeff)
@@ -238,8 +236,6 @@ list_error_t list_remove_coeff(list_t *l, uint8_t coeff)
 
 list_error_t list_remove_node(list_t *l, list_node_t *node)
 {
-    list_node_t *tmp;
-
     if (l == NULL)
     {
         list_error_no_custom_msg(LIST_E_LIST_IS_NULL, __FILE__, __func__, __LINE__);
@@ -261,7 +257,7 @@ list_error_t list_remove_node(list_t *l, list_node_t *node)
         return list_remove_tail(l);
     else
     {
-        tmp = l->head;
+        list_node_t *tmp = l->head;
         while (tmp != NULL)
         {
             if (tmp->next == node)
@@ -328,9 +324,6 @@ list_error_t list_remove_tail(list_t *l)
 
 list_error_t list_get_pos(list_t* l, list_node_t *node)
 {
-    list_node_t *tmp;
-    size_t i;
-
     if (l == NULL)
     {
         list_error_no_custom_msg(LIST_E_LIST_IS_NULL, __FILE__, __func__, __LINE__);
@@ -341,8 +334,8 @@ list_error_t list_get_pos(list_t* l, list_node_t *node)
         list_error(LIST_E_LIST_MANIPULATION, __FILE__, __func__, __LINE__, "node is NULL");
         return LIST_E_LIST_MANIPULATION;
     }
-    tmp = l->head;
-    for (i = 0; i < l->size; i++)
+    list_node_t *tmp = l->head;
+    for (size_t i = 0; i < l->size; i++)
     {
         if (tmp == node)
             return i;
@@ -372,8 +365,6 @@ list_node_t *list_get_at_pos(list_t *l, size_t pos)
 
 list_error_t list_print(FILE *fd, list_t *l)
 {
-    list_node_t *node;
-
     if (l == NULL)
     {
         list_error_no_custom_msg(LIST_E_LIST_IS_NULL, __FILE__, __func__, __LINE__);
@@ -384,7 +375,7 @@ list_error_t list_print(FILE *fd, list_t *l)
         list_error_no_custom_msg(LIST_E_FILE_DESCRIPTOR_IS_NULL, __FILE__, __func__, __LINE__);
         return LIST_E_FILE_DESCRIPTOR_IS_NULL;
     }
-    node = l->head;
+    list_node_t *node = l->head;
     while (node != NULL)
     {
         fprintf(fd, "%d ", node->coeff);
