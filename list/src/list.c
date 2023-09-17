@@ -20,6 +20,12 @@ static void list_error(list_error_t err, const char *file, const char *fct, cons
         case LIST_E_LIST_IS_NULL:
             fprintf(stderr, "Error in [%s, %s] line %d: list is NULL.\n", file, fct, line);
             break;
+        case LIST_E_LIST_MANIPULATION:
+            fprintf(stderr, "Error in [%s, %s] line %d: %s.\n", file, fct, line, error);
+            break;
+        case LIST_E_FILE_DESCRIPTOR_IS_NULL:
+            fprintf(stderr, "Error in [%s, %s] line %d: file descriptor is NULL.\n", file, fct, line);
+            break;
         default:
             break;
     }
@@ -34,7 +40,10 @@ list_t *list_init(void)
 {
     list_t *list = (list_t *) malloc(sizeof(list_t));
     if (list == NULL)
+    {
+        list_error_no_custom_msg(LIST_E_MEMORY, __FILE__, __func__, __LINE__);
         return NULL;
+    }
     list->head = NULL;
     list->tail = NULL;
     list->size = 0;
@@ -44,10 +53,16 @@ list_t *list_init(void)
 list_t *list_copy(list_t *l)
 {
     if (l == NULL)
+    {
+        list_error_no_custom_msg(LIST_E_LIST_IS_NULL, __FILE__, __func__, __LINE__);
         return NULL;
+    }
     list_t *list = list_init();
     if (list == NULL)
+    {
+        list_error_no_custom_msg(LIST_E_MEMORY, __FILE__, __func__, __LINE__);
         return NULL;
+    }
     list_node_t *node = l->head;
     while (node != NULL)
     {
@@ -69,7 +84,10 @@ list_t *list_copy(list_t *l)
 list_error_t list_destroy(list_t *l)
 {
     if (l == NULL)
+    {
+        list_error_no_custom_msg(LIST_E_LIST_IS_NULL, __FILE__, __func__, __LINE__);
         return LIST_E_LIST_IS_NULL;
+    }
     list_node_t *node = l->head;
     while (node != NULL)
     {
@@ -90,7 +108,10 @@ list_error_t list_add_beginning(list_t *l, uint8_t coeff)
     }
     list_node_t *node = (list_node_t *) malloc(sizeof(list_node_t));
     if (node == NULL)
-        return LIST_E_MEMORY;
+    {
+        list_error(LIST_E_LIST_MANIPULATION, __FILE__, __func__, __LINE__, "node is NULL");
+        return LIST_E_LIST_MANIPULATION;
+    }
     node->coeff = coeff;
     node->next = l->head;
     l->head = node;
@@ -103,10 +124,16 @@ list_error_t list_add_beginning(list_t *l, uint8_t coeff)
 list_error_t list_add_end(list_t *l, uint8_t coeff)
 {
     if (l == NULL)
+    {
+        list_error_no_custom_msg(LIST_E_LIST_IS_NULL, __FILE__, __func__, __LINE__);
         return LIST_E_LIST_IS_NULL;
+    }
     list_node_t *node = (list_node_t *) malloc(sizeof(list_node_t));
     if (node == NULL)
-        return LIST_E_MEMORY;
+    {
+        list_error(LIST_E_LIST_MANIPULATION, __FILE__, __func__, __LINE__, "node is NULL");
+        return LIST_E_LIST_MANIPULATION;
+    }
     node->coeff = coeff;
     node->next = NULL;
     if (l->tail == NULL)
@@ -172,7 +199,7 @@ list_error_t list_add_after(list_t *l, uint8_t coeff, list_node_t *node)
     list_node_t *new_node = (list_node_t *) malloc(sizeof(list_node_t));
     if (new_node == NULL)
     {
-        list_error(LIST_E_MEMORY, __FILE__, __func__, __LINE__, NULL);
+        list_error_no_custom_msg(LIST_E_MEMORY, __FILE__, __func__, __LINE__);
         return LIST_E_MEMORY;
     }
     new_node->coeff = coeff;
@@ -202,10 +229,7 @@ list_error_t list_remove_coeff(list_t *l, uint8_t coeff)
     while (tmp->next != NULL)
     {
         if (tmp->next->coeff == coeff)
-        {
-            list_remove_node(l, tmp->next);
-            return LIST_E_SUCCESS;
-        }
+            return list_remove_node(l, tmp->next);
         tmp = tmp->next;
     }
     list_error(LIST_E_LIST_MANIPULATION, __FILE__, __func__, __LINE__, "coefficient not found");
@@ -373,7 +397,10 @@ list_error_t list_print(FILE *fd, list_t *l)
 list_error_t list_assert(list_t *l, uint8_t *coeffs, size_t size)
 {
     if (l == NULL)
+    {
+        list_error_no_custom_msg(LIST_E_LIST_IS_NULL, __FILE__, __func__, __LINE__);
         return LIST_E_LIST_IS_NULL;
+    }
     if (coeffs == NULL)
     {
         list_error(LIST_E_LIST_MANIPULATION, __FILE__, __func__, __LINE__, "array of coefficients is NULL");
