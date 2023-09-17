@@ -1,5 +1,0 @@
-add_library(list_lib STATIC src/list.c)
-target_include_directories(list_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-add_library(list_malloc STATIC src/list.c)
-target_include_directories(list_malloc PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_compile_definitions(list_malloc PUBLIC MOCK_MALLOC)
