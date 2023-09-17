@@ -1,3 +1,46 @@
+## **0.14.0**&emsp;<sub><sup>2023-09-17 ([bb1f50d...db35a8a](https://github.com/groumage/PolynomArithmetic/compare/bb1f50d9d92d017dbd6f7c49d91e5864f1e126a0...db35a8a4c364ca5699962253ecf3bc479681e304?diff=split))</sup></sub>
+
+### Features
+
+- add function to count the number of bits set ([848fbc1](https://github.com/groumage/PolynomArithmetic/commit/848fbc1185b5249b90accaed56f131364606d306))
+- catch errors of poly lib ([4902cc4](https://github.com/groumage/PolynomArithmetic/commit/4902cc49e882db5c4e60366e33dd77d9546e817c))
+- generate random irreducible polynom in any field ([269e1a0](https://github.com/groumage/PolynomArithmetic/commit/269e1a0e00bbd6065a65eecf25cbc8a768984655))
+- catch errors of list library ([78fe4b3](https://github.com/groumage/PolynomArithmetic/commit/78fe4b3c571c95fe332f64685b5cb87124d92c4e))
+- improve meaning of list library errors ([5c805b6](https://github.com/groumage/PolynomArithmetic/commit/5c805b6b2f081849bdae512037fccd83e179efe0))
+
+### Bug Fixes
+
+- normalization of the representation of the zero polynom ([fea1780](https://github.com/groumage/PolynomArithmetic/commit/fea178032554c7f3f724be0934e5b6abd37f881c))
+- repair parsing of the zero polynom ([7947bcf](https://github.com/groumage/PolynomArithmetic/commit/7947bcf7cb3e7a9a79739c0adff5bcb86bd05c9e))
+- computation of the degree of a polynom ([35de03e](https://github.com/groumage/PolynomArithmetic/commit/35de03e9ab28279137f28ebae7bc9a7b2385fe83))
+- repair "the coefficient that correspond to a degree" function ([25bd136](https://github.com/groumage/PolynomArithmetic/commit/25bd136ab65066849cd3ba4abdfba418c90e0d6a))
+- repair irreducibility checking ([0ffa552](https://github.com/groumage/PolynomArithmetic/commit/0ffa552c4e1eeb4069153c01fa337e5c91d1e828))
+- repair random generation of a polynom ([c8d180d](https://github.com/groumage/PolynomArithmetic/commit/c8d180dc1378e317e45f58f17095bfd55205f803))
+- repair polynom initialization where all coefficients are zero ([a37eb11](https://github.com/groumage/PolynomArithmetic/commit/a37eb113cd4b4cf6c7cf1197e9836f292dcf13f2))
+
+### Merges
+
+- branch 'code\_coverage' into main ([b8a886c](https://github.com/groumage/PolynomArithmetic/commit/b8a886c716f3ec0813f2d6a4f7a6a9252aeed41e))
+
+### Tests
+
+- add unit tests for corner cases of polynom addition ([bb1f50d](https://github.com/groumage/PolynomArithmetic/commit/bb1f50d9d92d017dbd6f7c49d91e5864f1e126a0))
+- add coefficient overflow error ([275e42e](https://github.com/groumage/PolynomArithmetic/commit/275e42ebfd0505ccf073e230adedeb7e08ebc289))
+- add unit tests for corner cases of polynom substraction ([d94df4d](https://github.com/groumage/PolynomArithmetic/commit/d94df4dcbd68336447b037505ac75341a22199d9))
+- add unit tests for polynom substraction ([b4dacbc](https://github.com/groumage/PolynomArithmetic/commit/b4dacbcd8b84c3b893952969ee909eabef50fb76))
+- add unit tests for corner cases of polynom degree function ([fdb944c](https://github.com/groumage/PolynomArithmetic/commit/fdb944cc90e1ccea854b521482f2bd395345d5b7))
+- add unit tests for parsing of zero polynom ([05e71ab](https://github.com/groumage/PolynomArithmetic/commit/05e71ab79d01184296c95ee8823095d782278196))
+- change name of errors ([ee7ed3d](https://github.com/groumage/PolynomArithmetic/commit/ee7ed3d9e1d6a66894ce6c2895541b4043e9c46e))
+- add unit tests for function assert, init, free and print ([194a89e](https://github.com/groumage/PolynomArithmetic/commit/194a89e96a313dc3f43ff9071f4a33ee6373bb43))
+- add label for unit test of list ([738744f](https://github.com/groumage/PolynomArithmetic/commit/738744f89edbc5a8856629374f38294291f75356))
+- add labels for unit test of integers ([ca0d9ec](https://github.com/groumage/PolynomArithmetic/commit/ca0d9eca87bda4e3916fda69ff4b1fb1edc4ef47))
+- add label for unit tests ([e4db5c7](https://github.com/groumage/PolynomArithmetic/commit/e4db5c7ca178bd4c43dc770c11941936c6134e62))
+- add script to make code coverage and easily run unit tests ([46df9d1](https://github.com/groumage/PolynomArithmetic/commit/46df9d1175dc15f9721ac5327add88200067b105))
+- add unit tests of random irreducible polynom ([4a0a273](https://github.com/groumage/PolynomArithmetic/commit/4a0a2738ed14fb281c53fa1e975ccd86acfa3a65))
+- update return value of list unit tests ([7a97a58](https://github.com/groumage/PolynomArithmetic/commit/7a97a58153045b81ec58de3eca13b1aa0a15de89))
+
+<br>
+
 ## **0.13.0**&emsp;<sub><sup>2023-08-23 ([17b421f...b70226e](https://github.com/groumage/PolynomArithmetic/compare/17b421f0d728456c4103531a12ccab3d2b4649c6...b70226eaa175649736cbca5933183461d5b9cf48?diff=split))</sup></sub>
 
 ### Features
