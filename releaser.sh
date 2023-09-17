@@ -7,8 +7,8 @@ echo "New version: $version"
 sed -i "s/[0-9]\+\(\.[0-9]\+\)\.\+[0-9]/$version/g" README.md
 
 git add README.md
-git commit -m "build: Bump project version to $version"
+git commit -m "build: bump project version to $version"
 git-conventional-commits changelog --release $version --file 'CHANGELOG.md'
 git add CHANGELOG.md
-git commit -m "docs: Create $version change log entry"
+git commit -m "docs: create $version change log entry"
 git tag "v$version"
