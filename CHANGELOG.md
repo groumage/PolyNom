@@ -2,7 +2,6 @@
 
 ### Features
 
-- add a ibrary to encrypt / decrypt messages with RSA cryptosystem ([8621b21](https://github.com/groumage/PolynomArithmetic/commit/8621b21689066d701244dbd812e2a7a21cfe94e8))
 - add client frontend to use the integer library ([af2c95b](https://github.com/groumage/PolynomArithmetic/commit/af2c95b658c1f299f45400559491a70d7b6912d6))
 - add primality test for mpz/int \+ generation of random mpz prime ([29b180f](https://github.com/groumage/PolynomArithmetic/commit/29b180f879c34c4d6752a955ea2da19d7e7ae882))
 - add generation of irreducible polynoms and update print function ([5e7872e](https://github.com/groumage/PolynomArithmetic/commit/5e7872ed0539fdecafb9e8537396869cba9acae4))
@@ -13,7 +12,6 @@
 
 ### Tests
 
-- remove valgrind option leak\-check=full for unit testing ([7266931](https://github.com/groumage/PolynomArithmetic/commit/726693134d53b8d0acd60ca11a56036a5fa0bfc3))
 - add unit tests of the client frontend ([97626d3](https://github.com/groumage/PolynomArithmetic/commit/97626d31fbba281be25d3a9c22b2197153ad187e))
 - add tests labels and update script to run unit tests ([561731f](https://github.com/groumage/PolynomArithmetic/commit/561731f9dbf7620c3928f3f382e990b1e1968f8d))
 - add unit tests for random prime ([644bcee](https://github.com/groumage/PolynomArithmetic/commit/644bceed70f96334a7dea7556e6c48e59ce1e601))
@@ -26,7 +24,7 @@
 
 ### Features
 
-- add a ibrary to encrypt / decrypt messages with RSA cryptosystem ([8621b21](https://github.com/groumage/PolynomArithmetic/commit/8621b21689066d701244dbd812e2a7a21cfe94e8))
+- add a library to encrypt / decrypt messages with RSA cryptosystem ([8621b21](https://github.com/groumage/PolynomArithmetic/commit/8621b21689066d701244dbd812e2a7a21cfe94e8))
 
 ### Tests
 
