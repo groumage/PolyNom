@@ -458,25 +458,21 @@ fp_poly_error_t fp_poly_sub(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_fiel
 
 fp_poly_error_t fp_poly_mul(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_field_t *f)
 {
-    size_t pos_q, pos_p;
-    list_node_t *node_q, *node_p;
-    fp_poly_error_t err = 0;
-
     *res = fp_poly_init();
     if (!*res)
     {
         fp_poly_error(FP_POLY_E_MEMORY, __FILE__, __func__, __LINE__, "");
         return FP_POLY_E_MEMORY;
     }
-    pos_p = 0;
-    node_p = p->coeff->head;
+    size_t pos_p = 0;
+    list_node_t *node_p = p->coeff->head;
     while (node_p != NULL)
     {
-        pos_q = 0;
-        node_q = q->coeff->head;
+        size_t pos_q = 0;
+        list_node_t *node_q = q->coeff->head;
         while (node_q != NULL)
         {
-            err = fp_poly_add_single_term_aux(*res, node_p->coeff * node_q->coeff, fp_poly_coeff_list_to_degree(p, pos_p) + fp_poly_coeff_list_to_degree(q, pos_q), f, 1);
+            fp_poly_error_t err = fp_poly_add_single_term_aux(*res, node_p->coeff * node_q->coeff, fp_poly_coeff_list_to_degree(p, pos_p) + fp_poly_coeff_list_to_degree(q, pos_q), f, 1);
             if (err)
             {
                 fp_poly_error(err, __FILE__, __func__, __LINE__, "");
@@ -528,9 +524,6 @@ uint8_t fp_poly_inv(uint8_t element, fp_field_t *field)
 
 fp_poly_error_t fp_poly_div(fp_poly_t **q, fp_poly_t **r, fp_poly_t *n, fp_poly_t *d, fp_field_t *f)
 {
-    fp_poly_t *t, *intermediate, *mem;
-    fp_poly_error_t err;
-    mpz_t bitwise;
     if ((*r = fp_poly_init_mpz(n->index_coeff, list_copy(n->coeff))) == NULL)
     {
         fp_poly_error_no_custom_msg(FP_POLY_E_MEMORY, __FILE__, __func__, __LINE__);
@@ -547,6 +540,7 @@ fp_poly_error_t fp_poly_div(fp_poly_t **q, fp_poly_t **r, fp_poly_t *n, fp_poly_
         fp_poly_error(FP_POLY_E_LIST_COEFFICIENT, __FILE__, __func__, __LINE__, "list_add_beginning() failed");
         return FP_POLY_E_LIST_COEFFICIENT;
     }
+    fp_poly_t *t;
     if ((t = fp_poly_init()) == NULL)
     {
         fp_poly_error_no_custom_msg(FP_POLY_E_MEMORY, __FILE__, __func__, __LINE__);
@@ -557,6 +551,7 @@ fp_poly_error_t fp_poly_div(fp_poly_t **q, fp_poly_t **r, fp_poly_t *n, fp_poly_
         fp_poly_error(FP_POLY_E_LIST_COEFFICIENT, __FILE__, __func__, __LINE__, "list_add_beginning() failed");
         return FP_POLY_E_LIST_COEFFICIENT;
     }
+    mpz_t bitwise;
     mpz_init(bitwise);
     while (fp_poly_is_zero(*r) == 0 && fp_poly_degree(*r) >= fp_poly_degree(d))
     {
@@ -566,7 +561,8 @@ fp_poly_error_t fp_poly_div(fp_poly_t **q, fp_poly_t **r, fp_poly_t *n, fp_poly_
         uint16_t tmp = (uint16_t) fp_poly_inv(d->coeff->tail->coeff, f) * (uint16_t) (*r)->coeff->tail->coeff;
         tmp = tmp % f->order;
         t->coeff->tail->coeff = (uint8_t) tmp;
-        mem = *q;
+        fp_poly_t *mem = *q;
+        fp_poly_error_t err;
         if ((err = fp_poly_add(q, *q, t, f) != FP_POLY_E_SUCCESS))
         {
             fp_poly_error(err, __FILE__, __func__, __LINE__, "");
@@ -577,6 +573,7 @@ fp_poly_error_t fp_poly_div(fp_poly_t **q, fp_poly_t **r, fp_poly_t *n, fp_poly_
             fp_poly_error(FP_POLY_E_POLYNOM_MANIPULATION, __FILE__, __func__, __LINE__, "");
             return FP_POLY_E_POLYNOM_MANIPULATION;
         }
+        fp_poly_t *intermediate;
         if ((err = fp_poly_mul(&intermediate, t, d, f)) != FP_POLY_E_SUCCESS)
         {
             fp_poly_error(err, __FILE__, __func__, __LINE__, "");
@@ -598,14 +595,13 @@ fp_poly_error_t fp_poly_div(fp_poly_t **q, fp_poly_t **r, fp_poly_t *n, fp_poly_
 
 fp_poly_error_t fp_poly_gcd(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_field_t *f)
 {
-    fp_poly_t *q_tmp, *r_tmp, *r1, *r2, *mem;
-    r1 = fp_poly_init_mpz(p->index_coeff, list_copy(p->coeff));
+    fp_poly_t *r1 = fp_poly_init_mpz(p->index_coeff, list_copy(p->coeff));
     if (!r1)
     {
         fp_poly_error(FP_POLY_E_POLYNOM_MANIPULATION, __FILE__, __func__, __LINE__, "initialisation of polynom failed");
         return FP_POLY_E_POLYNOM_MANIPULATION;
     }
-    r2 = fp_poly_init_mpz(q->index_coeff, list_copy(q->coeff));
+    fp_poly_t *r2 = fp_poly_init_mpz(q->index_coeff, list_copy(q->coeff));
     if (!r2)
     {
         fp_poly_error(FP_POLY_E_POLYNOM_MANIPULATION, __FILE__, __func__, __LINE__, "initialisation of polynom failed");
@@ -613,6 +609,7 @@ fp_poly_error_t fp_poly_gcd(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_fiel
     }
     while (fp_poly_is_zero(r2) == 0)
     {
+        fp_poly_t *q_tmp, *r_tmp;
         if (fp_poly_div(&q_tmp, &r_tmp, r1, r2, f)!= FP_POLY_E_SUCCESS)
         {
             fp_poly_error(FP_POLY_E_POLYNOM_MANIPULATION, __FILE__, __func__, __LINE__, "division of polynoms failed");
@@ -623,7 +620,7 @@ fp_poly_error_t fp_poly_gcd(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_fiel
             fp_poly_error(FP_POLY_E_POLYNOM_MANIPULATION, __FILE__, __func__, __LINE__, "free of polynom failed");
             return FP_POLY_E_POLYNOM_MANIPULATION;
         }
-        mem = r1;
+        fp_poly_t *mem = r1;
         r1 = r2;
         r2 = r_tmp;
         if (fp_poly_free(mem) != FP_POLY_E_SUCCESS)
@@ -989,16 +986,14 @@ fp_poly_t *fp_poly_init_array(uint8_t *coeff, size_t len)
 
 static fp_poly_t *fp_poly_is_irreducible_aux(uint64_t n, fp_field_t *f)
 {
-    fp_poly_t *x_n_minux_x;
     mpz_t deg_x_n_minux_x;
-    list_t *list;
     mpz_init_set_ui(deg_x_n_minux_x, 0x0);
     mpz_setbit(deg_x_n_minux_x, n-1);
     mpz_setbit(deg_x_n_minux_x, 0);
-    list = list_init();
+    list_t *list = list_init();
     list_add_beginning(list, 1);
     list_add_beginning(list, f->order - 1);
-    x_n_minux_x = fp_poly_init_mpz(deg_x_n_minux_x, list);
+    fp_poly_t *x_n_minux_x = fp_poly_init_mpz(deg_x_n_minux_x, list);
     return x_n_minux_x;
 }
 
