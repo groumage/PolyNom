@@ -37,6 +37,9 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
+mkdir tests/fp_poly/input_test
+mkdir tests/fp_integer/input_test
+
 ctest_cmd=""
 if [[ "$1" = "main" ]]
 then

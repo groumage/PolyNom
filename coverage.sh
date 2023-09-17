@@ -11,5 +11,7 @@ for i in "${array[@]}"
 do
     ./test.sh $i
 done
-cd build/
-make coverage
+rm -rf coverage
+mkdir coverage
+gcovr -r . -j 8 --html --html-details -o coverage/coverage.html
+firefox coverage/coverage.html
