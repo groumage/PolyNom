@@ -638,6 +638,50 @@ fp_poly_error_t fp_poly_gcd(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_fiel
     return FP_POLY_E_SUCCESS;
 }
 
+fp_poly_error_t fp_poly_gcd_extended(fp_poly_t **res, fp_poly_t **u, fp_poly_t **v, fp_poly_t *p, fp_poly_t *q, fp_field_t *f)
+{
+    fp_poly_t *old_r = fp_poly_init_mpz(p->index_coeff, list_copy(p->coeff));
+    fp_poly_t *r = fp_poly_init_mpz(q->index_coeff, list_copy(q->coeff));
+    fp_poly_t *old_s = fp_poly_init_array((uint8_t[]) {1}, 0x1);
+    fp_poly_t *s = fp_poly_init_array((uint8_t[]) {0}, 0x1);
+    fp_poly_t *old_t = fp_poly_init_array((uint8_t[]) {0}, 0x1);
+    fp_poly_t *t = fp_poly_init_array((uint8_t[]) {1}, 0x1);
+    fp_poly_t *quot, *rem, *prov, *tmp;
+    while (!fp_poly_is_zero(r))
+    {
+        fp_poly_div(&quot, &rem, old_r, r, f);
+
+        prov = fp_poly_init_mpz(r->index_coeff, list_copy(r->coeff));
+        fp_poly_mul(&tmp, quot, prov, f);
+        fp_poly_sub(&r, old_r, tmp, f);
+        old_r = prov;
+
+        prov = fp_poly_init_mpz(s->index_coeff, list_copy(s->coeff));
+        fp_poly_mul(&tmp, quot, prov, f);
+        fp_poly_sub(&s, old_s, tmp, f);
+        old_s = prov;
+
+        prov = fp_poly_init_mpz(t->index_coeff, list_copy(t->coeff));
+        fp_poly_mul(&tmp, quot, prov, f);
+        fp_poly_sub(&t, old_t, tmp, f);
+        old_t = prov;
+    }
+    // custom error handling: sometimes, a "+0" is kept at the end of the polynom
+    // thus raising an error concerning the expected index of coeff
+    if (old_s->coeff->head->coeff == 0)
+    {
+        list_remove_head(old_s->coeff);
+        mpz_clrbit(old_s->index_coeff, 0);
+    }
+    *res = old_r;
+    *u = old_s;
+    *v = old_t;
+    fp_poly_free(r);
+    fp_poly_free(s);
+    fp_poly_free(t);
+    return FP_POLY_E_SUCCESS;
+}
+
 /*
 fp_poly_error_t fp_poly_gcd_extended(fp_poly_t **res, fp_poly_t **u, fp_poly_t **v, fp_poly_t *p, fp_poly_t *q, fp_field_t *f)
 {
