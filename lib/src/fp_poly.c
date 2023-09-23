@@ -464,6 +464,46 @@ fp_poly_error_t fp_poly_mul(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_fiel
         fp_poly_error(FP_POLY_E_MEMORY, __FILE__, __func__, __LINE__, "");
         return FP_POLY_E_MEMORY;
     }
+    if (!p)
+    {
+        fp_poly_error(FP_POLY_E_POLYNOM_IS_NULL, __FILE__, __func__, __LINE__, "");
+        return FP_POLY_E_POLYNOM_IS_NULL;
+    }
+    if (!q)
+    {
+        fp_poly_error(FP_POLY_E_POLYNOM_IS_NULL, __FILE__, __func__, __LINE__, "");
+        return FP_POLY_E_POLYNOM_IS_NULL;
+    }
+    if (!(p->coeff))
+    {
+        fp_poly_error(FP_POLY_E_LIST_COEFFICIENT_IS_NULL, __FILE__, __func__, __LINE__, "");
+        return FP_POLY_E_LIST_COEFFICIENT_IS_NULL;
+    }
+    if (!(p->coeff->head))
+    {
+        fp_poly_error(FP_POLY_E_POLYNOM_MANIPULATION, __FILE__, __func__, __LINE__, "head of list of coefficient is NULL");
+        return FP_POLY_E_POLYNOM_MANIPULATION;
+    }
+    if (!(q->coeff))
+    {
+        fp_poly_error(FP_POLY_E_LIST_COEFFICIENT_IS_NULL, __FILE__, __func__, __LINE__, "");
+        return FP_POLY_E_LIST_COEFFICIENT_IS_NULL;
+    }
+    if (!(q->coeff->head))
+    {
+        fp_poly_error(FP_POLY_E_POLYNOM_MANIPULATION, __FILE__, __func__, __LINE__, "head of list of coefficient is NULL");
+        return FP_POLY_E_POLYNOM_MANIPULATION;
+    }
+    if (fp_poly_is_zero(p) || fp_poly_is_zero(q))
+    {
+        mpz_set_ui((*res)->index_coeff, 1);
+        if (list_add_beginning((*res)->coeff, 0) != LIST_E_SUCCESS)
+        {
+            fp_poly_error(FP_POLY_E_LIST_COEFFICIENT, __FILE__, __func__, __LINE__, "list_add_beginning() failed");
+            return FP_POLY_E_LIST_COEFFICIENT;
+        }
+        return FP_POLY_E_SUCCESS;
+    }
     size_t pos_p = 0;
     list_node_t *node_p = p->coeff->head;
     while (node_p != NULL)
