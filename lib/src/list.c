@@ -109,8 +109,8 @@ list_error_t list_add_beginning(list_t *l, uint8_t coeff)
     list_node_t *node = (list_node_t *) malloc(sizeof(list_node_t));
     if (node == NULL)
     {
-        list_error(LIST_E_LIST_MANIPULATION, __FILE__, __func__, __LINE__, "node is NULL");
-        return LIST_E_LIST_MANIPULATION;
+        list_error_no_custom_msg(LIST_E_MEMORY, __FILE__, __func__, __LINE__);
+        return LIST_E_MEMORY;
     }
     node->coeff = coeff;
     node->next = l->head;
@@ -131,8 +131,8 @@ list_error_t list_add_end(list_t *l, uint8_t coeff)
     list_node_t *node = (list_node_t *) malloc(sizeof(list_node_t));
     if (node == NULL)
     {
-        list_error(LIST_E_LIST_MANIPULATION, __FILE__, __func__, __LINE__, "node is NULL");
-        return LIST_E_LIST_MANIPULATION;
+        list_error_no_custom_msg(LIST_E_MEMORY, __FILE__, __func__, __LINE__);
+        return LIST_E_MEMORY;
     }
     node->coeff = coeff;
     node->next = NULL;
