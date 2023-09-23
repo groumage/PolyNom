@@ -1223,7 +1223,7 @@ fp_poly_error_t fp_poly_assert_mpz(fp_poly_t *p, mpz_t expected_pos_coeff, list_
     if (mpz_cmp(p->index_coeff, expected_pos_coeff) != 0)
     {
         char buffer[150];
-        snprintf(buffer, 150, "expected index of coefficients: %s but got index of coefficients: %s\n", mpz_get_str(NULL, 10, p->index_coeff), mpz_get_str(NULL, 10, expected_pos_coeff));
+        snprintf(buffer, 150, "expected index of coefficients: %s but got index of coefficients: %s", mpz_get_str(NULL, 10, p->index_coeff), mpz_get_str(NULL, 10, expected_pos_coeff));
         fp_poly_error(FP_POLY_E_POLYNOM_MANIPULATION, __FILE__, __func__, __LINE__, buffer);
         return FP_POLY_E_POLYNOM_MANIPULATION;
     }
