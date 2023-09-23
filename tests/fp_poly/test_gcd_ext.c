@@ -28,7 +28,7 @@ static void pari_gp_test(char *filename)
     assert (fp_poly_gcd_extended(&res, &u, &v, poly[0], poly[1], field) == FP_POLY_E_SUCCESS);
     assert (fp_poly_assert_equality(poly[2], u) == FP_POLY_E_SUCCESS);
     assert (fp_poly_assert_equality(poly[3], v) == FP_POLY_E_SUCCESS);
-    assert (fp_poly_assert_equality(poly[4],res) == FP_POLY_E_SUCCESS);
+    assert (fp_poly_assert_equality(poly[4], res) == FP_POLY_E_SUCCESS);
     assert (fp_poly_free(res) == FP_POLY_E_SUCCESS);
     assert (fp_poly_free(u) == FP_POLY_E_SUCCESS);
     assert (fp_poly_free(v) == FP_POLY_E_SUCCESS);
