@@ -13,5 +13,5 @@ do
 done
 rm -rf coverage
 mkdir coverage
-gcovr -r . -j 8 --html --html-details -o coverage/coverage.html
+gcovr -r . --exclude tests/ -j 8 --html --html-details -o coverage/coverage.html
 firefox coverage/coverage.html
