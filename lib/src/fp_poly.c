@@ -412,6 +412,18 @@ fp_poly_error_t fp_poly_add(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_fiel
         fp_poly_error(FP_POLY_E_POLYNOM_MANIPULATION, __FILE__, __func__, __LINE__, "head of list of coefficient is NULL");
         return FP_POLY_E_POLYNOM_MANIPULATION;
     }
+    if (!fp_poly_is_zero(p) && fp_poly_is_zero(q))
+    {
+        mpz_set((*res)->index_coeff, p->index_coeff);
+        (*res)->coeff = list_copy(p->coeff);
+        return FP_POLY_E_SUCCESS;
+    }
+    if (fp_poly_is_zero(p) && !fp_poly_is_zero(q))
+    {
+        mpz_set((*res)->index_coeff, q->index_coeff);
+        (*res)->coeff = list_copy(q->coeff);
+        return FP_POLY_E_SUCCESS;
+    }
     return fp_poly_add_aux(*res, p, q, f, 1);
 }
 
