@@ -1,11 +1,23 @@
-//
-// Created by guillaume on 02/10/2021.
-//
-
 #include "../include/util.h"
 #include "../include/fp_integer.h"
 #include "../include/fp_poly.h"
 
+/**
+ * @brief Print a basic error message with addtionnal information to stderr.
+ * 
+ * @details The list of errors is:
+ * - FP_POLY_E_MEMORY: a memory error, e.g., a pointer return by malloc() is NULL.
+ * - FP_POLY_E_POLYNOM_IS_NULL: a polynom given as parameter to a function is NULL.
+ * - FP_POLY_E_LIST_COEFFICIENT_IS_NULL: the list of coefficients of a polynom is NULL.
+ * - FP_POLY_E_POLYNOM_MANIPULATION: an error occured during the manipulation of a polynom (usually, an additional message to explain this error is provided).
+ * - FP_POLY_E_COEFFICIENT_ARITHMETIC: an error occured during the manipulation of coefficients (usually, a additional message to explain this error is provided).
+ * 
+ * @param e The error.
+ * @param file The file where the error occured.
+ * @param fct The function where the error occured.
+ * @param line The line where the error occured.
+ * @param error The additional information occured.
+ */
 static void fp_poly_error(fp_poly_error_t e, const char *file, const char *fct, const int line, const char *error) {
     switch (e)
     {
@@ -33,11 +45,28 @@ static void fp_poly_error(fp_poly_error_t e, const char *file, const char *fct, 
     }
 }
 
+/**
+ * @brief Print a basic error message to stderr
+ * 
+ * @details The list of errors is the same as in fp_poly_error().
+ * 
+ * @param e The error.
+ * @param file The file where the error occured.
+ * @param fct The function where the error occured.
+ * @param line The line where the error occured.
+*/
 static void fp_poly_error_no_custom_msg(fp_poly_error_t e, const char *file, const char *fct, const int line)
 {
     fp_poly_error(e, file, fct, line, "");
 }
 
+/**
+ * @brief Check if a polynom is equal to zero.
+ * 
+ * @param p The polynom.
+ * 
+ * @return A boolean value: 1 if the polynom is zero, 0 otherwise.
+ */
 static uint8_t fp_poly_is_zero(fp_poly_t *p)
 {
     if (!p)
@@ -60,6 +89,17 @@ static uint8_t fp_poly_is_zero(fp_poly_t *p)
     return 1;
 }
 
+/**
+ * @brief Normalize the representation of a zero polynom.
+ * 
+ * @details A zero polynom can be represented in various ways, e.g., it can have one or many coefficients that are zero. <br>
+ * This function standardizes the representation of a zero polynom by ensuring that the polynom has only one coefficient equal to zero. <br>
+ * The old coefficient list is destroyed and a new one is created.
+ *
+ * @param p The polynom.
+ * 
+ * @return FP_POLY_E_SUCCESS if the operation was successful or an error code otherwise (see @ref fp_poly_error_t for the list of error codes).
+ */
 static fp_poly_error_t fp_poly_normalise_zero_polynom(fp_poly_t *p)
 {
     if (!p)
@@ -89,6 +129,13 @@ static fp_poly_error_t fp_poly_normalise_zero_polynom(fp_poly_t *p)
     return FP_POLY_E_SUCCESS;
 }
 
+/**
+ * @brief Check if a polynom is a equal to one.
+ * 
+ * @param p The polynom.
+ * 
+ * @return A boolean value: 1 if the polynom is one, 0 otherwise.
+ */
 static uint8_t fp_poly_is_unit(fp_poly_t *p)
 {
     if (!p)
@@ -106,15 +153,15 @@ static uint8_t fp_poly_is_unit(fp_poly_t *p)
     return 0;
 }
 
-/*
-* Return the degree of the polynom p.
-*
-* Parameters:
-* - p: the polynom.
-*
-* Returns:
-* - the degree of the polynom p.
-*/
+/**
+ * @brief Compute the degree of a polynom.
+ *
+ * @param p The polynom.
+ *
+ * @note If 0 is returned, it means either that the polynom is NULL or the polynom is a constant polynom, e.g., P(X) = 5.
+ *
+ * @returns The degree of the polynom or 0 if the polynom is NULL or constant.
+ */
 size_t fp_poly_degree(fp_poly_t *p)
 {
     if (!p)
@@ -125,16 +172,14 @@ size_t fp_poly_degree(fp_poly_t *p)
     return mpz_sizeinbase(p->index_coeff, 2) - 1;
 }
 
-/*
-* Return the index of the n-th set bit in the number.
-*
-* Parameters:
-* - number: the number.
-* - n: the index of the set bit.
-*
-* Returns:
-* - the index of the n-th set bit in the number.
-*/
+/**
+ * @brief Return the position of the n-th set bit in the binary representation of a number.
+ *
+ * @param number The number.
+ * @param n The n-th set bit to find.
+ *
+ * @return The position of the n-th set bit in the binary representation of the number.
+ */
 static size_t index_of_n_th_set_bit(mpz_t number, size_t n)
 {
     size_t set_bit_count = 0, bit_position = 0;
@@ -147,16 +192,16 @@ static size_t index_of_n_th_set_bit(mpz_t number, size_t n)
     } while (1);
 }
 
-/*
-* Return the degree of the coefficient stored at the position pos in the list of coefficient of the polynom p.
-*
-* Parameters:
-* - p: the polynom.
-* - pos: the position of the coefficient in the list of coefficient.
-*
-* Returns:
-* - the degree of the coefficient stored at the position pos in the list of coefficient of the polynom p.
-*/
+/**
+ * @brief Return the degree of a coefficient located at a specified position in the coefficient list of a polynom.
+ *
+ * @param p The polynom.
+ * @param pos The position.
+ *
+ * @note This is the invert operation of fp_poly_degree_to_node_list().
+ *
+ * @return The degree of the coefficient at the position \p pos in the coefficient list of the polynom. 
+ */
 size_t fp_poly_coeff_list_to_degree(fp_poly_t *p, size_t pos)
 {
     if (!p)
@@ -167,37 +212,32 @@ size_t fp_poly_coeff_list_to_degree(fp_poly_t *p, size_t pos)
     return index_of_n_th_set_bit(p->index_coeff, pos);
 }
 
-/*
-* Count the number of bit sets to 1 that are less than the index degree.
-*
-* Parameters:
-* - number: the number to count the bit sets to 1.
-* - degree: the index until which bits are count.
-*
-* Returns:
-* - the number of bit sets to 1 that are less than the index degree.
-*/
-static size_t count_bit_set_to_index(const mpz_t number, size_t degree) {
+/**
+ * @brief Count the number of set bits of a number up to a specific bit number.
+ *
+ * @param number The number.
+ * @param index The bit number.
+ *
+ * @return The number of set bits up to the specified index.
+ */
+static size_t count_bit_set_to_index(const mpz_t number, size_t index)
+{
     size_t count = 0;
-    for (size_t i = 0; i < degree; i++)
+    for (size_t i = 0; i < index; i++)
         if (mpz_tstbit(number, i))
             count++;
     return count;
 }
 
-/*
- * Return a node containing the coefficient at the specified degree.
+/**
+ * @brief Retrieves the node containing the coefficient of the specified degree.
  *
- * Parameters:
- * - p: the polynom.
- * - degree: the degree associated to the coefficient we want.
+ * @param p The polynom.
+ * @param degree The degree.
  *
- * Returns:
- * - NULL if an error occurred.
- * - a node if the operation was successful.
- * - FP_POLY_E_POLY_IS_NULL if the polynom p is NULL.
- * - FP_POLY_E_REQUESTED_DEGREE_IS_TOO_HIGH if the requested degree is too high.
+ * @note This is the invert operation of fp_poly_coeff_list_to_degree().
  *
+ * @return The node containing the coefficient at the specified degree or NULL if an error occurred.
  */
 list_node_t *fp_poly_degree_to_node_list(fp_poly_t *p, size_t degree)
 {
@@ -214,6 +254,19 @@ list_node_t *fp_poly_degree_to_node_list(fp_poly_t *p, size_t degree)
     return list_get_at_pos(p->coeff, count_bit_set_to_index(p->index_coeff, degree));
 }
 
+/**
+ * @brief An auxiliary function to add or substract a single term at a specified degree.
+ * 
+ * @param p The polynom.
+ * @param coeff The value of the term to add or substract.
+ * @param degree The degree of the term to add or substract.
+ * @param field The field in which the operation is performed (may be NULL).
+ * @param is_addition A boolean value: 1 if the operation is an addition or 0 if it is a subtraction.
+ * 
+ * @note The coefficient are assumed to be stored on an uint8_t type.
+ * 
+ * @return FP_POLY_E_SUCCESS if the operation was successful or an error code otherwise (see @ref fp_poly_error_t for the list of error codes).
+ */
 static fp_poly_error_t fp_poly_add_single_term_aux(fp_poly_t *p, uint8_t coeff, size_t degree, fp_field_t *field, uint8_t is_addition)
 {
     if (coeff == 0)
@@ -244,6 +297,7 @@ static fp_poly_error_t fp_poly_add_single_term_aux(fp_poly_t *p, uint8_t coeff, 
                 node->coeff -= coeff;
                 if (node->coeff == 0)
                 {
+                    // remove the a coefficient from the coefficient list if it is equal to zero
                     mpz_clrbit(p->index_coeff, degree);
                     if (list_remove_node(p->coeff, node) != LIST_E_SUCCESS)
                     {
@@ -266,6 +320,7 @@ static fp_poly_error_t fp_poly_add_single_term_aux(fp_poly_t *p, uint8_t coeff, 
             }
             if (node->coeff == 0)
             {
+                // remove the a coefficient from the coefficient list if it is equal to zero
                 mpz_clrbit(p->index_coeff, degree);
                 if (list_remove_node(p->coeff, node) != LIST_E_SUCCESS)
                 {
@@ -277,6 +332,7 @@ static fp_poly_error_t fp_poly_add_single_term_aux(fp_poly_t *p, uint8_t coeff, 
     }
     else
     {
+        // there is no term at the specified degree, so a new element is the coefficient list must be created
         if (field != NULL)
         {
             if (is_addition)
@@ -299,37 +355,37 @@ static fp_poly_error_t fp_poly_add_single_term_aux(fp_poly_t *p, uint8_t coeff, 
     return FP_POLY_E_SUCCESS;
 }
 
-/*
- * Add a single term at a specified degree to the polynom within a field.
- *
- * Parameters:
- * - p: the polynom.
- * - coeff: the value of the term to add.
- * - degree: the degree of the term to add.
- * - field: the field in which the operation is performed (optionnal).
- *
- * Returns:
- * - FP_POLY_E_SUCCESS if the operation was successful.
- * - FP_POLY_E_POLY_IS_NULL if the polynom p is NULL.
- * - FP_POLY_E_LIST_COEFF_IS_NULL if the list of coefficient of the polynom p is NULL.
- * - FP_POLY_E_COEFF_OVERFLOW if there is no field provided and if the term is too high to be stored within an uint8_t.
- *
+/**
+ * @brief A wrapper of fp_poly_add_single_term_aux() to perform unit test on polynom addition.
+ * 
+ * @param p The polynom.
+ * @param coeff The value of the term to add.
+ * @param degree The degree of the term to add.
+ * @param field The field in which the operation is performed (may be NULL).
+ * 
+ * @return See fp_poly_add_single_term_aux().
  */
 fp_poly_error_t fp_poly_add_single_term(fp_poly_t *p, uint8_t coeff, size_t degree, fp_field_t *field)
 {
     return fp_poly_add_single_term_aux(p, coeff, degree, field, 1);
 }
 
-/*
-* Documentation todo.
-*
-* Parameters:
-*
-* Pre-condition:
-* - The following variable are not NULL: *res, (2) p, (3) q, (4) list of coeff of p, (5) the head of list of coeff of p, (6) list of coeff of q and (7) the head of list of coeff of q.
-*
-* Returns:
-*/
+/**
+ * @brief Auxiliary function to add or substract two polynoms.
+ * 
+ * @details This function adds or substracts polynoms \p p and \p q together. <br>
+ * The result is stored in the polynom \p res.
+ * 
+ * @param res The parameter which will store the result of the operation.
+ * @param p The first polynom.
+ * @param q The second polynom.
+ * @param field The field in which the operation is performed (may be NULL).
+ * @param is_addition A boolean value: 1 if the operation is an addition or 0 if it is a subtraction.
+ * 
+ * @note This function is used by fp_poly_add() and fp_poly_sub(). It aims at factorizing the code of these two functions.
+ * 
+ * @return FP_POLY_E_SUCCESS if the operation was successful or an error code otherwise (see @ref fp_poly_error_t for the list of error codes).
+ */
 static fp_poly_error_t fp_poly_add_aux(fp_poly_t *res, fp_poly_t *p, fp_poly_t *q, fp_field_t * field, uint8_t is_addition)
 {
     size_t pos = 0;
@@ -359,20 +415,17 @@ static fp_poly_error_t fp_poly_add_aux(fp_poly_t *res, fp_poly_t *p, fp_poly_t *
     return FP_POLY_E_SUCCESS;
 }
 
-/*
- * Add two polynom together within a field.
- *
- * Parameters:
- * - res: the polynom which store the result of the addition.
- * - p: the first polynom.
- * - q: the second polynom.
- * - field: the field in which the operation is performed (optionnal).
- *
- * Returns:
- * - FP_POLY_E_SUCCESS if the operation was successful.
- * - FP_POLY_E_MALLOC_ERROR if there was an error during the memory allocation.
- * - any error return by fp_poly_add_single_term.
- *
+/**
+ * @brief Add two polynoms.
+ * 
+ * A new polynom is created to store the result of the addition.
+ * 
+ * @param res The parameter which will store the result of the addition.
+ * @param p The first polynom.
+ * @param q The second polynom.
+ * @param field The field in which the addition is performed (may be NULL).
+ * 
+ * @return FP_POLY_E_SUCCESS if the operation was successful or an error code otherwise (see @ref fp_poly_error_t for the list of error codes).
  */
 fp_poly_error_t fp_poly_add(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_field_t *f)
 {
@@ -427,6 +480,18 @@ fp_poly_error_t fp_poly_add(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_fiel
     return fp_poly_add_aux(*res, p, q, f, 1);
 }
 
+/**
+ * @brief Substract two polynoms.
+ * 
+ * A new polynom is created to store the result of the substraction.
+ * 
+ * @param res The parameter which will store the result of the substraction.
+ * @param p The first polynom.
+ * @param q The second polynom.
+ * @param field The field in which the substraction is performed (may be NULL).
+ * 
+ * @return FP_POLY_E_SUCCESS if the operation was successful or an error code otherwise (see @ref fp_poly_error_t for the list of error codes).
+ */
 fp_poly_error_t fp_poly_sub(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_field_t *f)
 {
     *res = fp_poly_init();
@@ -474,13 +539,25 @@ fp_poly_error_t fp_poly_sub(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_fiel
     /*
     if (fp_poly_is_zero(p) && !fp_poly_is_zero(q))
     {
-        // TODO
+        // TODO: handle the other case
         return FP_POLY_E_SUCCESS;
     }
     */
     return fp_poly_add_aux(*res, p, q, f, 0);
 }
 
+/**
+ * @brief Multiply two polynoms.
+ * 
+ * A new polynom is created to store the result of the substraction.
+ * 
+ * @param res The parameter which will store the result of the multiplication.
+ * @param p The first polynom.
+ * @param q The second polynom.
+ * @param field The field in which the substraction is performed (may be NULL).
+ * 
+ * @return FP_POLY_E_SUCCESS if the operation was successful or an error code otherwise (see @ref fp_poly_error_t for the list of error codes).
+ */
 fp_poly_error_t fp_poly_mul(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_field_t *f)
 {
     *res = fp_poly_init();
@@ -552,6 +629,16 @@ fp_poly_error_t fp_poly_mul(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_fiel
     return FP_POLY_E_SUCCESS;
 }
 
+/**
+ * @brief Retrieve the remainder of the division of the multiplication of two polynoms by an irreducible polynom.
+ * 
+ * @param res The parameter which will store the remainder of the division.
+ * @param p The first polynom.
+ * @param q The second polynom.
+ * @param f The field in which the operation is performed.
+ * 
+ * @return FP_POLY_E_SUCCESS if the operation was successful or an error code otherwise (see @ref fp_poly_error_t for the list of error codes).
+ */
 fp_poly_error_t fp_poly_mul_fq(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_field_t *f)
 {
     fp_poly_t *tmp_res, *tmp_q, *tmp_r;
@@ -579,14 +666,35 @@ fp_poly_error_t fp_poly_mul_fq(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_f
     return FP_POLY_E_SUCCESS;
 }
 
+/**
+ * @brief Compute the inverse of an integer within a field.
+ * 
+ * @param element The integer.
+ * @param field The field.
+ * 
+ * @return The inverse of the integer within the field or 0 if no inverse is found.
+ */
 uint8_t fp_poly_inv(uint8_t element, fp_field_t *field)
 {
     for (uint8_t i = 1; i < field->order; i++)
         if ((element * i) % field->order == 1)
             return i;
-    return 0; // If no inverse is found
+    return 0;
 }
 
+/**
+ * @brief Divide two polynoms.
+ * 
+ * @param q The parameter which will store the quotient.
+ * @param r The parameter which will store the remainder.
+ * @param n The dividend.
+ * @param d The divisor.
+ * @param f The field in which the division is performed.
+ * 
+ * @note A field is required since only the multiplication of integer is supported (impossible to multiply an integer by a fraction).
+ * 
+ * @return FP_POLY_E_SUCCESS if the operation was successful or an error code otherwise (see @ref fp_poly_error_t for the list of error codes).
+ */
 fp_poly_error_t fp_poly_div(fp_poly_t **q, fp_poly_t **r, fp_poly_t *n, fp_poly_t *d, fp_field_t *f)
 {
     if ((*r = fp_poly_init_mpz(n->index_coeff, list_copy(n->coeff))) == NULL)
@@ -658,6 +766,16 @@ fp_poly_error_t fp_poly_div(fp_poly_t **q, fp_poly_t **r, fp_poly_t *n, fp_poly_
     return FP_POLY_E_SUCCESS;
 }
 
+/**
+ * @brief Compute the greatest common divisor of two polynoms.
+ * 
+ * @param res The polynom which will store the greatest common divisor.
+ * @param p The first polynom.
+ * @param q The second polynom.
+ * @param f The field in which the operation is performed.
+ * 
+ * @return FP_POLY_E_SUCCESS if the operation was successful or an error code otherwise (see @ref fp_poly_error_t for the list of error codes).
+ */
 fp_poly_error_t fp_poly_gcd(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_field_t *f)
 {
     fp_poly_t *r1 = fp_poly_init_mpz(p->index_coeff, list_copy(p->coeff));
@@ -703,6 +821,18 @@ fp_poly_error_t fp_poly_gcd(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_fiel
     return FP_POLY_E_SUCCESS;
 }
 
+/**
+ * @brief Compute the extended greatest common divisor of two polynoms.
+ * 
+ * @param res The polynom which will store the greatest common divisor.
+ * @param u The first coefficient of the extended greatest common divisor.
+ * @param v The second coefficient of the extended greatest common divisor.
+ * @param p The first polynom.
+ * @param q The second polynom.
+ * @param f The field in which the operation is performed.
+ * 
+ * @return FP_POLY_E_SUCCESS if the operation was successful or an error code otherwise (see @ref fp_poly_error_t for the list of error codes).
+ */
 fp_poly_error_t fp_poly_gcd_extended(fp_poly_t **res, fp_poly_t **u, fp_poly_t **v, fp_poly_t *p, fp_poly_t *q, fp_field_t *f)
 {
     fp_poly_t *old_r = fp_poly_init_mpz(p->index_coeff, list_copy(p->coeff));
@@ -732,7 +862,7 @@ fp_poly_error_t fp_poly_gcd_extended(fp_poly_t **res, fp_poly_t **u, fp_poly_t *
         old_t = prov;
     }
     // custom error handling: sometimes, a "+0" is kept at the end of the polynom
-    // thus raising an error concerning the expected index of coeff
+    // thus raising an error concerning the expected index of coeff during the unit test
     if (old_s->coeff->head->coeff == 0)
     {
         list_remove_head(old_s->coeff);
@@ -747,106 +877,13 @@ fp_poly_error_t fp_poly_gcd_extended(fp_poly_t **res, fp_poly_t **u, fp_poly_t *
     return FP_POLY_E_SUCCESS;
 }
 
-/*
-fp_poly_error_t fp_poly_gcd_extended(fp_poly_t **res, fp_poly_t **u, fp_poly_t **v, fp_poly_t *p, fp_poly_t *q, fp_field_t *f)
-{
-    fp_poly_t *q_tmp, *r_tmp, *old_r, *r, *old_s, *s, *old_t, *t, *tmp, *tmp_mul;
-    fp_poly_error_t err;
-    old_r = fp_poly_init_mpz(p->index_coeff, list_copy(p->coeff));
-    r = fp_poly_init_mpz(q->index_coeff, list_copy(q->coeff));
-    old_s = fp_poly_init();
-    s = fp_poly_init();
-    old_t = fp_poly_init();
-    t = fp_poly_init();
-    mpz_set_ui(old_s->index_coeff, 0x1);
-    list_add_beginning(old_s->coeff, 0x1);
-    mpz_set_ui(s->index_coeff, 0x0);
-    mpz_set_ui(old_t->index_coeff, 0x0);
-    mpz_set_ui(t->index_coeff, 0x1);
-    list_add_beginning(t->coeff, 0x1);
-    while (fp_poly_is_zero(r) == 0)
-    {
-        
-        fp_poly_print(stderr, r);
-        fprintf(stderr, "     degre = %ld      is_zero?%u\n", fp_poly_degree(r), fp_poly_is_zero(r));
-        
-        fp_poly_div(&q_tmp, &r_tmp, old_r, r, f);
-
-        tmp = r;
-        fp_poly_mul(&tmp_mul, q_tmp, r, f);
-        fp_poly_sub(&r, old_r, tmp_mul, f);
-        //fp_poly_free(old_r);
-        old_r = tmp;
-        fprintf(stderr, "r = ");
-        fp_poly_print(stderr, r);
-        fprintf(stderr, "\n");
-        fprintf(stderr, "old_r = ");
-        fp_poly_print(stderr, old_r);
-        fprintf(stderr, "\n");
-        //fp_poly_free(tmp_mul);
-        
-        //aux(old_r, r, q_tmp);
-        
-        tmp = s;
-        fp_poly_mul(&tmp_mul, q_tmp, s, f);
-        fprintf(stderr, "SUB: ");
-        fp_poly_print(stderr, old_s);
-        fprintf(stderr, " - ");
-        fp_poly_print(stderr, tmp_mul);
-        fprintf(stderr, "\n");
-        fp_poly_sub(&s, old_s, tmp_mul, f);
-        //fp_poly_free(old_s);
-        old_s = tmp;
-        //fprintf(stderr, "s = ");
-        //fp_poly_print(stderr, s);
-        //fprintf(stderr, "\n");
-        //fprintf(stderr, "old_s = ");
-        //fp_poly_print(stderr, old_s);
-        //fprintf(stderr, "\n");
-
-        //fp_poly_free(tmp_mul);
-        
-        //aux(old_s, s, q_tmp);
-        
-        tmp = t;
-        fp_poly_mul(&tmp_mul, q_tmp, t, f);
-        fp_poly_sub(&t, old_t, tmp_mul, f);
-        //fp_poly_free(old_t);
-        old_t = tmp;
-        fprintf(stderr, "t = ");
-        fp_poly_print(stderr, t);
-        fprintf(stderr, "\n");
-        fprintf(stderr, "old_t = ");
-        fp_poly_print(stderr, old_t);
-        fprintf(stderr, "\n");
-        fprintf(stderr, "\n");
-        //fp_poly_free(tmp_mul);
-        
-        //aux(old_t, t, q_tmp);
-        
-        //fp_poly_free(q_tmp);
-        //fp_poly_free(r_tmp);
-    }
-    *res = old_r;
-    *u = old_s;
-    *v = old_t;
-    fp_poly_free(r);
-    fp_poly_free(s);
-    fp_poly_free(t);
-    return FP_POLY_E_SUCCESS;
-}
-*/
-
-/*
-* Parse a string to create a polynom.
-*
-* Parameters:
-* - polynomial: the string to parse.
-*
-* Returns:
-* - a pointer to the polynom if the operation was successful.
-* - NULL if there was an error during the memory allocation.
-*/
+/**
+ * @brief Parse a string to create a polynom.
+ *
+ * @param polynomial The string.
+ *
+ * @return A pointer to the polynom if the operation was successful or NULL otherwise.
+ */
 fp_poly_t *fp_poly_parse(const char* polynomial)
 {
     if (!polynomial)
@@ -928,13 +965,11 @@ fp_poly_t *fp_poly_parse(const char* polynomial)
     return res;
 }
 
-/*
-* Initialize a polynom where index of the coefficient is zero.
-*
-* Returns:
-* - a pointer to the polynom if the operation was successful.
-* - NULL if there was an error during the memory allocation.
-*/
+/**
+ * @brief Initialize an empty polynom (without any coefficients).
+ *
+ * @return A pointer to the polynom if the operation was successful or NULL otherwise.
+ */
 fp_poly_t *fp_poly_init(void)
 {
     fp_poly_t *res = (fp_poly_t *) malloc(sizeof(fp_poly_t));
@@ -948,6 +983,13 @@ fp_poly_t *fp_poly_init(void)
     return res;
 }
 
+/**
+ * @brief Count the number of set bi of a number.
+ * 
+ * @param n The number.
+ * 
+ * @return The number of set bit.
+ */
 static size_t fp_poly_count_set_bits(size_t n)
 {
     size_t count = 0;
@@ -959,17 +1001,14 @@ static size_t fp_poly_count_set_bits(size_t n)
     return count;
 }
 
-/*
-* Initialize a polynom with a specified index coefficient and list of coefficients. The index coefficient is a size_t.
-*
-* Parameters:
-* - pos_coeff: the index of the coefficient.
-* - coeff: the list of coefficients.
-*
-* Returns:
-* - a pointer to the polynom if the operation was successful.
-* - NULL if there was an error during the memory allocation.
-*/
+/**
+ * @brief Initialize a polynom when the degree of the coefficient are given as a size_t number.
+ * 
+ * @param pos_coeff The degree of the coefficient (as a size_t number).
+ * @param coeff The coefficient list.
+ * 
+ * @return A pointer to the polynom if the operation was successful or NULL otherwise.
+ */
 fp_poly_t *fp_poly_init_sizet(size_t pos_coeff, list_t *coeff)
 {
     if (!coeff)
@@ -1000,17 +1039,14 @@ fp_poly_t *fp_poly_init_sizet(size_t pos_coeff, list_t *coeff)
     return res;
 }
 
-/*
-* Initialize a polynom with a specified index coefficient and list of coefficients. The index coefficient is a mpz_t.
-*
-* Parameters:
-* - pos_coeff: the index of the coefficient.
-* - coeff: the list of coefficients.
-*
-* Returns:
-* - a pointer to the polynom if the operation was successful.
-* - NULL if there was an error during the memory allocation.
-*/
+/**
+ * @brief Initialize a polynom when the degree of the coefficient are given as an mpz_t number.
+ * 
+ * @param pos_coeff The degree of the coefficient (as a mpz_t number).
+ * @param coeff The coefficient list.
+ * 
+ * @return A pointer to the polynom if the operation was successful or NULL otherwise.
+ */
 fp_poly_t *fp_poly_init_mpz(mpz_t pos_coeff, list_t *coeff)
 {
     if (!coeff)
@@ -1041,17 +1077,15 @@ fp_poly_t *fp_poly_init_mpz(mpz_t pos_coeff, list_t *coeff)
     return res;
 }
 
-/*
-* Initialize a polynom with a n array of coefficients. The coefficient in the array are given from the LOWEST to the HIGHEST degree.
-*
-* Parameters:
-* - coeff: the array of coefficients.
-* - len: the length of the array.
-*
-* Returns:
-* - a pointer to the polynom if the operation was successful.
-* - NULL if there was an error during the memory allocation.
-*/
+
+/**
+ * @brief Initialize a polynom when the coefficient are given as an array.
+ * 
+ * @param coeff The array.
+ * @param len The length of the array.
+ * 
+ * @return A pointer to the polynom if the operation was successful or NULL otherwise.
+ */
 fp_poly_t *fp_poly_init_array(uint8_t *coeff, size_t len)
 {
     if (!coeff)
@@ -1093,6 +1127,16 @@ fp_poly_t *fp_poly_init_array(uint8_t *coeff, size_t len)
     return res;
 }
 
+/**
+ * @brief Auxiliary function to check the irreducibility of a polynom within a field.
+ * 
+ * @details This function returns the polynom x^n - x.
+ * 
+ * @param n The degree.
+ * @param f The field.
+ * 
+ * @return The polynom x^n - x.
+ */
 static fp_poly_t *fp_poly_is_irreducible_aux(uint64_t n, fp_field_t *f)
 {
     mpz_t deg_x_n_minux_x;
@@ -1106,6 +1150,14 @@ static fp_poly_t *fp_poly_is_irreducible_aux(uint64_t n, fp_field_t *f)
     return x_n_minux_x;
 }
 
+/**
+ * @brief Check if a polynom is irreducible within a field.
+ * 
+ * @param p The polynom.
+ * @param f The field.
+ * 
+ * @return A boolean value: 1 if the polynom is irreducible, 0 otherwise.
+ */
 uint8_t fp_poly_is_irreducible(fp_poly_t *p, fp_field_t *f)
 {
     fp_poly_t *x_n_minus_x, *q, *r, *res_gcd;
@@ -1137,6 +1189,14 @@ uint8_t fp_poly_is_irreducible(fp_poly_t *p, fp_field_t *f)
     return 1;
 }
 
+/**
+ * @brief Initialize a random polynom of a given degree within a field.
+ * 
+ * @param degree The degree.
+ * @param f The field.
+ * 
+ * @return A pointer to the polynom if the operation was successful or NULL otherwise.
+ */
 fp_poly_t *fp_poly_init_random(size_t degree, fp_field_t *f)
 {
     if (!f)
@@ -1172,17 +1232,16 @@ fp_poly_t *fp_poly_init_random(size_t degree, fp_field_t *f)
     return res;
 }
 
-/*
-* Initialize a random irreducible polynom using cohn's irreducibility criterion (https://en.wikipedia.org/wiki/Cohn%27s_irreducibility_criterion).
-*
-* Parameters:
-* - digits: the number of digits of the polynom.
-* - field: the field of the polynom.
-*
-* Returns:
-* - a pointer to the polynom if the operation was successful.
-* - NULL if there was an error during the memory allocation.
-*/
+/**
+ * @brief Initialize a random irreducible polynom of a given degree within a field.
+ *
+ * @details The Cohen's irreducibility criterion (https://en.wikipedia.org/wiki/Cohn%27s_irreducibility_criterion) is implemented.
+ *
+ * @param digits The number of digits of the polynom.
+ * @param field The field of the polynom.
+ *
+ * @return A pointer to the polynom if the operation was successful or NULL otherwise.
+ */
 fp_poly_t *fp_poly_init_random_irreducible(size_t digits, fp_field_t *field)
 {
     mpz_t rand;
@@ -1212,17 +1271,13 @@ fp_poly_t *fp_poly_init_random_irreducible(size_t digits, fp_field_t *field)
     return res;
 }
 
-/*
-* Free a polynom.
-*
-* Parameters:
-* - p: the polynom to free.
-*
-* Returns:
-* - FP_POLY_E_SUCCESS if the operation was successful.
-* - FP_POLY_E_POLY_IS_NULL if the polynom is NULL.
-* - FP_POLY_E_LIST_COEFF_IS_NULL if the list of coefficients is NULL.
-*/
+/**
+ * @brief Free a polynom.
+ * 
+ * @param p The polynom.
+ * 
+ * @return FP_POLY_E_SUCCESS if the operation was successful or an error code otherwise (see @ref fp_poly_error_t for the list of error codes).
+ */
 fp_poly_error_t fp_poly_free(fp_poly_t *p)
 {
     if (!p)
@@ -1241,28 +1296,15 @@ fp_poly_error_t fp_poly_free(fp_poly_t *p)
     return FP_POLY_E_SUCCESS;
 }
 
-/*
-* Check that an actual polynom is equal to expected one. The parameters of the expected polynom must be manually defined. The expected index of the coefficient is of type mpz_t.
-*
-* The check fails if:
-* - the polynom is NULL.
-* - the list of the values of the coefficients of the polynom is NULL.
-* - the expected index of the coefficient is NULL.
-* - the list of the expected values of the coefficients is NULL.
-* - the actual index of the coefficient is different from the expected index of the coefficient.
-* - both list of the values of the coefficient has equal size but a value doesn't match.
-* - the actual list of the values of the coefficients is longer than the expected list of the values of the coefficients.
-* - the actual list of the values of the coefficients is shorter than the expected list of the values of the coefficients.
-*
-* Parameters:
-* - p: the polynom.
-* - expected_pos_coeff: the expected index of the coefficient.
-* - expected_coeff: the list of the expected values of the coefficients.
-*
-* Returns:
-* - FP_POLY_E_SUCCESS if the equality succeed.
-* - FP_POLY_E_ASSERT_MPZ if the equality fails.
-*/
+/**
+ * @brief Check that a polynom is equal to an expected one when the expected degree of the coefficient is given as an mpz_t type.
+ *
+ * @param p The polynom.
+ * @param expected_pos_coeff The expected degree of the coefficient (as an mpz_t type).
+ * @param expected_coeff The expected coefficient list.
+ *
+ * @return FP_POLY_E_SUCCESS if the equality is true or an error code otherwise (see @ref fp_poly_error_t for the list of error codes).
+ */
 fp_poly_error_t fp_poly_assert_mpz(fp_poly_t *p, mpz_t expected_pos_coeff, list_t *expected_coeff)
 {
     if (!p)
@@ -1323,27 +1365,15 @@ fp_poly_error_t fp_poly_assert_mpz(fp_poly_t *p, mpz_t expected_pos_coeff, list_
     return FP_POLY_E_SUCCESS;
 }
 
-/*
-* Check that an actual polynom is equal to expected one. The parameters of the expected polynom must be manually defined. The expected index of the coefficient is of type mpz_t.
-*
-* The check fails if:
-* - the polynom is NULL.
-* - the list of the values of the coefficients of the polynom is NULL.
-* - the list of the expected values of the coefficients is NULL.
-* - the actual index of the coefficient is different from the expected index of the coefficient.
-* - both list of the values of the coefficient has equal size but a value doesn't match.
-* - the actual list of the values of the coefficients is longer than the expected list of the values of the coefficients.
-* - the actual list of the values of the coefficients is shorter than the expected list of the values of the coefficients.
-*
-* Parameters:
-* - p: the polynom to check.
-* - expected_pos_coeff: the expected index of the coefficient.
-* - expected_coeff: the expected list of coefficients.
-*
-* Returns:
-* - FP_POLY_E_SUCCESS if the equality succeed.
-* - FP_POLY_E_ASSERT_SIZET if the equality fails.
-*/
+/**
+ * @brief Check that a polynom is equal to an expected one when the expected degree of the coefficient is given as a size_t type.
+ *
+ * @param p The polynom.
+ * @param expected_pos_coeff The expected degree of the coefficient (as an size_t type).
+ * @param expected_coeff The expected coefficient list.
+ *
+ * @return FP_POLY_E_SUCCESS if the equality is true or an error code otherwise (see @ref fp_poly_error_t for the list of error codes).
+ */
 fp_poly_error_t fp_poly_assert_sizet(fp_poly_t *p, size_t expected_pos_coeff, list_t *expected_coeff)
 {
     if (!p)
@@ -1399,19 +1429,14 @@ fp_poly_error_t fp_poly_assert_sizet(fp_poly_t *p, size_t expected_pos_coeff, li
     return FP_POLY_E_SUCCESS;
 }
 
-/*
-* Assert that a two polynoms are equal.
-*
-* Parameters:
-* - expected_p: the expected polynom.
-* - actual: the actual polynom.
-*
-* Returns:
-* - FP_POLY_E_SUCCESS if the operation was successful.
-* - FP_POLY_E_POLY_IS_NULL if one of the polynom is NULL.
-* - FP_POLY_E_LIST_COEFF_IS_NULL if one of the list of coefficients is NULL.
-* - FP_POLY_E_ASSERT_EQUALITY_FAILED if the assertion failed.
-*/
+/**
+ * @brief Check that a polynom is equal to expected one.
+ *
+ * @param expected_p The expected polynom.
+ * @param actual The polynom.
+ *
+ * @return FP_POLY_E_SUCCESS if the equality is true or an error code otherwise (see @ref fp_poly_error_t for the list of error codes).
+ */
 fp_poly_error_t fp_poly_assert_equality(fp_poly_t *expected_p, fp_poly_t *actual)
 {
     if (!expected_p)
@@ -1437,17 +1462,13 @@ fp_poly_error_t fp_poly_assert_equality(fp_poly_t *expected_p, fp_poly_t *actual
     return fp_poly_assert_mpz(expected_p, actual->index_coeff, actual->coeff);
 }
 
-/*
-* Print a polynom.
-*
-* Parameters:
-* - p: the polynom to print.
-*
-* Returns:
-* - FP_POLY_E_SUCCESS if the operation was successful.
-* - FP_POLY_E_POLY_IS_NULL if the polynom is NULL.
-* - FP_POLY_E_LIST_COEFF_IS_NULL if the list of coefficients is NULL.
-*/
+/**
+ * @brief Print a polynom.
+ *
+ * @param p The polynom.
+ *
+ * @returns FP_POLY_E_SUCCESS if the operation was successful or an error code otherwise (see @ref fp_poly_error_t for the list of error codes).
+ */
 fp_poly_error_t fp_poly_print(FILE *fd, fp_poly_t *p)
 {
     if (!fd)
@@ -1499,31 +1520,24 @@ fp_poly_error_t fp_poly_print(FILE *fd, fp_poly_t *p)
     return FP_POLY_E_SUCCESS;
 }
 
-/*
-* Initialize a prime field.
-*
-* Parameters:
-* - order: the order of the field.
-*
-* Returns:
-* - a pointer to the field if the operation was successful.
-* - NULL if there was an error during the memory allocation.
+/**
+ * @brief Initialize the field of integer modulo.
+ * 
+ * @param order The order.
+ * 
+ * @return A pointer to the field if the operation was successful or NULL otherwise.
 */
 fp_field_t *fp_poly_init_prime_field(uint8_t order)
 {
     return fp_poly_init_galois_field(order, NULL);
 }
 
-/*
-* Initialize a Galois field.
-*
-* Parameters:
-* - order: the order of the field.
-* - irreducible_polynom: the irreducible polynom of the field.
-*
-* Returns:
-* - a pointer to the field if the operation was successful.
-* - NULL if there was an error during the memory allocation.
+/**
+ * @brief Initialize a Galois Field.
+ * 
+ * @param order The order.
+ * 
+ * @return A pointer to the field if the operation was successful or NULL otherwise.
 */
 fp_field_t *fp_poly_init_galois_field(uint8_t order, fp_poly_t *irreducible_polynom)
 {
@@ -1538,20 +1552,18 @@ fp_field_t *fp_poly_init_galois_field(uint8_t order, fp_poly_t *irreducible_poly
         fp_poly_error(FP_POLY_E_MEMORY, __FILE__, __func__, __LINE__, "");
         return NULL;
     }
+    // TODO: check that the order must be the degree of the irreducible polynom ? and check that the order is a prime nu;ber or a power of a prime number
     field->order = order;
     field->irreducible_polynom = irreducible_polynom;
     return field;
 }
 
-/*
-* Free a field.
-*
-* Parameters:
-* - field: the field to free.
-*
-* Returns:
-* - FP_POLY_E_SUCCESS if the operation was successful.
-* - FP_POLY_E_FIELD_IS_NULL if the field is NULL.
+/**
+ * @brief Free a field.
+ * 
+ * @param field The field.
+ * 
+ * @return FP_POLY_E_SUCCESS if the operation was successful or an error code otherwise (see @ref fp_poly_error_t for the list of error codes).
 */
 fp_poly_error_t fp_poly_free_field(fp_field_t *field)
 {
