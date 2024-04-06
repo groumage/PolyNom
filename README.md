@@ -11,6 +11,7 @@ PolyNom is a polynom manipulation library written in C with [GMP library](https:
 - Get my hands dirty my delving into the implementation of theoritical concepts I learn at university. 
 - Experiment the test-driven development and code coverage.
 - Become familiar with the GMP library.
+- Become familiar with github workflow.
 - Challenge myself with a (relatively) large project :grinning:
 
 ## Features
