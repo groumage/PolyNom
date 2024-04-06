@@ -65,5 +65,5 @@ tests/fp_integer/input_test
 # Code coverage
 coverage/
 
-# Archives
-archive/
+# Docs
+html/
