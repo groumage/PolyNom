@@ -1,6 +1,9 @@
-//
-// Created by guillaume on 27/07/2023.
-//
+/**
+ * @file fp_integer.h
+ * @brief Header of integer manipulation in finite field.
+ * @author Guillaume Roumage
+ * @date 04/2024
+*/
 
 #ifndef INTEGER_H
 #define INTEGER_H

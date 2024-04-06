@@ -1,3 +1,10 @@
+/**
+ * @file util.h
+ * @brief Header of utility functions.
+ * @author Guillaume Roumage
+ * @date 04/2024
+*/
+
 #include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>

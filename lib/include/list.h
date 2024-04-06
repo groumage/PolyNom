@@ -1,3 +1,10 @@
+/**
+ * @file list.h
+ * @brief Header of a list implementation.
+ * @author Guillaume Roumage
+ * @date 04/2024
+*/
+
 #ifndef LIST_H
 #define LIST_H
 

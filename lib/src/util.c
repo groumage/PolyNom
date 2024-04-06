@@ -1,5 +1,11 @@
 #include "../include/util.h"
 
+/**
+ * @brief Convert a buffer of bytes to an unsigned long int.
+ * 
+ * @param buffer The buffer to convert.
+ * @param size The size of the buffer.
+*/
 unsigned long int buffer_to_ulong(const unsigned char *buffer, size_t size) {
     if (size > sizeof(unsigned long int))
     {
@@ -18,6 +24,12 @@ unsigned long int buffer_to_ulong(const unsigned char *buffer, size_t size) {
     return result;
 }
 
+/**
+ * @brief Read from /dev/urandom and fill the buffer with random bytes.
+ * 
+ * @param buffer The buffer to fill with random bytes.
+ * @param size The size of the buffer.
+*/
 void read_urandom_full(unsigned char *buffer, size_t size)
 {
     int fd = open("/dev/urandom", O_RDONLY);

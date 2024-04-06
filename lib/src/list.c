@@ -36,6 +36,11 @@ static void list_error_no_custom_msg(list_error_t err, const char *file, const c
     list_error(err, file, fct, line, NULL);
 }
 
+/**
+ * @brief Initialize a list.
+ * 
+ * @return A pointer to the list.
+*/
 list_t *list_init(void)
 {
     list_t *list = (list_t *) malloc(sizeof(list_t));
@@ -50,6 +55,12 @@ list_t *list_init(void)
     return list;
 }
 
+/**
+ * @brief Perform a deep copy a list.
+ * 
+ * @param l The list.
+ * @return A pointer to the new list.
+*/
 list_t *list_copy(list_t *l)
 {
     if (l == NULL)
@@ -81,6 +92,13 @@ list_t *list_copy(list_t *l)
     return list;
 }
 
+/**
+ * @brief Destroy a list.
+ * 
+ * @param l The list.
+ * 
+ * @return LIST_E_SUCCESS if the operation is successfull or an error code otherwise (see @ref list_error_t for the list of error codes).
+*/
 list_error_t list_destroy(list_t *l)
 {
     if (l == NULL)
@@ -99,6 +117,14 @@ list_error_t list_destroy(list_t *l)
     return LIST_E_SUCCESS;
 }
 
+/**
+ * @brief Add a new node at the beginning of a list.
+ * 
+ * @param l The list.
+ * @param coeff The coefficient of the new node.
+ * 
+ * @return LIST_E_SUCCESS if the operation is successfull or an error code otherwise (see @ref list_error_t for the list of error codes).
+*/
 list_error_t list_add_beginning(list_t *l, uint8_t coeff)
 {
     if (l == NULL)
@@ -121,6 +147,12 @@ list_error_t list_add_beginning(list_t *l, uint8_t coeff)
     return LIST_E_SUCCESS;
 }
 
+/**
+ * @brief Add a new node at the end of a list.
+ * 
+ * @param l The list.
+ * @param coeff The coefficient of the new node.
+*/
 list_error_t list_add_end(list_t *l, uint8_t coeff)
 {
     if (l == NULL)
@@ -150,6 +182,15 @@ list_error_t list_add_end(list_t *l, uint8_t coeff)
     return LIST_E_SUCCESS;
 }
 
+/**
+ * @brief Add a new node at a specific position in a list.
+ * 
+ * @param l The list where the new node will be added.
+ * @param coeff The coefficient of the new node.
+ * @param pos The position where the new node will be added.
+ * 
+ * @return LIST_E_SUCCESS if the operation is successfull or an error code otherwise (see @ref list_error_t for the list of error codes).
+*/
 list_error_t list_add_at(list_t *l, uint8_t coeff, size_t pos)
 {
     if (l == NULL)
@@ -182,6 +223,15 @@ list_error_t list_add_at(list_t *l, uint8_t coeff, size_t pos)
     return LIST_E_SUCCESS;
 }
 
+/**
+ * @brief Add a new node after a specific node in a list.
+ * 
+ * @param l The list where the new node will be added.
+ * @param coeff The coefficient of the new node.
+ * @param node The node after which the new node will be added.
+ * 
+ * @return LIST_E_SUCCESS if the operation is successfull or an error code otherwise (see @ref list_error_t for the list of error codes).
+*/
 list_error_t list_add_after(list_t *l, uint8_t coeff, list_node_t *node)
 {
     if (l == NULL)
@@ -209,6 +259,14 @@ list_error_t list_add_after(list_t *l, uint8_t coeff, list_node_t *node)
     return LIST_E_SUCCESS;
 }
 
+/**
+ * @brief Remove a node with a specific coefficient from a list.
+ * 
+ * @param l The list where the node will be removed.
+ * @param coeff The coefficient of the node to remove.
+ * 
+ * @return LIST_E_SUCCESS if the operation is successfull or an error code otherwise (see @ref list_error_t for the list of error codes).
+*/
 list_error_t list_remove_coeff(list_t *l, uint8_t coeff)
 {
     if (l == NULL)
@@ -234,6 +292,14 @@ list_error_t list_remove_coeff(list_t *l, uint8_t coeff)
     return LIST_E_LIST_MANIPULATION;
 }
 
+/**
+ * @brief Remove a specific node from a list.
+ * 
+ * @param l The list where the node will be removed.
+ * @param node The address of the node to remove.
+ * 
+ * @return LIST_E_SUCCESS if the operation is successfull or an error code otherwise (see @ref list_error_t for the list of error codes).
+*/
 list_error_t list_remove_node(list_t *l, list_node_t *node)
 {
     if (l == NULL)
@@ -274,6 +340,13 @@ list_error_t list_remove_node(list_t *l, list_node_t *node)
     return LIST_E_LIST_MANIPULATION;
 }
 
+/**
+ * @brief Remove the head of a list.
+ * 
+ * @param l The list where the head will be removed.
+ * 
+ * @return LIST_E_SUCCESS if the operation is successfull or an error code otherwise (see @ref list_error_t for the list of error codes).
+*/
 list_error_t list_remove_head(list_t *l)
 {
     if (l == NULL)
@@ -293,6 +366,13 @@ list_error_t list_remove_head(list_t *l)
     return LIST_E_SUCCESS;
 }
 
+/**
+ * @brief Remove the tail of a list.
+ * 
+ * @param l The list where the tail will be removed.
+ * 
+ * @return LIST_E_SUCCESS if the operation is successfull or an error code otherwise (see @ref list_error_t for the list of error codes).
+*/
 list_error_t list_remove_tail(list_t *l)
 {
     if (l == NULL)
@@ -322,8 +402,17 @@ list_error_t list_remove_tail(list_t *l)
     return LIST_E_LIST_MANIPULATION;
 }
 
+/**
+ * @brief Get the position of a node in a list.
+ * 
+ * @param l The list.
+ * @param node The node.
+ * 
+ * @return The position of the node in the list or an error code otherwise (see @ref list_error_t for the list of error codes).
+*/
 list_error_t list_get_pos(list_t* l, list_node_t *node)
 {
+    // TODO: if an error occurs, an error code is returned but it can be viewed as a valid position
     if (l == NULL)
     {
         list_error_no_custom_msg(LIST_E_LIST_IS_NULL, __FILE__, __func__, __LINE__);
@@ -345,6 +434,14 @@ list_error_t list_get_pos(list_t* l, list_node_t *node)
     return LIST_E_LIST_MANIPULATION;
 }
 
+/**
+ * @brief Get the node at a specific position in a list.
+ * 
+ * @param l The list where the node is.
+ * @param pos The position of the node.
+ * 
+ * @return The node at the position in the list or NULL if an error occurs.
+*/
 list_node_t *list_get_at_pos(list_t *l, size_t pos)
 {
     if (l == NULL)
@@ -363,6 +460,14 @@ list_node_t *list_get_at_pos(list_t *l, size_t pos)
     return tmp;
 }
 
+/**
+ * @brief Print the list.
+ * 
+ * @param fd The file descriptor where the list will be printed.
+ * @param l The list to print.
+ * 
+ * @return LIST_E_SUCCESS if the operation is successfull or an error code otherwise (see @ref list_error_t for the list of error codes).
+*/
 list_error_t list_print(FILE *fd, list_t *l)
 {
     if (l == NULL)
@@ -385,6 +490,15 @@ list_error_t list_print(FILE *fd, list_t *l)
     return LIST_E_SUCCESS;
 }
 
+/**
+ * @brief Assert the content of a list.
+ * 
+ * @param l The list.
+ * @param coeffs The array of coefficients to compare with the list.
+ * @param size The size of the array of coefficients.
+ * 
+ * @return LIST_E_SUCCESS if the operation is successfull or an error code otherwise (see @ref list_error_t for the list of error codes).
+*/
 list_error_t list_assert(list_t *l, uint8_t *coeffs, size_t size)
 {
     if (l == NULL)
@@ -417,6 +531,14 @@ list_error_t list_assert(list_t *l, uint8_t *coeffs, size_t size)
     return LIST_E_SUCCESS;
 }
 
+/**
+ * @brief Create a list from an array of coefficients.
+ * 
+ * @param coeffs The array of coefficients.
+ * @param size The size of the array of coefficients.
+ * 
+ * @return A pointer to the list or NULL if an error occurs.
+*/
 list_t *list_create_from_array(uint8_t *coeffs, size_t size)
 {
     list_t *lst = list_init();

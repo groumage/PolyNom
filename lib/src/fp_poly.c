@@ -27,6 +27,9 @@ static void fp_poly_error(fp_poly_error_t e, const char *file, const char *fct, 
         case FP_POLY_E_POLYNOM_IS_NULL:
             fprintf(stderr, "Error in [%s, %s] line %d: the polynom is NULL.\n", file, fct, line);
             break;
+        case FP_POLY_E_FIELD_IS_NULL:
+            fprintf(stderr, "Error in [%s, %s] line %d: the field is NULL.\n", file, fct, line);
+            break;
         case FP_POLY_E_LIST_COEFFICIENT_IS_NULL:
             fprintf(stderr, "Error in [%s, %s] line %d: the list of coefficient is NULL.\n", file, fct, line);
             break;
@@ -36,8 +39,14 @@ static void fp_poly_error(fp_poly_error_t e, const char *file, const char *fct, 
         case FP_POLY_E_POLYNOM_MANIPULATION:
             fprintf(stderr, "Error in [%s, %s] line %d: polynom manipulation: %s.\n", file, fct, line, error);
             break;
+        case FP_POLY_E_FIELD_MANIPULATION:
+            fprintf(stderr, "Error in [%s, %s] line %d: field manipulation: %s.\n", file, fct, line, error);
+            break;
         case FP_POLY_E_COEFFICIENT_ARITHMETIC:
             fprintf(stderr, "Error in [%s, %s] line %d: coefficients manipulation: %s.\n", file, fct, line, error);
+            break;
+        case FP_POLY_E_FILE_DESCRIPTOR_IS_NULL:
+            fprintf(stderr, "Error in [%s, %s] line %d: the file descriptor is NULL.\n", file, fct, line);
             break;
         default:
             fprintf(stderr, "Unhandled error in [%s, %s] line %d.\n", file, fct, line);
@@ -367,6 +376,7 @@ static fp_poly_error_t fp_poly_add_single_term_aux(fp_poly_t *p, uint8_t coeff, 
  */
 fp_poly_error_t fp_poly_add_single_term(fp_poly_t *p, uint8_t coeff, size_t degree, fp_field_t *field)
 {
+    // TODO: remove this function because it is no longer needed (it was used for unit test)
     return fp_poly_add_single_term_aux(p, coeff, degree, field, 1);
 }
 
@@ -825,8 +835,8 @@ fp_poly_error_t fp_poly_gcd(fp_poly_t **res, fp_poly_t *p, fp_poly_t *q, fp_fiel
  * @brief Compute the extended greatest common divisor of two polynoms.
  * 
  * @param res The polynom which will store the greatest common divisor.
- * @param u The first coefficient of the extended greatest common divisor.
- * @param v The second coefficient of the extended greatest common divisor.
+ * @param u The first Bézout coefficient.
+ * @param v The second Bézout coefficient.
  * @param p The first polynom.
  * @param q The second polynom.
  * @param f The field in which the operation is performed.
@@ -882,7 +892,7 @@ fp_poly_error_t fp_poly_gcd_extended(fp_poly_t **res, fp_poly_t **u, fp_poly_t *
  *
  * @param polynomial The string.
  *
- * @return A pointer to the polynom if the operation was successful or NULL otherwise.
+ * @return The polynom if the operation was successful or NULL otherwise.
  */
 fp_poly_t *fp_poly_parse(const char* polynomial)
 {
@@ -1007,7 +1017,7 @@ static size_t fp_poly_count_set_bits(size_t n)
  * @param pos_coeff The degree of the coefficient (as a size_t number).
  * @param coeff The coefficient list.
  * 
- * @return A pointer to the polynom if the operation was successful or NULL otherwise.
+ * @return The polynom if the operation was successful or NULL otherwise.
  */
 fp_poly_t *fp_poly_init_sizet(size_t pos_coeff, list_t *coeff)
 {
@@ -1045,7 +1055,7 @@ fp_poly_t *fp_poly_init_sizet(size_t pos_coeff, list_t *coeff)
  * @param pos_coeff The degree of the coefficient (as a mpz_t number).
  * @param coeff The coefficient list.
  * 
- * @return A pointer to the polynom if the operation was successful or NULL otherwise.
+ * @return The polynom if the operation was successful or NULL otherwise.
  */
 fp_poly_t *fp_poly_init_mpz(mpz_t pos_coeff, list_t *coeff)
 {
@@ -1084,7 +1094,7 @@ fp_poly_t *fp_poly_init_mpz(mpz_t pos_coeff, list_t *coeff)
  * @param coeff The array.
  * @param len The length of the array.
  * 
- * @return A pointer to the polynom if the operation was successful or NULL otherwise.
+ * @return The polynom if the operation was successful or NULL otherwise.
  */
 fp_poly_t *fp_poly_init_array(uint8_t *coeff, size_t len)
 {
@@ -1128,14 +1138,14 @@ fp_poly_t *fp_poly_init_array(uint8_t *coeff, size_t len)
 }
 
 /**
- * @brief Auxiliary function to check the irreducibility of a polynom within a field.
+ * @brief Auxiliary function to check the irreducibility of a polynom within a field (create the polynom x^n - x).
  * 
  * @details This function returns the polynom x^n - x.
  * 
  * @param n The degree.
  * @param f The field.
  * 
- * @return The polynom x^n - x.
+ * @return The polynom.
  */
 static fp_poly_t *fp_poly_is_irreducible_aux(uint64_t n, fp_field_t *f)
 {
@@ -1195,7 +1205,7 @@ uint8_t fp_poly_is_irreducible(fp_poly_t *p, fp_field_t *f)
  * @param degree The degree.
  * @param f The field.
  * 
- * @return A pointer to the polynom if the operation was successful or NULL otherwise.
+ * @return The polynom if the operation was successful or NULL otherwise.
  */
 fp_poly_t *fp_poly_init_random(size_t degree, fp_field_t *f)
 {
@@ -1235,12 +1245,12 @@ fp_poly_t *fp_poly_init_random(size_t degree, fp_field_t *f)
 /**
  * @brief Initialize a random irreducible polynom of a given degree within a field.
  *
- * @details The Cohen's irreducibility criterion (https://en.wikipedia.org/wiki/Cohn%27s_irreducibility_criterion) is implemented.
+ * @details The <a href="https://en.wikipedia.org/wiki/Cohn%27s_irreducibility_criterion">Cohen's irreducibility criterion</a> is implemented.
  *
  * @param digits The number of digits of the polynom.
  * @param field The field of the polynom.
  *
- * @return A pointer to the polynom if the operation was successful or NULL otherwise.
+ * @return The polynom if the operation was successful or NULL otherwise.
  */
 fp_poly_t *fp_poly_init_random_irreducible(size_t digits, fp_field_t *field)
 {
@@ -1525,7 +1535,7 @@ fp_poly_error_t fp_poly_print(FILE *fd, fp_poly_t *p)
  * 
  * @param order The order.
  * 
- * @return A pointer to the field if the operation was successful or NULL otherwise.
+ * @return The field if the operation was successful or NULL otherwise.
 */
 fp_field_t *fp_poly_init_prime_field(uint8_t order)
 {
@@ -1537,7 +1547,7 @@ fp_field_t *fp_poly_init_prime_field(uint8_t order)
  * 
  * @param order The order.
  * 
- * @return A pointer to the field if the operation was successful or NULL otherwise.
+ * @return The field if the operation was successful or NULL otherwise.
 */
 fp_field_t *fp_poly_init_galois_field(uint8_t order, fp_poly_t *irreducible_polynom)
 {

@@ -1,11 +1,13 @@
-//
-// Created by guillaume on 27/07/2023.
-//
-
 #include "../include/fp_integer.h"
 #include "../include/util.h"
 
-void random_number_mpz(mpz_t number, size_t digits)
+/**
+ * @brief Generate a random number of type <a href="https://gmplib.org/manual/Nomenclature-and-Types">mpz_t</a>.
+ * 
+ * @param number The pointer to an mpz_t variable where the generated number will be stored.
+ * @param digits The number of digits of the random number (in base 10).
+ */
+static void random_number_mpz(mpz_t number, size_t digits)
 {
     gmp_randstate_t state;
     unsigned char buffer[8];
@@ -28,6 +30,12 @@ void random_number_mpz(mpz_t number, size_t digits)
     gmp_randclear(state);
 }
 
+/**
+ * @brief Raise a number to a specified power using the naive method.
+ * 
+ * @param n The number to raise.
+ * @param p The power.
+ */
 uint32_t my_pow(uint32_t n, uint8_t p)
 {
     uint32_t res = 1;
@@ -36,7 +44,12 @@ uint32_t my_pow(uint32_t n, uint8_t p)
     return res;
 }
 
-//miller-rabin test for primality
+/**
+ * @brief Check if a number of type <a href="https://gmplib.org/manual/Nomenclature-and-Types">mpz_t</a> is prime using the <a href="https://en.wikipedia.org/wiki/Miller%E2%80%93Rabin_primality_test#Miller%E2%80%93Rabin_test">Miller-Rabin test</a>.
+ * 
+ * @param n The number to check.
+ * @param k The number of iterations in the Miller-Rabin test.
+ */
 uint8_t is_prime_mpz(mpz_t n, uint8_t k)
 {
     if (mpz_cmp_ui(n, 2) < 0)
@@ -97,6 +110,12 @@ uint8_t is_prime_mpz(mpz_t n, uint8_t k)
     return 1;
 }
 
+/**
+ * @brief Check if a number of type uint32_t is prime using the <a href="https://en.wikipedia.org/wiki/Miller%E2%80%93Rabin_primality_test#Miller%E2%80%93Rabin_test">Miller-Rabin test</a>.
+ * 
+ * @param n The number to check.
+ * @param k The number of iterations in the Miller-Rabin test.
+ */
 uint8_t is_prime(uint32_t n, uint8_t k)
 {
     if (n < 2)
@@ -134,6 +153,14 @@ uint8_t is_prime(uint32_t n, uint8_t k)
     return 1;
 }
 
+/**
+ * @brief Generate a prime random number of type <a href="https://gmplib.org/manual/Nomenclature-and-Types">mpz_t</a> using the <a href="https://en.wikipedia.org/wiki/Miller%E2%80%93Rabin_primality_test#Miller%E2%80%93Rabin_test">Miller-Rabin test</a>.
+ * 
+ * @param number The parameter that will store the random number.
+ * @param digits The number of digits of the random number.
+ * 
+ * @note The number of iterations in the Miller-Rabin test is set to 15.
+ */
 void random_prime_mpz(mpz_t number, size_t digits)
 {
     random_number_mpz(number, digits);
@@ -143,6 +170,14 @@ void random_prime_mpz(mpz_t number, size_t digits)
     }
 }
 
+/**
+ * @brief Compute the greatest common divisor of two numbers of type <a href="https://gmplib.org/manual/Nomenclature-and-Types">mpz_t</a> along with the Bézout coefficients.
+ * 
+ * @param a The first number.
+ * @param b The second number.
+ * @param u The first Bézout coefficient.
+ * @param v The second Bézout coefficient.
+ */
 void extended_euclide_algorithm(mpz_t a, mpz_t b, mpz_t *u, mpz_t *v, mpz_t *d)
 {
     mpz_t old_s, s, old_r, old_t, t, r, t1, t2, t3, q;
@@ -175,30 +210,98 @@ void extended_euclide_algorithm(mpz_t a, mpz_t b, mpz_t *u, mpz_t *v, mpz_t *d)
     mpz_clears(old_s, s, old_r, old_t, t, r, t1, t2, t3, q, NULL);
 }
 
-void to_decimal(mpz_t str_decimal, char *str)
+/**
+ * @brief Convert a string to a decimal number.
+ * 
+ * @param str_decimal The string converted to a decimal number. 
+ * @param str The initial string. 
+ * 
+ * @note The mpz_t number is initialized in this function. Thus, it needs to be cleared after use.
+ */
+void to_decimal(mpz_t decimal, char *str)
 {
-    mpz_init_set_ui(str_decimal, 0);
+    mpz_init_set_ui(decimal, 0);
     for (size_t i = 0; i < strlen(str); i++)
     {
-        mpz_mul_ui(str_decimal, str_decimal, 95);
-        mpz_add_ui(str_decimal, str_decimal, str[i] - 32);
+        mpz_mul_ui(decimal, decimal, 95);
+        mpz_add_ui(decimal, decimal, str[i] - 32);
     }
 }
 
+/**
+ * @brief Encrypt a string using the RSA algorithm.
+ *  
+ * @param cipher The encrypted string.
+ * @param plain The initial string.
+ * @param e The public key.
+ * @param n The modulus.
+ * 
+ * @note The mpz_t cipher is initialized in this function. Thus, it needs to be cleared after use.
+ * 
+ * @code{.c}
+int main()
+{
+    char *msg_sent = "Hello World!";
+    char msg_received[strlen(msg_sent) + 1];
+    mpz_t plain, cipher, e, n, d;
+
+    mpz_inits(plain, cipher, e, n, d, NULL);
+    to_decimal(plain, msg_sent);
+    encrypt_integer(cipher, plain, e, n);
+    decrypt_integer(plain, cipher, d, n);
+    to_string(plain, msg_received);
+    mpz_clears(plain, cipher, e, n, d, NULL);
+    return 0;
+}
+ * @endcode
+ */
 void encrypt_integer(mpz_t cipher, mpz_t plain, mpz_t e, mpz_t n)
 {
     mpz_init(cipher);
     mpz_powm(cipher, plain, e, n);
 }
 
+/**
+ * @brief Decrypt a string using the RSA algorithm.
+ * 
+ * @param plain The decrypted string.
+ * @param cipher The initial string.
+ * @param d The private key.
+ * @param n The modulus.
+ * 
+ * @note The mpz_t plain is initialized in this function. Thus, it needs to be cleared after use.
+ * 
+ * @code{.c}
+int main()
+{
+    char *msg_sent = "Hello World!";
+    char msg_received[strlen(msg_sent) + 1];
+    mpz_t plain, cipher, e, n, d;
+
+    mpz_inits(plain, cipher, e, n, d, NULL);
+    to_decimal(plain, msg_sent);
+    encrypt_integer(cipher, plain, e, n);
+    decrypt_integer(plain, cipher, d, n);
+    to_string(plain, msg_received);
+    mpz_clears(plain, cipher, e, n, d, NULL);
+    return 0;
+}
+ * @endcode
+ */
 void decrypt_integer(mpz_t plain, mpz_t cipher, mpz_t d, mpz_t n)
 {
     mpz_init(plain);
     mpz_powm(plain, cipher, d, n);
 }
 
+/**
+ * @brief Reverse a string.
+ * 
+ * @param str The string.
+ */
 void revstr(char *str)  
-{  
+{
+    // TODO: move this functiom to util.c  
     int len, temp;  
     len = strlen(str);
 
@@ -210,19 +313,25 @@ void revstr(char *str)
     }  
 }  
 
-void to_string(mpz_t msg_decimal, char *msg)
+/**
+ * @brief Convert a number to a string.
+ * 
+ * @param decimal The initial number.
+ * @param str The pointer to the string where the number will be stored.
+ */
+void to_string(mpz_t decimal, char *str)
 {
     mpz_t q, r, div;
     size_t i = 0;
     mpz_inits(q, r, div, NULL);
     mpz_set_ui(div, 95);
-    while (mpz_cmp_ui(msg_decimal, 0) != 0)
+    while (mpz_cmp_ui(decimal, 0) != 0)
     {
-        mpz_fdiv_qr(q, r, msg_decimal, div);
-        mpz_set(msg_decimal, q);
-        msg[i++] = (char) mpz_get_ui(r) + 32;
+        mpz_fdiv_qr(q, r, decimal, div);
+        mpz_set(decimal, q);
+        str[i++] = (char) mpz_get_ui(r) + 32;
     }
     mpz_clears(q, r, div, NULL);
-    msg[i] = '\0';
-    revstr(msg);
+    str[i] = '\0';
+    revstr(str);
 }
