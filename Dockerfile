@@ -1,27 +1,22 @@
-# Base image with a C/C++ development environment and CMake
-FROM gcc:latest
+FROM gcc:9.5.0
 
-# Set the working directory to /app
 WORKDIR /app
 
-# Copy the source code and CMakeLists.txt to the container
-COPY . .
+RUN mkdir -p /app/cmake
+COPY cmake /app/cmake/
+RUN mkdir -p /app/build
+RUN mkdir -p /app/lib
+COPY lib /app/lib/ 
+RUN mkdir -p /app/tests
+COPY tests /app/tests/ 
+COPY CMakeLists.txt /app/
+COPY client.h /app/
+COPY client.c /app/
+COPY main.c /app/
+COPY test.sh /app/
 
-# Install GMP library and its development files
-RUN apt-get update && \
-    apt-get install -y libgmp-dev valgrind && \
-    apt-get install -y pari-gp && \
-    apt-get clean && \
-    apt-get install -y build-essential cmake && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get update
+RUN apt-get install -y cmake
+RUN apt install -y pari-gp
 
-# Configure, build, and test the project with CMake
-RUN rm -rf build && \
-    mkdir build && \
-    mkdir tests/fp_poly/input_test && \
-    cd build/ && \
-    cmake .. && \
-    make
-
-# Set the entry point to the main executable
-CMD make -C build && ctest --test-dir build -L short
+RUN mkdir -p build && cd build && cmake .. && make && cd ..
