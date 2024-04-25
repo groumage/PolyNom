@@ -9,18 +9,17 @@
  * 
  * @section sec_one Introduction
  * 
- * PolyNom is a polynom manipulation library written in C with [GMP library](https://gmplib.org/).
+ * PolyNom is a polynomial manipulation library written in C with [GMP library](https://gmplib.org/).
  * 
  * Many operations are handle, such as, addition, multiplication over Galois Field, and PolyNom can handle arbitrary long polynoms.
  * 
  * A batch of unit tests assert the accuracy of the library with the use of the language [PariGP](https://pari.math.u-bordeaux.fr/).
  * 
- * @section sec_two Why this project?
+ * @section sec_two Next steps
  * 
- * - Get my hands dirty my delving into the implementation of theoritical concepts I learn at university. 
- * - Experiment the test-driven development and code coverage.
- * - Become familiar with the GMP library.
- * - Challenge myself with a (relatively) large project.
+ * - Handle the case when the substraction of two polynoms gives zero.
+ * - Manipulate polynom which have coefficient stored on `uint16_t`  or even `uint32_t` (for now, it is only `uint8_t`).
+ * - Incorporate unit test in a github workflow.
  */
 
 #ifndef FP_POLY_H
