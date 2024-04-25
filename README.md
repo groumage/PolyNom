@@ -49,15 +49,15 @@ The same inputs are used for the unit tests of PolyNom (3), and the results obta
 
 ```mermaid
     graph TD;
-    A["PariGP"]-->B["Generate inputs\nof unit tests (1)"];
-    B --> C["Expected results\n(with PariGP) (2)"];
-    A --> C;
-    D["PolyNom"] --> E["Actual results\n(with PolyNom) (3)"];
-    B --> E;
-    C --> H{{"Are equal ?"}};
-    E --> H;
-    H --YES--> I["OK"];
-    H --NO--> J["KO"];
+        A["PariGP"]-->B["Generate inputs\nof unit tests (1)"];
+        B --> C["Expected results\n(with PariGP) (2)"];
+        A --> C;
+        D["PolyNom"] --> E["Actual results\n(with PolyNom) (3)"];
+        B --> E;
+        C --> H{{"Are equal ?"}};
+        E --> H;
+        H --YES--> I["OK"];
+        H --NO--> J["KO"];
 ```
 
 ### Code coverage
