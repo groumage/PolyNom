@@ -1,0 +1,8 @@
+<map id="fp_poly_t" name="fp_poly_t">
+<area shape="rect" id="Node000001" title="Structure representing a polynom." alt="" coords="11,198,84,223"/>
+<area shape="rect" id="Node000002" href="$structlist__t.html" title=" " alt="" coords="23,109,72,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="50,150,50,197,45,197,45,150"/>
+<area shape="rect" id="Node000003" href="$structlist__node__t.html" title=" " alt="" coords="5,5,90,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="50,47,50,109,45,109,45,47"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="107,8,116,18,108,28,91,31,90,25,106,23,111,18,103,12"/>
+</map>
