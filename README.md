@@ -10,7 +10,7 @@
 
 :rocket: Ready to explore my project? Checkout the [documentation](https://groumage.github.io/PolyNom/Doxygen/index.html)!
 
-## TLDR
+## TLDR Slides
 
 ### Linux
 
@@ -36,6 +36,8 @@ The file `TLDR_slides.md` presents some concise slides to have an overview of Po
 
 
 ### Windows
+
+TODO
 
 ## Why this project?
 
@@ -120,6 +122,8 @@ graph TB
 
 The code coverage is evaluated with the `gcovr` tool. The code coverage report is available [here](https://github.com/groumage/PolyNom/coverage/coverage.html) (open it with your favorite browser).
 
+## Linux
+
 1. Download the coverage folder:
 
 	1.1 Go to `https://download-directory.github.io/`
@@ -137,6 +141,10 @@ The code coverage is evaluated with the `gcovr` tool. The code coverage report i
 	3.1 `cd coverage`
 	
 	3.2. `brave-browser coverage.html` or `firefox coverage.html`
+
+### Windows
+
+TODO
 
 ## Execute code in your computer
 
