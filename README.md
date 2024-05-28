@@ -120,7 +120,7 @@ graph TB
 
 ## Code coverage
 
-The code coverage is evaluated with the `gcovr` tool. The code coverage report is available [here](https://github.com/groumage/PolyNom/coverage/coverage.html) (open it with your favorite browser).
+The code coverage is evaluated with the `gcovr` tool. The code coverage report is available [here](https://github.com/groumage/PolyNom/tree/main/coverage).
 
 ### Linux
 
