@@ -10,6 +10,33 @@
 
 :rocket: Ready to explore my project? Checkout the [documentation](https://groumage.github.io/PolyNom/Doxygen/index.html)!
 
+## TLDR
+
+### Linux
+
+The file `TLDR_slides.md` presents some concise slides to have an overview of PolyNom.
+
+1. Download the TLDR_slides folder:
+
+	1.1 Go to `https://download-directory.github.io/`
+
+	1.2 Download the coverage folder which at `https://github.com/groumage/PolyNom/tree/main/TLDR_slides`
+
+2. Unzip the TLDR_slides folder:
+
+	2.1 `mkdir slides`
+
+	2.2. `unzip groumage\ PolyNom\ main\ TLDR_slides.zip -d slides`
+
+3. Print slides:
+	
+	3.1 `cd slides`
+	
+	3.2. `brave-browser coverage.html` or `firefox coverage.html`
+
+
+### Windows
+
 ## Why this project?
 
 - Dive deep into the practical implementation of theoretical concepts learned in my computer science and algebra classes. 
@@ -34,14 +61,14 @@
 
 ## Test-Driven Development
 
-PolyNomial is develop with the a test-driven development. The function of PolyNoms are evaluated with a language called PariGP used through its interactive shell GP.
+PolyNom is develop with the a test-driven development. The function of PolyNoms are evaluated with a language called PariGP used through its interactive shell GP.
 
-### PariGP
+### PariGP and GP
 
-[PariGP](https://pari.math.u-bordeaux.fr/) is an open-source language for computation in number theory: factorization, algebraic number theory, etc. In our context, we use GP to:
+[PariGP](https://pari.math.u-bordeaux.fr/) is an open-source language for computation in number theory: factorization, algebraic number theory, etc. In our context, we use GP (an interactive shell to use GP's functoions) to:
 
-- Generate inputs for the unit tests of PolyNomial (1);
-- Compute the results expected by the functions of PolyNomial (2).
+- Generate inputs for the unit tests of PolyNom (1);
+- Compute the results expected by the functions of PolyNom (2).
 
 We reasonnably assume that the result given by PariGP are always right (in other words, they are used as a *ground truth*).
 
@@ -91,7 +118,25 @@ graph TB
 
 ## Code coverage
 
-The code coverage is evaluated with the `gcov` tool. The code coverage report is available [here](https://github.com/groumage/PolyNom/coverage/coverage.html) (open it with your favorite browser).
+The code coverage is evaluated with the `gcovr` tool. The code coverage report is available [here](https://github.com/groumage/PolyNom/coverage/coverage.html) (open it with your favorite browser).
+
+1. Download the coverage folder:
+
+	1.1 Go to `https://download-directory.github.io/`
+
+	1.2 Download the coverage folder which at `https://github.com/groumage/PolyNom/tree/main/coverage`
+
+2. Unzip the coverage folder:
+
+	2.1 `mkdir coverage`
+
+	2.2. `unzip groumage\ PolyNom\ main\ coverage.zip -d coverage`
+
+3. Print coverage report:
+	
+	3.1 `cd coverage`
+	
+	3.2. `brave-browser coverage.html` or `firefox coverage.html`
 
 ## Execute code in your computer
 
