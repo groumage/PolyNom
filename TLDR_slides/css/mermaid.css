@@ -1,0 +1,16 @@
+.reveal .mermaid {
+	min-width: 100%;
+	max-width: 100%;
+	height: auto;
+	lineColor: '#F8B229';
+}
+
+.reveal .mermaid .label foreignObject {
+    overflow: visible !important;
+}
+
+.reveal .cssClass > rect{
+        fill:#FFFFFF;
+        stroke:#FFFF00;
+        stroke-width:4px;
+}
