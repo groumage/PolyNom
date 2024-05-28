@@ -13,13 +13,14 @@
  * 
  * Many operations are handle, such as, addition, multiplication over Galois Field, and PolyNom can handle arbitrary long polynoms.
  * 
- * A batch of unit tests assert the accuracy of the library with the use of the language [PariGP](https://pari.math.u-bordeaux.fr/).
+ * A batch of unit tests assert the accuracy of the library with the use of the [GP](https://pari.math.u-bordeaux.fr/).
  * 
  * @section sec_two Next steps
  * 
  * - Handle the case when the substraction of two polynoms gives zero.
  * - Manipulate polynom which have coefficient stored on `uint16_t`  or even `uint32_t` (for now, it is only `uint8_t`).
  * - Incorporate unit test in a github workflow.
+ * - Find a better name for the library?
  */
 
 #ifndef FP_POLY_H
