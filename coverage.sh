@@ -20,4 +20,4 @@ then
     exit
 fi
 gcovr -r . --exclude tests/ -j 8 --html --html-details -o coverage/coverage.html
-firefox coverage/coverage.html
+brave-browser coverage/coverage.html
