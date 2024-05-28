@@ -12,9 +12,9 @@
 
 ## TLDR Slides
 
-### Linux
+Some concise slides to have an overview of PolyNom. A PDF version is available [here](https://github.com/groumage/PolyNom/blob/main/TLDR_slides/TLDR_slides.pdf). For an HTML version, see the following protocols for Linux or Windows.
 
-The file `TLDR_slides.md` presents some concise slides to have an overview of PolyNom.
+### Linux
 
 1. Download the TLDR_slides folder:
 
