@@ -62,8 +62,5 @@ Testing/
 tests/fp_poly/input_test
 tests/fp_integer/input_test
 
-# Code coverage
-coverage/
-
 # Docs
 html/
