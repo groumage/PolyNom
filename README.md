@@ -25,7 +25,7 @@
 
 - PolyNom allows you to manipulate arbitrary long polynomials:
     - Coefficients are stored with a linked list;
-    - The degree of the coefficients are stored with an `mpz_t` object (an special type from the [GMP library](https://gmplib.org/))
+    - The degree of the coefficients are stored with an `mpz_t` object (an special type from the [GMP library](https://gmplib.org/)).
 - Usual arithmetic operations on polynomials:
     - Usual addition, subtraction and multiplication;
     - Addition, subtraction, multiplication and division over Galois Field;
@@ -89,9 +89,11 @@ graph TB
 	style KO stroke:white;
 ```
 
-### Code coverage
+## Code coverage
 
 The code coverage is evaluated with the `gcov` tool. The code coverage report is available [here](https://github.com/groumage/PolyNom/coverage/coverage.html) (open it with your favorite browser).
+
+## Execute code in your computer
 
 ### How to run the tests within a docker?
 
